@@ -29,6 +29,36 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
 @keyframes splashGlow{from{filter:drop-shadow(0 0 10px #c8963840)}to{filter:drop-shadow(0 0 32px #f0ca7866)}}
 @keyframes splashSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.splash:before,.splash-content,.splash-logo,.splash-line{animation:none}.splash{transition:none}}
+
+/* Iconos cuadrados dorados para los servicios */
+.num {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.service-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: #49351e;
+  color: #f2cc88;
+  border: 1px solid #856339;
+}
+
+.service-icon svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 </style>
 </head>
 <body>
@@ -58,13 +88,79 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   <div class="eyebrow">Qué hacemos</div><h2 class="section-title">La banda sonora de tu evento</h2>
   <p class="lead">Creamos el ambiente para que cada celebración tenga su propia banda sonora.</p>
   <div class="cards">
-    <article class="card"><div class="num">01</div><h3>DJ para bodas</h3><p>Música adaptada a cada momento de la celebración y a los gustos de la pareja.</p></article>
-    <article class="card"><div class="num">02</div><h3>Eventos privados</h3><p>Sesiones musicales para cumpleaños, aniversarios y celebraciones especiales.</p></article>
-    <article class="card"><div class="num">03</div><h3>Alquiler de sonido e iluminación</h3><p>Sonido e iluminación para acompañar los momentos clave de tu celebración.</p></article>
-    <article class="card"><div class="num">04</div><h3>Cumpleaños</h3><p>Música y ambiente para celebrar a tu manera con familiares y amigos.</p></article>
-    <article class="card"><div class="num">05</div><h3>Ceremonias</h3><p>Ambientación musical para ceremonias y momentos especiales.</p></article>
-    <article class="card"><div class="num">06</div><h3>Eventos escolares</h3><p>Servicio musical para fiestas y celebraciones de colegios.</p></article>
-    <article class="card"><div class="num">07</div><h3>Otros eventos</h3><p>Cuéntanos qué estás organizando y consultaremos las opciones para tu evento.</p></article>
+    <article class="card">
+<div class="num">01
+  <span class="service-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>
+    </svg>
+  </span>
+</div>
+<h3>DJ para bodas</h3><p>Música adaptada a cada momento de la celebración y a los gustos de la pareja.</p></article>
+    <article class="card">
+<div class="num">02
+  <span class="service-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M5 3 3 5l16 16 2-2L5 3Z"/>
+      <path d="m12 3 1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3Z"/>
+      <path d="M19 3v4M17 5h4M4 14v4M2 16h4"/>
+    </svg>
+  </span>
+</div>
+<h3>Eventos privados</h3><p>Sesiones musicales para cumpleaños, aniversarios y celebraciones especiales.</p></article>
+    <article class="card">
+<div class="num">03
+  <span class="service-icon">
+    <svg viewBox="0 0 24 24">
+      <rect x="5" y="2" width="14" height="20" rx="2"/>
+      <circle cx="12" cy="15" r="4"/>
+      <circle cx="12" cy="7" r="1"/>
+    </svg>
+  </span>
+</div>
+<h3>Alquiler de sonido e iluminación</h3><p>Sonido e iluminación para acompañar los momentos clave de tu celebración.</p></article>
+    <article class="card">
+<div class="num">04
+  <span class="service-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 2v4M10 3l2-2 2 2"/>
+      <path d="M5 12h14v9H5zM3 12c0-2 2-3 4-2 2 1 3-1 5 0s3 1 5 0c2-1 4 0 4 2"/>
+      <path d="M12 7v3"/>
+    </svg>
+  </span>
+</div>
+<h3>Cumpleaños</h3><p>Música y ambiente para celebrar a tu manera con familiares y amigos.</p></article>
+    <article class="card">
+<div class="num">05
+  <span class="service-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M9 18V5l12-3v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="15" r="3"/>
+    </svg>
+  </span>
+</div>
+<h3>Ceremonias</h3><p>Ambientación musical para ceremonias y momentos especiales.</p></article>
+    <article class="card">
+<div class="num">06
+  <span class="service-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="m2 9 10-5 10 5-10 5L2 9Z"/>
+      <path d="M6 11v6c3 3 9 3 12 0v-6M22 9v7"/>
+    </svg>
+  </span>
+</div>
+<h3>Eventos escolares</h3><p>Servicio musical para fiestas y celebraciones de colegios.</p></article>
+    <article class="card">
+<div class="num">07
+  <span class="service-icon">
+    <svg viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="16" rx="2"/>
+      <path d="M7 3v4M17 3v4M3 10h18M8 15h3M8 18h3"/>
+    </svg>
+  </span>
+</div>
+<h3>Otros eventos</h3><p>Cuéntanos qué estás organizando y consultaremos las opciones para tu evento.</p></article>
   </div>
 </section>
 <section id="galeria" class="wrap">
