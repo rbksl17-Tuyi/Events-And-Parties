@@ -33,10 +33,12 @@ jobs:
       - name: Instalar dependencias
         run: npm install
 
-      - name: Crear proyecto Android
+            - name: Crear proyecto Android
         run: |
+          test -s WWW/media/logo.png
           npx cap add android
           npx cap sync android
+          test -s android/app/src/main/assets/public/media/logo.png
 
       - name: Compilar APK
         run: |
