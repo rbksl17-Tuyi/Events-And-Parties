@@ -109,7 +109,25 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   font-weight: 600;
   text-decoration: none;
 }
- </style>
+ 
+/* Botón para volver arriba */
+.boton-arriba {
+  position: fixed;
+  bottom: 25px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #d6a63f;
+  color: #111;
+  border: 1px solid #f2cc88;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 4px 15px #0008;
+}
+</style>
 </head>
 <body>
 <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Bienvenida a Events and Parties">
@@ -317,4 +335,12 @@ document.getElementById('quoteForm').addEventListener('submit',function(e){
  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`,'_blank','noopener');
 });
 </script>
-</body></html>
+
+<button class="boton-arriba"
+        type="button"
+        aria-label="Volver arriba"
+        onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+  ↑
+</button>
+</body>
+</html>
