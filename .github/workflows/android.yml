@@ -35,7 +35,7 @@ jobs:
 
       - name: Crear proyecto Android
         run: |
-          test -s WWW/media/logo.png
+          test -s www/media/logo.png
           npx cap add android
           npx cap sync android
           test -s android/app/src/main/assets/public/media/logo.png
