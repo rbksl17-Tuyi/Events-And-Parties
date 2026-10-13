@@ -103,7 +103,6 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
  let timer;
  function dismiss(){clearTimeout(timer);splash.classList.add('hidden');splash.setAttribute('aria-hidden','true');setTimeout(()=>splash.remove(),750)}
  enter.addEventListener('click',dismiss);
- timer=setTimeout(dismiss,3200);
 })();
 
 document.getElementById('year').textContent=new Date().getFullYear();
