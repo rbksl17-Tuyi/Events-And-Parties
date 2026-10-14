@@ -34,7 +34,7 @@ jobs:
       - name: Preparar web
         uses: actions/upload-pages-artifact@v3
         with:
-          path: WWW
+          path: www
 
       - name: Publicar web
         id: deployment
