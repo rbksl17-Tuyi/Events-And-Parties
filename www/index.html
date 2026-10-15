@@ -367,7 +367,7 @@ const WHATSAPP_NUMBER='34652799029';
 document.getElementById('quoteForm').addEventListener('submit',function(e){
  e.preventDefault();const d=new FormData(this);
  const msg=`Hola, me gustaría consultar disponibilidad y presupuesto.%0ANombre: ${encodeURIComponent(d.get('nombre'))}%0AFecha: ${encodeURIComponent(d.get('fecha'))}%0ATipo: ${encodeURIComponent(d.get('tipo'))}%0ALugar: ${encodeURIComponent(d.get('lugar'))}%0ADetalles: ${encodeURIComponent(d.get('detalles'))}`;
- window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`,'_blank','noopener');
+ window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 });
 </script>
 
