@@ -109,7 +109,22 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   font-weight: 600;
   text-decoration: none;
 }
- 
+/* Nueva portada con fotografía del DJ */
+.hero {
+  min-height: 680px;
+  display: flex;
+  align-items: center;
+  background:
+    linear-gradient(90deg,
+      rgba(0,0,0,.90) 0%,
+      rgba(0,0,0,.65) 45%,
+      rgba(0,0,0,.20) 100%),
+    url("media/fondo-dj.jpg") center/cover no-repeat;
+}
+
+.hero::after {
+  display: none;
+} 
 </style>
 </head>
 <body>
