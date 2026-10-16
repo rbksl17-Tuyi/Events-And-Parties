@@ -109,42 +109,43 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   font-weight: 600;
   text-decoration: none;
 }
-/* Nueva portada con fotografía del DJ */
-.hero {
-  min-height: 680px;
-  display: flex;
-  align-items: center;
-  background:
-    linear-gradient(90deg,
-      rgba(0,0,0,.90) 0%,
-      rgba(0,0,0,.65) 45%,
-      rgba(0,0,0,.20) 100%),
-    url("media/fondo-dj.jpg") center/cover no-repeat;
+ 
+
+/* Portada premium: conserva las secciones y funcionalidades existentes */
+.nav{width:min(1320px,94%);min-height:106px;gap:24px}
+.brand-mark{width:84px;height:84px;border-radius:6px;flex-shrink:0}
+.brand-name{font-size:1rem}
+.nav nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:12px}
+.nav nav a{margin:0;color:#f7f0e4;text-transform:uppercase;font-size:.82rem;letter-spacing:.05em}
+.nav nav a:hover{color:var(--gold2)}
+.hero{min-height:690px;display:flex;align-items:center;padding:100px 0 110px;background:linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.78) 32%,rgba(0,0,0,.18) 78%),url("media/fondo-dj.jpg") center center/cover no-repeat;border-color:#49371c}
+.hero:after{display:none}
+.hero .wrap{width:min(1320px,88%);text-align:left}
+.hero-logo{display:none}
+.hero .eyebrow{color:#f2e6cf;font-size:clamp(.77rem,1.5vw,1.05rem);letter-spacing:.28em;font-weight:500}
+.hero h1{font-size:clamp(3.1rem,7.5vw,7.4rem);line-height:.99;letter-spacing:-.055em;margin:22px 0 20px;max-width:750px;font-weight:900;text-transform:uppercase;color:#fff}
+.hero h1 .gold-title{display:block;color:#f2c75c}
+.hero .hero-description{max-width:570px;color:#f2eae0;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;line-height:1.7;margin:0}
+.hero .actions{justify-content:flex-start;margin-top:30px;gap:16px}
+.hero .btn{border-radius:50px;padding:15px 24px;text-align:center}
+.hero .secondary{border-color:#e7d4aa;background:#05050575}
+.hero .btn:hover{filter:brightness(1.13)}
+@media(max-width:700px){
+ .nav{width:92%;min-height:auto;gap:14px;padding:12px 0 18px;align-items:center;flex-direction:column}
+ .brand{width:100%;justify-content:center;gap:10px}
+ .brand-mark{width:65px;height:65px}
+ .brand-name{font-size:.88rem}
+ .nav nav{justify-content:center;gap:8px 18px}
+ .nav nav a{font-size:.77rem}
+ .hero{min-height:680px;padding:68px 0 75px;align-items:center;background-position:60% center;background-image:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.65) 50%,rgba(0,0,0,.58)),url("media/fondo-dj.jpg")}
+ .hero .wrap{width:90%;text-align:left}
+ .hero h1{font-size:clamp(2.9rem,12vw,4.8rem);margin:20px 0}
+ .hero .eyebrow{font-size:.72rem;letter-spacing:.17em}
+ .hero .hero-description{font-size:.86rem;letter-spacing:.035em;max-width:360px}
+ .hero .actions{justify-content:flex-start;gap:10px}
+ .hero .btn{padding:13px 16px;font-size:.88rem}
 }
-
-.hero::after {
-  display: none;
-} 
-  /* Ajuste de portada para móviles */
-@media (max-width: 700px) {
-  .hero-logo {
-    width: 160px;
-    margin: 0 auto 22px;
-  }
-
-  .hero {
-    min-height: 650px;
-    padding: 35px 0 55px;
-  }
-
-  .hero h1 {
-    font-size: 2.6rem;
-  }
-
-  .hero p {
-    font-size: 1rem;
-  }
-}
+@media(max-width:360px){.hero h1{font-size:2.65rem}.hero .btn{font-size:.8rem}}
 </style>
 </head>
 <body>
@@ -161,17 +162,15 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   <div class="brand"><div class="brand-mark"><img src="media/logo.png" alt="Logo Events and Parties"></div><div class="brand-name">EVENTS <span>AND PARTIES</span><small>MÚSICA · LUCES · EMOCIONES</small></div></div>
   
 <nav><a href="#servicios">Servicios</a><a href="#galeria">Galería</a><a href="#contacto">Presupuesto</a>
-<a href="#contacto-directo">Contacto</a>
+<a href="#contacto-directo">Contacto</a><a href="https://www.instagram.com/diegoeventsandparties/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Events and Parties">Instagram</a>
 </nav>
 </header>
 <main>
-<section class="hero"><div class="wrap">
-  <div class="hero-logo"><img src="media/logo.png" alt="Logo dorado de Events and Parties"></div>
-  <div class="eyebrow">DJ · Bodas · Eventos privados · Celebraciones</div>
-  <h1>Tu evento.<br><span style="color:var(--gold2)">Nuestra pasión.</span></h1>
-  <p class="eyebrow">MÚSICA · LUCES · EMOCIONES</p>
-  <p>Convertimos cada celebración en una experiencia especial con música, sonido e iluminación pensados para ti.</p>
-  <div class="actions"><a class="btn primary" href="#contacto">Solicitar presupuesto</a><a class="btn secondary" href="#galeria">Ver nuestros eventos</a></div>
+<section class="hero" aria-label="Portada de Events and Parties"><div class="wrap">
+  <div class="eyebrow">DJ PARA BODAS Y EVENTOS</div>
+  <h1>EVENTS AND <span class="gold-title">PARTIES</span></h1>
+  <p class="hero-description">Bodas · Eventos privados · Sonido e iluminación<br>Cumpleaños · Ceremonias · Colegios y mucho más</p>
+  <div class="actions"><a class="btn primary" href="#contacto">Pedir presupuesto</a><a class="btn secondary" href="#servicios">Ver servicios →</a></div>
 </div></section>
 <section id="servicios" class="wrap">
   <div class="eyebrow">Qué hacemos</div><h2 class="section-title">La banda sonora de tu evento</h2>
