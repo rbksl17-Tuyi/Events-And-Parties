@@ -296,6 +296,31 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
     width: 100%;
   }
 }
+/* Cabecera móvil: logo a la izquierda y menú a la derecha */
+@media (max-width: 700px) {
+  header.nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  header.nav .brand {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  header.nav .menu-toggle {
+    grid-column: 2;
+    margin: 0;
+    justify-self: end;
+  }
+
+  header.nav #menu-principal {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
 </style>
 </head>
   
