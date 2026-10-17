@@ -503,6 +503,44 @@ background:
   }
 }
 
+/* MENÚ DESPLEGABLE PREMIUM EN ORDENADOR */
+@media (min-width: 701px) {
+  header .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  header .menu-toggle {
+    display: block;
+    margin-left: auto;
+    padding: 8px 12px;
+    background: transparent;
+    color: #d7ad55;
+    border: 1px solid #d7ad55;
+    border-radius: 8px;
+    font-size: 28px;
+    cursor: pointer;
+  }
+
+  header #menu-principal {
+    display: none;
+    flex: 0 0 100%;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 12px;
+    background: #080808;
+    border-top: 1px solid #d7ad55;
+  }
+
+  header #menu-principal.abierto {
+    display: flex;
+  }
+}
+
 </style>
 </head>
   
