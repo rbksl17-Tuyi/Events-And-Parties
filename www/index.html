@@ -419,6 +419,88 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   border: 2px solid #d9a441;
   box-shadow: 0 0 14px rgba(235, 177, 65, 0.25);
 }
+  
+/* SECCIÓN DJ CANTABRIA PREMIUM */
+.cantabria-premium {
+  position: relative;
+  padding: 75px 5%;
+  color: #fff;
+  background:
+    linear-gradient(90deg,
+      #080808 0%,
+      rgba(8,8,8,.94) 38%,
+      rgba(8,8,8,.30) 100%),
+    linear-gradient(135deg,#18120a,#080808);
+  border-top: 1px solid #d9a441;
+  border-bottom: 1px solid #d9a441;
+}
+
+.cantabria-content {
+  max-width: 1150px;
+  margin: auto;
+}
+
+.cantabria-eyebrow {
+  color: #e9bd61;
+  letter-spacing: 3px;
+  font-size: 12px;
+}
+
+.cantabria-premium h2 {
+  max-width: 650px;
+  font-size: clamp(30px,4vw,48px);
+  line-height: 1.15;
+  margin: 15px 0;
+}
+
+.cantabria-premium h2 span {
+  display: block;
+  color: #f2c45e;
+}
+
+.cantabria-content > p:not(.cantabria-eyebrow) {
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+.cantabria-button {
+  display: inline-block;
+  margin-top: 22px;
+  padding: 15px 28px;
+  border-radius: 35px;
+  background: linear-gradient(135deg,#b67a19,#f6cf70,#c18a29);
+  color: #171008;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.cantabria-features {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 20px;
+  margin-top: 50px;
+  text-align: center;
+  color: #f2c45e;
+  font-size: 30px;
+}
+
+.cantabria-features small {
+  display: block;
+  margin-top: 8px;
+  color: white;
+  font-size: 11px;
+}
+
+@media(max-width:700px) {
+  .cantabria-premium {
+    padding: 55px 6%;
+  }
+  .cantabria-features {
+    grid-template-columns: repeat(2,1fr);
+    gap: 25px;
+  }
+}
+
 </style>
 </head>
   
@@ -458,6 +540,29 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
     <a class="hero-shortcut" href="https://www.instagram.com/diegoeventsandparties/" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></span><span>Instagram</span></a>
   </nav>
 </div></section>
+
+<section id="dj-cantabria" class="cantabria-premium">
+  <div class="cantabria-content">
+    <p class="cantabria-eyebrow">MÚSICA · EMOCIONES · PASIÓN</p>
+    <h2>DJ PARA BODAS Y EVENTOS <span>EN CANTABRIA</span></h2>
+    <p>
+      Música, sonido e iluminación para bodas, fiestas privadas,
+      celebraciones y eventos en Santander y toda Cantabria.
+      Creamos experiencias únicas, adaptadas a cada momento y
+      a cada público, con un equipo profesional y la mejor selección musical.
+    </p>
+    <a href="#contacto" class="cantabria-button">
+      Solicita tu presupuesto →
+    </a>
+    <div class="cantabria-features">
+      <div>⌖<small>SANTANDER Y TODA CANTABRIA</small></div>
+      <div>♫<small>TODO TIPO DE EVENTOS</small></div>
+      <div>◖))<small>SONIDO E ILUMINACIÓN</small></div>
+      <div>☆<small>EXPERIENCIAS ÚNICAS</small></div>
+    </div>
+  </div>
+</section>
+
 <section id="servicios" class="wrap">
   <div class="eyebrow">Qué hacemos</div><h2 class="section-title">La banda sonora de tu evento</h2>
   <p class="lead">Creamos el ambiente para que cada celebración tenga su propia banda sonora.</p>
