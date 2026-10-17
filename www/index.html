@@ -321,6 +321,16 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
     width: 100%;
   }
 }
+
+/* Accesos rápidos premium bajo los botones de portada */
+.hero .actions .primary{background:linear-gradient(115deg,#a96b0d 0%,#f2ba3c 47%,#bd7c14 100%);color:#fff;border:1px solid #e7ad34;box-shadow:0 8px 26px rgba(203,132,20,.27)}
+.hero-shortcuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;max-width:650px;margin:38px 0 0}
+.hero-shortcut{display:flex;flex-direction:column;align-items:center;gap:9px;text-decoration:none;color:#f5f1e9;font-size:11px;font-weight:650;letter-spacing:.02em;text-transform:uppercase;text-align:center;min-width:0}
+.hero-shortcut .shortcut-circle{display:grid;place-items:center;width:58px;height:58px;border:1.5px solid #d4a52d;border-radius:50%;background:#080808a8;color:#e8b942;transition:background .2s,transform .2s,box-shadow .2s}
+.hero-shortcut svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hero-shortcut:hover .shortcut-circle,.hero-shortcut:focus-visible .shortcut-circle{background:#2b1c07;transform:translateY(-2px);box-shadow:0 0 16px #d7ad5540}
+@media(max-width:700px){.hero-shortcuts{width:100%;max-width:520px;margin:35px auto 0;gap:4px}.hero-shortcut{font-size:clamp(8px,2.2vw,11px);gap:9px;letter-spacing:0}.hero-shortcut .shortcut-circle{width:clamp(42px,11vw,58px);height:clamp(42px,11vw,58px)}.hero-shortcut svg{width:52%;height:52%}}
+@media(min-width:701px){.hero-shortcuts{margin-left:0}}
 </style>
 </head>
   
@@ -352,6 +362,13 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   <h1>EVENTS AND <span class="gold-title">PARTIES</span></h1>
   <p class="hero-description">MÚSICA · EMOCIONES · PASIÓN</p>
   <div class="actions"><a class="btn primary" href="#contacto">Pedir presupuesto</a><a class="btn secondary" href="#servicios">Ver servicios →</a></div>
+  <nav class="hero-shortcuts" aria-label="Accesos rápidos">
+    <a class="hero-shortcut" href="#servicios" aria-label="Ir a servicios"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="2" y="12" width="4" height="8" rx="2"/><rect x="18" y="12" width="4" height="8" rx="2"/></svg></span><span>Servicios</span></a>
+    <a class="hero-shortcut" href="#galeria" aria-label="Ir a galería"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 18 6-6 4 4 3-3 4 5"/></svg></span><span>Galería</span></a>
+    <a class="hero-shortcut" href="#contacto" aria-label="Solicitar presupuesto"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l4 4v16H6z"/><path d="M15 2v5h4M9 11h7M9 15h7M9 19h5"/></svg></span><span>Presupuesto</span></a>
+    <a class="hero-shortcut" href="https://wa.me/34652799029" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.5L3 20l1.1-4.8A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.2 8.4c.5 3 3 5.4 5.9 6.1l1.5-1.4 1.7.8c-.2 1.3-1.2 2-2.7 2-3.8-.1-7.4-3.7-7.5-7.4 0-1.3.7-2.2 1.8-2.4l.8 1.6z"/></svg></span><span>Contacto</span></a>
+    <a class="hero-shortcut" href="https://www.instagram.com/diegoeventsandparties/" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></span><span>Instagram</span></a>
+  </nav>
 </div></section>
 <section id="servicios" class="wrap">
   <div class="eyebrow">Qué hacemos</div><h2 class="section-title">La banda sonora de tu evento</h2>
