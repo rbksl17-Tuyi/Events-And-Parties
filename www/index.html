@@ -1048,7 +1048,10 @@ function mostrarFoto(numero) {
     );
 
     tarjeta.addEventListener("click", () => abrirVisor(indice));
-
+tarjeta.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  abrirVisor(indice);
+}, { passive: false });
     tarjeta.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
