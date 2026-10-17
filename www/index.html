@@ -224,9 +224,57 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
     font-size: 0.55rem;
   }
 }
+/* Menú móvil premium negro y dorado */
+.menu-toggle {
+  display: none;
+}
 
+@media (max-width: 700px) {
+  .nav {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .menu-toggle {
+    display: block;
+    margin-left: auto;
+    padding: 8px 12px;
+    background: transparent;
+    color: #d7ad55;
+    border: 1px solid #d7ad55;
+    border-radius: 8px;
+    font-size: 28px;
+    cursor: pointer;
+  }
+
+  #menu-principal {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 12px;
+    background: #080808;
+    border-top: 1px solid #d7ad55;
+  }
+
+  #menu-principal.abierto {
+    display: flex;
+  }
+
+  #menu-principal a {
+    color: #f2d58c;
+    text-decoration: none;
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+}
 </style>
 </head>
+  
 <body>
 <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Bienvenida a Events and Parties">
   <div class="splash-content">
@@ -239,8 +287,13 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
 
 <header class="wrap nav">
   <div class="brand"><div class="brand-mark"><img src="media/logo.png" alt="Logo Events and Parties"></div><div class="brand-name">EVENTS <span>AND PARTIES</span><small>MÚSICA · LUCES · EMOCIONES</small></div></div>
-  
-<nav><a href="#servicios">Servicios</a><a href="#galeria">Galería</a><a href="#contacto">Presupuesto</a>
+<button class="menu-toggle" type="button"
+  aria-label="Abrir menú"
+  aria-expanded="false"
+  aria-controls="menu-principal">
+  ☰
+</button>  
+<nav id="menu-principal"><a href="#servicios">Servicios</a><a href="#galeria">Galería</a><a href="#contacto">Presupuesto</a>
 <a href="#contacto-directo">Contacto</a><a href="https://www.instagram.com/diegoeventsandparties/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Events and Parties">Instagram</a>
 </nav>
 </header>
@@ -501,6 +554,28 @@ document.getElementById('quoteForm').addEventListener('submit',function(e){
  window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const boton = document.querySelector('.menu-toggle');
+  const menu = document.getElementById('menu-principal');
 
+  if (!boton || !menu) return;
+
+  boton.addEventListener('click', function() {
+    const abierto = menu.classList.toggle('abierto');
+    boton.setAttribute('aria-expanded', String(abierto));
+    boton.setAttribute('aria-label',
+      abierto ? 'Cerrar menú' : 'Abrir menú');
+  });
+
+  menu.querySelectorAll('a').forEach(function(enlace) {
+    enlace.addEventListener('click', function() {
+      menu.classList.remove('abierto');
+      boton.setAttribute('aria-expanded', 'false');
+      boton.setAttribute('aria-label', 'Abrir menú');
+    });
+  });
+});
+</script>
 </body>
 </html>
