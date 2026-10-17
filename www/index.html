@@ -463,10 +463,11 @@ padding:20px; font-size:14px;">
   <script>
 
 (function(){
+document.documentElement.style.overflow='hidden';
  const splash=document.getElementById('splash');
  const enter=document.getElementById('splashEnter');
  let timer;
- function dismiss(){clearTimeout(timer);splash.classList.add('hidden');splash.setAttribute('aria-hidden','true');setTimeout(()=>splash.remove(),750)}
+ function dismiss(){document.documentElement.style.overflow='';clearTimeout(timer);splash.classList.add('hidden');splash.setAttribute('aria-hidden','true');setTimeout(()=>splash.remove(),750)}
  enter.addEventListener('click',dismiss);
 })();
 
