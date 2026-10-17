@@ -272,6 +272,29 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
     letter-spacing: 1px;
   }
 }
+/* Logo y menú en la misma fila en móviles */
+@media (max-width: 700px) {
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav .brand {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .menu-toggle {
+    flex: 0 0 auto;
+    margin-left: 8px;
+  }
+
+  #menu-principal {
+    flex: 0 0 100%;
+  }
+}
 </style>
 </head>
   
