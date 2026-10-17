@@ -331,6 +331,32 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
 .hero-shortcut:hover .shortcut-circle,.hero-shortcut:focus-visible .shortcut-circle{background:#2b1c07;transform:translateY(-2px);box-shadow:0 0 16px #d7ad5540}
 @media(max-width:700px){.hero-shortcuts{width:100%;max-width:520px;margin:35px auto 0;gap:4px}.hero-shortcut{font-size:clamp(8px,2.2vw,11px);gap:9px;letter-spacing:0}.hero-shortcut .shortcut-circle{width:clamp(42px,11vw,58px);height:clamp(42px,11vw,58px)}.hero-shortcut svg{width:52%;height:52%}}
 @media(min-width:701px){.hero-shortcuts{margin-left:0}}
+
+/* Diseño 2026: botones joya negros y dorados */
+.hero .actions{gap:14px;align-items:stretch}
+.hero .actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:58px;padding:14px 23px;border-radius:999px;font-weight:750;letter-spacing:.01em;transition:transform .2s,filter .2s,box-shadow .2s}
+.hero .actions .primary{color:#fff;background:linear-gradient(180deg,#f7d079 0%,#b77918 18%,#9d5c08 52%,#e9af3c 87%,#8a510b 100%);border:2px solid #f5c66c;box-shadow:inset 0 2px 3px #fff6,inset 0 -3px 6px #3b2108,0 0 0 3px #80520e66,0 9px 25px #d39b3155;text-shadow:0 1px 2px #4b2a0c}
+.hero .actions .secondary{color:#fff;background:linear-gradient(180deg,#1a130b,#050505 55%,#1b1207);border:2px solid #e5ae45;box-shadow:inset 0 1px 2px #ffdf9660,0 5px 18px #b8791933}
+.hero .actions .btn svg{width:24px;height:24px;flex-shrink:0;fill:none;stroke:#ffe3a2;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px #1b0d00)}
+.hero .actions .btn .cta-arrow{font-size:1.3em;line-height:1;color:#ffe1a0}
+.hero .actions .btn:hover,.hero .actions .btn:focus-visible{transform:translateY(-2px);filter:brightness(1.1)}
+.hero-shortcuts{margin-top:42px;gap:12px}
+.hero-shortcut{gap:13px;font-weight:550;letter-spacing:.045em}
+.hero-shortcut .shortcut-circle{position:relative;isolation:isolate;width:76px;height:76px;border:2px solid #c68a25;background:radial-gradient(circle at 35% 20%,#392810 0%,#0c0905 55%,#020202 100%);color:#f3bf55;box-shadow:inset 0 0 0 4px #050505,inset 0 2px 12px #f5bd3d33,0 5px 16px #c68a243d;transition:transform .2s,box-shadow .2s}
+.hero-shortcut .shortcut-circle:before{content:"";position:absolute;inset:3px;border:1px solid #f5d58b7d;border-radius:50%;pointer-events:none}
+.hero-shortcut .shortcut-circle:after{content:"";position:absolute;bottom:-8px;left:23%;width:54%;height:5px;border-radius:50%;background:#d99b32;filter:blur(5px);opacity:.75;pointer-events:none}
+.hero-shortcut svg{width:37px;height:37px;filter:drop-shadow(0 1px 4px #d18a2688)}
+.hero-shortcut:hover .shortcut-circle,.hero-shortcut:focus-visible .shortcut-circle{transform:translateY(-3px);background:radial-gradient(circle at 35% 20%,#52330d,#090705 70%);box-shadow:inset 0 0 0 4px #050505,0 0 24px #dba44499}
+@media(max-width:700px){
+ .hero .actions{gap:10px;flex-wrap:nowrap}
+ .hero .actions .btn{flex:1 1 0;min-width:0;min-height:54px;padding:10px 8px;font-size:clamp(11px,3vw,15px);gap:5px;white-space:nowrap}
+ .hero .actions .btn svg{width:clamp(15px,4vw,21px);height:clamp(15px,4vw,21px)}
+ .hero-shortcuts{gap:3px;margin:39px auto 0}
+ .hero-shortcut{gap:11px;font-size:clamp(8px,2.25vw,11px);letter-spacing:0}
+ .hero-shortcut .shortcut-circle{width:clamp(48px,13.5vw,69px);height:clamp(48px,13.5vw,69px)}
+ .hero-shortcut svg{width:52%;height:52%}
+}
+@media(max-width:365px){.hero .actions .btn{font-size:11px}.hero .actions .btn svg{display:none}}
 </style>
 </head>
   
@@ -361,7 +387,7 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
   <div class="eyebrow">DJ PARA BODAS Y EVENTOS</div>
   <h1>EVENTS AND <span class="gold-title">PARTIES</span></h1>
   <p class="hero-description">MÚSICA · EMOCIONES · PASIÓN</p>
-  <div class="actions"><a class="btn primary" href="#contacto">Pedir presupuesto</a><a class="btn secondary" href="#servicios">Ver servicios →</a></div>
+  <div class="actions"><a class="btn primary" href="#contacto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l4 4v16H6z"/><path d="M15 2v5h4M9 11h7M9 15h7M9 19h5"/></svg><span>Pedir presupuesto</span><span class="cta-arrow" aria-hidden="true">→</span></a><a class="btn secondary" href="#servicios"><span>Ver servicios</span><span class="cta-arrow" aria-hidden="true">→</span></a></div>
   <nav class="hero-shortcuts" aria-label="Accesos rápidos">
     <a class="hero-shortcut" href="#servicios" aria-label="Ir a servicios"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="2" y="12" width="4" height="8" rx="2"/><rect x="18" y="12" width="4" height="8" rx="2"/></svg></span><span>Servicios</span></a>
     <a class="hero-shortcut" href="#galeria" aria-label="Ir a galería"><span class="shortcut-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 18 6-6 4 4 3-3 4 5"/></svg></span><span>Galería</span></a>
