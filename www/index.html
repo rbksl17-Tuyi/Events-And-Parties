@@ -617,6 +617,24 @@ background:
   }
 }
 
+/* CONTADOR DORADO DEL VISOR */
+#visor-contador {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #f5c75c;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #d7ad55;
+  border-radius: 25px;
+  padding: 8px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  box-shadow: 0 0 15px rgba(215, 173, 85, 0.25);
+  z-index: 2;
+}
+
 </style>
 </head>
   
@@ -969,6 +987,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <img id="visor-imagen" src="" alt="Fotografía ampliada">
 
+<div id="visor-contador" aria-live="polite">1 / 4</div>
+
   <button class="visor-siguiente"
           type="button"
           aria-label="Fotografía siguiente">❯</button>
@@ -991,10 +1011,19 @@ document.addEventListener('DOMContentLoaded', function() {
   let actual = 0;
   let elementoAnterior = null;
 
-  function mostrarFoto(numero) {
-    actual = (numero + fotos.length) % fotos.length;
-    imagen.src = fotos[actual].src;
-    imagen.alt = fotos[actual].alt;
+  
+function mostrarFoto(numero) {
+  actual = (numero + fotos.length) % fotos.length;
+  imagen.src = fotos[actual].src;
+  imagen.alt = fotos[actual].alt;
+
+  // Actualizar contador de fotografías
+  const contador = document.getElementById("visor-contador");
+  if (contador) {
+    contador.textContent = (actual + 1) + " / " + fotos.length;
+  }
+}
+
   }
 
   function abrirVisor(numero) {
