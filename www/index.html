@@ -697,6 +697,36 @@ background:
  .espana-premium h2{font-size:clamp(28px,7vw,40px);text-shadow:0 2px 10px #000}
 }
 @media(min-width:701px){.espana-premium{background:linear-gradient(90deg,#080808 0%,rgba(8,8,8,.92) 32%,rgba(8,8,8,.10) 65%,transparent 100%),url("media/boda-espana-dorada.jpg") right center/contain no-repeat}}
+/* España: fotografía vertical completa integrada en el fondo en PC */
+@media (min-width:701px) {
+  .espana-premium {
+    isolation:isolate;
+    min-height:740px;
+    display:flex;
+    align-items:center;
+    background:#080808 !important;
+    overflow:hidden;
+  }
+  .espana-premium::before {
+    content:"";
+    position:absolute;
+    z-index:-2;
+    top:0;right:0;bottom:0;
+    width:60%;
+    background:url("media/boda-espana-dorada.jpg") right center / auto 100% no-repeat;
+    pointer-events:none;
+  }
+  .espana-premium::after {
+    content:"";
+    position:absolute;
+    z-index:-1;
+    inset:0;
+    background:linear-gradient(90deg,#080808 0%,rgba(8,8,8,.98) 31%,rgba(8,8,8,.78) 48%,rgba(8,8,8,.16) 79%,rgba(8,8,8,.04) 100%);
+    pointer-events:none;
+  }
+  .espana-premium .cantabria-content {width:100%;position:relative;z-index:1;}
+  .espana-premium .cantabria-content > p:not(.cantabria-eyebrow){max-width:490px;}
+}
 </style>
 </head>
   
