@@ -681,6 +681,14 @@ background:
   .splash-enter{font-size:.95rem}
 }
 
+
+/* Secciones geográficas coordinadas: fotografía, títulos y botones */
+.espana-premium{position:relative;padding:75px 5%;color:#fff;background:linear-gradient(90deg,#080808 0%,rgba(8,8,8,.94) 38%,rgba(8,8,8,.30) 100%),url("media/nuevo-fondo-dj.png") center center/cover no-repeat;border-top:1px solid #d9a441;border-bottom:1px solid #d9a441}
+.espana-premium h2{max-width:650px;font-size:clamp(30px,4vw,48px);line-height:1.15;margin:15px 0;text-transform:uppercase}
+.espana-premium h2 span{display:block;color:#f2c45e}
+.espana-premium .cantabria-content>p:not(.cantabria-eyebrow){max-width:560px;line-height:1.7}
+.cantabria-premium h2{text-transform:uppercase}
+@media(max-width:700px){.espana-premium{padding:55px 6%;background:linear-gradient(90deg,rgba(8,8,8,.94),rgba(8,8,8,.67)),url("media/nuevo-fondo-dj.png") center center/cover no-repeat}}
 </style>
 </head>
   
@@ -724,7 +732,7 @@ background:
 <section id="dj-cantabria" class="cantabria-premium">
   <div class="cantabria-content">
     <p class="cantabria-eyebrow">MÚSICA · EMOCIONES · PASIÓN</p>
-    <h2>DJ PARA BODAS Y EVENTOS <span>EN CANTABRIA</span></h2>
+    <h2>DJ ANIMADOR PARA BODAS Y EVENTOS <span>EN CANTABRIA</span></h2>
     <p>
       Música, sonido e iluminación para bodas, fiestas privadas,
       celebraciones y eventos en Santander y toda Cantabria.
@@ -743,12 +751,14 @@ background:
   </div>
 </section>
 
-<section id="dj-espana" class="wrap" aria-labelledby="titulo-dj-espana">
-  <div class="eyebrow">Eventos por toda España</div>
-  <h2 id="titulo-dj-espana" class="section-title">DJ para bodas y eventos en España</h2>
-  <p class="lead">Nuestra base está en Cantabria y también nos desplazamos a otras zonas de España para bodas, celebraciones privadas y eventos corporativos, según disponibilidad y características de cada evento. Ofrecemos música personalizada, sonido e iluminación adaptados al espacio y al tipo de celebración.</p>
-  <p class="lead">¿Organizas una boda o fiesta fuera de Cantabria? Indícanos la localidad, fecha y servicios que necesitas y prepararemos una propuesta teniendo en cuenta el desplazamiento y el montaje.</p>
-  <a class="btn primary" href="#contacto">Consultar disponibilidad nacional</a>
+<section id="dj-espana" class="espana-premium" aria-labelledby="titulo-dj-espana">
+  <div class="cantabria-content">
+    <p class="cantabria-eyebrow">EVENTOS POR TODA ESPAÑA</p>
+    <h2 id="titulo-dj-espana">DJ ANIMADOR PARA BODAS Y EVENTOS <span>EN ESPAÑA</span></h2>
+    <p>Nuestra base está en Cantabria y también nos desplazamos a otras zonas de España para bodas, celebraciones privadas y eventos corporativos, según disponibilidad y características de cada evento. Ofrecemos música personalizada, sonido e iluminación adaptados al espacio y al tipo de celebración.</p>
+    <p>¿Organizas una boda o fiesta fuera de Cantabria? Indícanos la localidad, fecha y servicios que necesitas y prepararemos una propuesta teniendo en cuenta el desplazamiento y el montaje.</p>
+    <a class="cantabria-button" href="#contacto">Solicita tu presupuesto →</a>
+  </div>
 </section>
 
 <section id="servicios" class="wrap">
