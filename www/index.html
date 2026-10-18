@@ -194,8 +194,8 @@ a{color:inherit}.wrap{width:min(1080px,92%);margin:auto}.nav{display:flex;justif
  .nav nav{gap:8px 16px}
  /* Fotografía completa con título integrado y degradado elegante */
  .hero{min-height:0;padding:calc(56.25vw - 55px) 0 65px;background:#090705;display:block}
- .hero::before{inset:0 0 auto;height:56.25vw;background-size:100% auto;background-position:center top;filter:sepia(.50) saturate(1.8) brightness(1.19) contrast(1.1)}
- .hero::after{inset:0 0 auto;height:calc(56.25vw + 145px);background:linear-gradient(180deg,transparent 24%,rgba(16,10,3,.08) 37%,rgba(20,12,4,.30) 49%,rgba(12,9,5,.66) 60%,rgba(9,7,5,.94) 69%,#090705 76%,#090705 100%);pointer-events:none}
+ .hero::before{inset:0 0 auto;height:56.25vw;background-size:100% auto;background-position:center top;filter:sepia(.50) saturate(1.8) brightness(1.19) contrast(1.1);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 48%,rgba(0,0,0,.94) 59%,rgba(0,0,0,.65) 72%,rgba(0,0,0,.24) 86%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 48%,rgba(0,0,0,.94) 59%,rgba(0,0,0,.65) 72%,rgba(0,0,0,.24) 86%,transparent 100%)}
+ .hero::after{inset:0 0 auto;height:56.25vw;background:linear-gradient(180deg,transparent 55%,rgba(55,32,6,.06) 75%,#090705 100%);pointer-events:none}
  .hero .wrap{width:90%;text-align:center;transform:none}
  .hero h1{font-size:clamp(2.7rem,11.5vw,4.8rem);margin:18px auto 16px}
  .hero .eyebrow{color:#eac16a}
