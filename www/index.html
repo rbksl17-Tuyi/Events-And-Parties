@@ -617,6 +617,10 @@ background:
   }
 }
 
+@media (max-width:700px) {
+  .gallery .photo-card { cursor: default; }
+}
+
 /* CONTADOR DORADO DEL VISOR */
 #visor-contador {
   position: absolute;
@@ -1025,6 +1029,7 @@ function mostrarFoto(numero) {
 }
 
   function abrirVisor(numero) {
+    if (window.matchMedia("(max-width: 700px)").matches) return;
     elementoAnterior = document.activeElement;
     mostrarFoto(numero);
     visor.hidden = false;
@@ -1039,6 +1044,25 @@ function mostrarFoto(numero) {
     if (elementoAnterior) elementoAnterior.focus();
   }
 
+  // En móvil, las fotos son solo imágenes, sin controles de ampliación.
+  const vistaMovil = window.matchMedia("(max-width: 700px)");
+  function actualizarAccesibilidadFotos() {
+    fotos.forEach((foto, indice) => {
+      const tarjeta = foto.closest(".photo-card");
+      if (vistaMovil.matches) {
+        tarjeta.removeAttribute("tabindex");
+        tarjeta.removeAttribute("role");
+        tarjeta.removeAttribute("aria-label");
+      } else {
+        tarjeta.setAttribute("tabindex", "0");
+        tarjeta.setAttribute("role", "button");
+        tarjeta.setAttribute("aria-label", "Ampliar fotografía " + (indice + 1));
+      }
+    });
+    if (vistaMovil.matches && !visor.hidden) cerrarVisor();
+  }
+  vistaMovil.addEventListener("change", actualizarAccesibilidadFotos);
+
   fotos.forEach((foto, indice) => {
     const tarjeta = foto.closest(".photo-card");
     tarjeta.setAttribute("tabindex", "0");
@@ -1049,6 +1073,7 @@ function mostrarFoto(numero) {
 
     tarjeta.addEventListener("click", () => abrirVisor(indice));
 tarjeta.addEventListener("touchend", (e) => {
+  if (window.matchMedia("(max-width: 700px)").matches) return;
   e.preventDefault();
   abrirVisor(indice);
 }, { passive: false });
@@ -1059,6 +1084,8 @@ tarjeta.addEventListener("touchend", (e) => {
       }
     });
   });
+
+  actualizarAccesibilidadFotos();
 
   cerrar.addEventListener("click", cerrarVisor);
   anterior.addEventListener("click", () => mostrarFoto(actual - 1));
