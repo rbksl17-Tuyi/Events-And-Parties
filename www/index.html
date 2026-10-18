@@ -639,6 +639,37 @@ background:
   z-index: 2;
 }
 
+
+/* BIENVENIDA A PANTALLA COMPLETA: PC Y MOVIL */
+.splash{
+  width:100%;height:100vh;height:100dvh;min-height:0;
+  padding:0;
+  background:#050403 url("media/fondo-bienvenida-pc.png") center center / cover no-repeat;
+}
+.splash::before{display:none!important}
+/* Los diseños de fondo ya incorporan el logo y el texto. */
+.splash-logo,.splash-line,.splash-subtitle{display:none!important}
+.splash-content{
+  position:absolute;left:0;right:0;bottom:13%;
+  display:flex;align-items:center;justify-content:center;
+  animation:none;
+}
+.splash-enter{
+  min-width:190px;min-height:48px;padding:12px 30px;
+  color:#f4d78e;background:#090705;
+  border:1px solid #d3a34f;border-radius:999px;
+  font-size:1rem;box-shadow:0 0 18px #d3a34f33;
+}
+@media(max-width:700px){
+  .splash{
+    background-image:url("media/fondo-bienvenida-movil.png");
+    background-position:center center;
+    background-size:cover;
+  }
+  .splash-content{bottom:14%}
+  .splash-enter{font-size:.95rem}
+}
+
 </style>
 </head>
   
