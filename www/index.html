@@ -689,10 +689,12 @@ background:
 .espana-premium .cantabria-content>p:not(.cantabria-eyebrow){max-width:560px;line-height:1.7}
 .cantabria-premium h2{text-transform:uppercase}
 @media(max-width:700px){
- .espana-premium{padding:48px 6% 0;background:#080808;overflow:hidden}
+ .espana-premium{padding:52px 6% 64px;min-height:0;overflow:hidden;background:linear-gradient(180deg,rgba(0,0,0,.76) 0%,rgba(0,0,0,.68) 48%,#080808 100%),url("media/boda-espana-dorada.jpg") center top / 100% auto no-repeat #080808}
  .espana-premium .cantabria-content{position:relative;z-index:1}
- .espana-premium::after{content:"";display:block;width:100%;height:min(125vw,650px);margin-top:20px;background:url("media/boda-espana-dorada.jpg") center center/contain no-repeat}
+ .espana-premium::after{content:none}
  .espana-premium .cantabria-button{margin-bottom:6px}
+ .espana-premium .cantabria-content>p:not(.cantabria-eyebrow){max-width:430px;text-shadow:0 2px 8px #000}
+ .espana-premium h2{font-size:clamp(28px,7vw,40px);text-shadow:0 2px 10px #000}
 }
 @media(min-width:701px){.espana-premium{background:linear-gradient(90deg,#080808 0%,rgba(8,8,8,.92) 32%,rgba(8,8,8,.10) 65%,transparent 100%),url("media/boda-espana-dorada.jpg") right center/contain no-repeat}}
 </style>
@@ -761,7 +763,6 @@ background:
   <div class="cantabria-content">
     <p class="cantabria-eyebrow">EVENTOS POR TODA ESPAÑA</p>
     <h2 id="titulo-dj-espana">DJ ANIMADOR PARA BODAS Y EVENTOS <span>EN ESPAÑA</span></h2>
-    <p>Nuestra base está en Cantabria y también nos desplazamos a otras zonas de España para bodas, celebraciones privadas y eventos corporativos, según disponibilidad y características de cada evento. Ofrecemos música personalizada, sonido e iluminación adaptados al espacio y al tipo de celebración.</p>
     <p>¿Organizas una boda o fiesta fuera de Cantabria? Indícanos la localidad, fecha y servicios que necesitas y prepararemos una propuesta teniendo en cuenta el desplazamiento y el montaje.</p>
     <a class="cantabria-button" href="#contacto">Solicita tu presupuesto →</a>
   </div>
