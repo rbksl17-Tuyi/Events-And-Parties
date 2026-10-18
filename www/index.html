@@ -688,7 +688,13 @@ background:
 .espana-premium h2 span{display:block;color:#f2c45e}
 .espana-premium .cantabria-content>p:not(.cantabria-eyebrow){max-width:560px;line-height:1.7}
 .cantabria-premium h2{text-transform:uppercase}
-@media(max-width:700px){.espana-premium{padding:55px 6%;background:linear-gradient(90deg,rgba(8,8,8,.94),rgba(8,8,8,.67)),url("media/boda-espana-dorada.jpg") right center/contain no-repeat}}
+@media(max-width:700px){
+ .espana-premium{padding:48px 6% 0;background:#080808;overflow:hidden}
+ .espana-premium .cantabria-content{position:relative;z-index:1}
+ .espana-premium::after{content:"";display:block;width:100%;height:min(125vw,650px);margin-top:20px;background:url("media/boda-espana-dorada.jpg") center center/contain no-repeat}
+ .espana-premium .cantabria-button{margin-bottom:6px}
+}
+@media(min-width:701px){.espana-premium{background:linear-gradient(90deg,#080808 0%,rgba(8,8,8,.92) 32%,rgba(8,8,8,.10) 65%,transparent 100%),url("media/boda-espana-dorada.jpg") right center/contain no-repeat}}
 </style>
 </head>
   
