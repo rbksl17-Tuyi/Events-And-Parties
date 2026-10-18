@@ -727,6 +727,16 @@ background:
   .espana-premium .cantabria-content {width:100%;position:relative;z-index:1;}
   .espana-premium .cantabria-content > p:not(.cantabria-eyebrow){max-width:490px;}
 }
+
+/* España en ordenador: fotografía completa, sin recortes, integrada en el fondo. */
+@media (min-width:701px) {
+  .espana-premium { min-height:0; padding:75px 5%; }
+  .espana-premium::before {
+    width:60%;
+    background-size:contain;
+    background-position:right center;
+  }
+}
 </style>
 </head>
   
