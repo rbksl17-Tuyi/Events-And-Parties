@@ -768,6 +768,41 @@ background:
 .private-empty{border:1px dashed #655139;border-radius:10px;padding:24px;color:#c7bca9}
 @media(max-width:700px){.private-layout{grid-template-columns:1fr;margin-top:14px}.private-sidebar{display:flex;overflow:auto;gap:6px}.private-sidebar button{white-space:nowrap}.private-modal{padding:25px 20px}.private-top{padding:10px 4%}}
 </style>
+
+<style id="private-link-outside-menu">
+/* Acceso privado siempre visible, menú de secciones desplegable intacto */
+header.nav{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:12px!important}
+header.nav>.brand{margin-right:auto!important}
+header.nav>.private-link{display:inline-flex!important;order:1!important;margin-left:auto!important;flex:0 0 auto!important;font-size:clamp(10px,1.3vw,13px)!important;padding:9px 12px!important}
+header.nav>.menu-toggle{display:block!important;order:2!important;margin-left:0!important;flex:0 0 auto!important}
+header.nav>#menu-principal{order:3!important;flex:0 0 100%!important;width:100%!important;display:none!important;flex-direction:column!important;align-items:center!important;gap:18px!important;padding:22px 12px!important;background:#080808!important;border-top:1px solid #d7ad55!important}
+header.nav>#menu-principal.abierto{display:flex!important}
+@media(max-width:700px){
+ header.nav{padding:10px 12px!important;gap:8px!important}
+ header.nav>.brand{flex:1 1 auto!important;min-width:0!important;margin-right:0!important}
+ header.nav>.brand .brand-mark{width:48px!important;height:48px!important}
+ header.nav>.brand .brand-name{font-size:clamp(.64rem,2.2vw,.88rem)!important}
+ header.nav>.private-link{margin-left:0!important;font-size:10px!important;padding:8px 9px!important;gap:4px!important}
+ header.nav>.private-link svg{width:13px!important;height:13px!important}
+ header.nav>.menu-toggle{font-size:23px!important;padding:5px 9px!important}
+}
+@media(max-width:400px){header.nav>.brand{flex-basis:100%!important;justify-content:center!important}header.nav>.private-link{margin-left:auto!important}}
+</style>
+
+<style id="cabecera-movil-una-fila">
+/* Logo/nombre, Área Privada y menú hamburguesa: una sola fila en móvil. */
+@media(max-width:700px){
+ header.nav{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;grid-template-rows:auto auto!important;align-items:center!important;justify-content:stretch!important;column-gap:clamp(3px,1.3vw,9px)!important;row-gap:0!important;flex-wrap:nowrap!important;width:100%!important;padding:9px clamp(5px,2vw,12px)!important}
+ header.nav>.brand{grid-column:1!important;grid-row:1!important;display:flex!important;flex:initial!important;min-width:0!important;width:auto!important;justify-content:flex-start!important;gap:clamp(3px,1vw,7px)!important;margin:0!important}
+ header.nav>.brand .brand-mark{width:clamp(30px,9vw,48px)!important;height:clamp(30px,9vw,48px)!important;flex:0 0 auto!important}
+ header.nav>.brand .brand-name{font-size:clamp(8px,2.25vw,12px)!important;letter-spacing:0!important;min-width:0!important;overflow-wrap:normal!important}
+ header.nav>.brand .brand-name small{font-size:clamp(5px,1.35vw,8px)!important;letter-spacing:0!important;white-space:nowrap!important}
+ header.nav>.private-link{grid-column:2!important;grid-row:1!important;order:initial!important;margin:0!important;padding:7px clamp(4px,1.3vw,9px)!important;font-size:clamp(8px,2.1vw,11px)!important;gap:3px!important;white-space:nowrap!important}
+ header.nav>.private-link svg{width:12px!important;height:12px!important;flex-shrink:0!important}
+ header.nav>.menu-toggle{grid-column:3!important;grid-row:1!important;order:initial!important;display:block!important;margin:0!important;padding:4px clamp(5px,1.6vw,9px)!important;font-size:22px!important;line-height:1.25!important;justify-self:end!important}
+ header.nav>#menu-principal,header.nav>#menu-principal.abierto{grid-column:1/-1!important;grid-row:2!important;order:initial!important;width:100%!important;min-width:0!important;flex-basis:auto!important}
+}
+</style>
 </head>
   
 <body>
@@ -782,6 +817,7 @@ background:
 
 <header class="wrap nav">
   <div class="brand"><div class="brand-mark"><img src="media/logo.png" alt="Logo Events and Parties"></div><div class="brand-name">EVENTS <span>AND PARTIES</span><small>MÚSICA · LUCES · EMOCIONES</small></div></div>
+<a class="private-link" href="#area-privada" id="openPrivate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> ÁREA PRIVADA</a>
 <button class="menu-toggle" type="button"
   aria-label="Abrir menú"
   aria-expanded="false"
@@ -790,7 +826,7 @@ background:
 </button>  
 <nav id="menu-principal"><a href="#servicios">Servicios</a><a href="#galeria">Galería</a><a href="#contacto">Presupuesto</a>
 <a href="#contacto-directo">Contacto</a><a href="https://www.instagram.com/diegoeventsandparties/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Events and Parties">Instagram</a>
-<a class="private-link" href="#area-privada" id="openPrivate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> ÁREA PRIVADA</a></nav>
+</nav>
 </header>
 <main>
 <section class="hero" aria-label="Portada de Events and Parties"><div class="wrap">
