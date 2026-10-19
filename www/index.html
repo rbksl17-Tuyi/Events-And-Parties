@@ -738,6 +738,36 @@ background:
   }
 }
 </style>
+
+<style>
+/* Área privada Events and Parties */
+.private-link{display:inline-flex!important;align-items:center;gap:7px;padding:10px 15px!important;border:1px solid #cba45a;border-radius:9px;background:linear-gradient(130deg,#21170a,#080808);color:#f4d38d!important;font-weight:700;white-space:nowrap}
+.private-link:hover{box-shadow:0 0 15px #d6a95055}
+.private-link svg{width:16px;height:16px}
+.private-overlay[hidden],.private-dashboard[hidden]{display:none!important}
+.private-overlay{position:fixed;inset:0;z-index:10020;background:linear-gradient(#000b,#000e),url("media/nuevo-fondo-dj.png") center/cover;display:flex;align-items:center;justify-content:center;padding:22px;overflow-y:auto}
+.private-modal{position:relative;width:min(100%,440px);padding:28px 27px 30px;background:linear-gradient(145deg,#101010,#050505);border:1px solid #b68b46;border-radius:16px;box-shadow:0 22px 90px #000,0 0 35px #d7ad5522;text-align:center}
+.private-close{position:absolute;right:15px;top:10px;background:none;border:0;color:#ebd0a0;font-size:27px;cursor:pointer}
+.private-logo{display:block;width:112px;height:112px;object-fit:contain;margin:0 auto 12px}
+.private-modal h2{font-size:1.1rem;letter-spacing:.22em;font-weight:500;color:#f4d08a;margin:8px 0 25px}
+.private-modal label{display:block;text-align:left;color:#e9dfcb;font-size:.88rem;margin:13px 0 6px}
+.private-modal input{width:100%;padding:14px 13px;background:#171717;border:1px solid #5c5344;border-radius:9px;color:#fff;font:inherit}
+.private-modal input:focus{outline:1px solid #e8bb67}
+.private-submit{width:100%;margin-top:23px;padding:14px;background:linear-gradient(110deg,#b7802e,#f1cc7c,#bf893d);color:#16100a;border:0;border-radius:9px;font-weight:800;cursor:pointer}
+.private-secondary{display:block;margin:17px auto 0;border:0;background:transparent;color:#dcb774;text-decoration:underline;cursor:pointer}
+.private-message{min-height:1.5em;margin:14px 0 0;font-size:.88rem;color:#f0c37d}
+.private-dashboard{position:fixed;inset:0;z-index:10030;background:#080808;color:#f7efe2;overflow:auto}
+.private-top{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 5%;border-bottom:1px solid #70532b}
+.private-top img{width:55px;height:55px;object-fit:contain}
+.private-top button,.private-panel button{background:#15110a;border:1px solid #b58c49;color:#f3d18c;padding:10px 13px;border-radius:8px;cursor:pointer}
+.private-layout{max-width:1100px;margin:30px auto;padding:0 5%;display:grid;grid-template-columns:210px 1fr;gap:25px}
+.private-sidebar,.private-panel{background:#111;border:1px solid #57432a;border-radius:12px;padding:18px}
+.private-sidebar button{display:block;width:100%;padding:12px;text-align:left;border:0;border-radius:7px;background:transparent;color:#e8d8bc;cursor:pointer}
+.private-sidebar button.active{background:#65451c;color:#fff}
+.private-panel h2{color:#f0c87a;margin-top:0}
+.private-empty{border:1px dashed #655139;border-radius:10px;padding:24px;color:#c7bca9}
+@media(max-width:700px){.private-layout{grid-template-columns:1fr;margin-top:14px}.private-sidebar{display:flex;overflow:auto;gap:6px}.private-sidebar button{white-space:nowrap}.private-modal{padding:25px 20px}.private-top{padding:10px 4%}}
+</style>
 </head>
   
 <body>
@@ -760,7 +790,7 @@ background:
 </button>  
 <nav id="menu-principal"><a href="#servicios">Servicios</a><a href="#galeria">Galería</a><a href="#contacto">Presupuesto</a>
 <a href="#contacto-directo">Contacto</a><a href="https://www.instagram.com/diegoeventsandparties/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Events and Parties">Instagram</a>
-</nav>
+<a class="private-link" href="#area-privada" id="openPrivate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> ÁREA PRIVADA</a></nav>
 </header>
 <main>
 <section class="hero" aria-label="Portada de Events and Parties"><div class="wrap">
@@ -1225,5 +1255,91 @@ tarjeta.addEventListener("touchend", (e) => {
 })();
 </script>
 
+
+<!-- Área privada: la autenticación real requiere configurar Supabase -->
+<div class="private-overlay" id="privateOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="privateTitle">
+  <div class="private-modal">
+    <button class="private-close" type="button" id="closePrivate" aria-label="Cerrar">×</button>
+    <img class="private-logo" src="media/logo.png" alt="Logo Events and Parties">
+    <div style="letter-spacing:.2em;font-size:.75rem;color:#e6c17b">EVENTS AND PARTIES</div>
+    <h2 id="privateTitle">ÁREA PRIVADA</h2>
+    <form id="privateLoginForm">
+      <label for="privateEmail">Correo electrónico</label>
+      <input id="privateEmail" type="email" autocomplete="username" required placeholder="Correo electrónico">
+      <label for="privatePassword">Contraseña</label>
+      <input id="privatePassword" type="password" autocomplete="current-password" required placeholder="Contraseña">
+      <button class="private-submit" type="submit">INICIAR SESIÓN</button>
+    </form>
+    <button class="private-secondary" type="button" id="privateReset">¿Has olvidado tu contraseña?</button>
+    <p class="private-message" id="privateMessage" role="status" aria-live="polite"></p>
+  </div>
+</div>
+<div class="private-dashboard" id="privateDashboard" hidden>
+  <header class="private-top">
+    <div style="display:flex;align-items:center;gap:12px"><img src="media/logo.png" alt=""><strong>EVENTS AND PARTIES · ÁREA PRIVADA</strong></div>
+    <button type="button" id="privateLogout">Cerrar sesión</button>
+  </header>
+  <div class="private-layout">
+    <nav class="private-sidebar" aria-label="Menú privado">
+      <button class="active" type="button" data-private-tab="Mis eventos">Mis eventos</button>
+      <button type="button" data-private-tab="Calendario">Calendario</button>
+      <button type="button" data-private-tab="Presupuestos">Presupuestos</button>
+      <button type="button" data-private-tab="Mensajes">Mensajes</button>
+      <button type="button" data-private-tab="Documentos">Documentos</button>
+      <button type="button" data-private-tab="Mi perfil">Mi perfil</button>
+    </nav>
+    <section class="private-panel"><h2 id="privatePanelTitle">Mis eventos</h2><p id="privateWelcome"></p><div class="private-empty" id="privatePanelBody">Todavía no hay eventos para mostrar.</div></section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* Sustituir estos valores por la URL y la clave PUBLICABLE del proyecto.
+   Nunca introducir aquí la clave secret o service_role. */
+const PRIVATE_SUPABASE_URL = '';
+const PRIVATE_SUPABASE_PUBLISHABLE_KEY = '';
+(function(){
+  const overlay=document.getElementById('privateOverlay');
+  const dashboard=document.getElementById('privateDashboard');
+  const message=document.getElementById('privateMessage');
+  const configured=Boolean(PRIVATE_SUPABASE_URL && PRIVATE_SUPABASE_PUBLISHABLE_KEY && window.supabase);
+  const client=configured?window.supabase.createClient(PRIVATE_SUPABASE_URL,PRIVATE_SUPABASE_PUBLISHABLE_KEY):null;
+  const showLogin=()=>{overlay.hidden=false;dashboard.hidden=true;message.textContent='';document.getElementById('privateEmail').focus()};
+  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;document.getElementById('privateWelcome').textContent=user?.email?'Sesión iniciada: '+user.email:''};
+  document.getElementById('openPrivate').addEventListener('click',e=>{e.preventDefault();showLogin()});
+  document.getElementById('closePrivate').addEventListener('click',()=>overlay.hidden=true);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.hidden=true});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)overlay.hidden=true});
+  document.getElementById('privateLoginForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!client){message.textContent='El diseño está preparado. Falta conectar Supabase para activar el acceso seguro.';return}
+    message.textContent='Comprobando acceso…';
+    const email=document.getElementById('privateEmail').value;
+    const password=document.getElementById('privatePassword').value;
+    const {data,error}=await client.auth.signInWithPassword({email,password});
+    document.getElementById('privatePassword').value='';
+    if(error){message.textContent='No se ha podido iniciar sesión. Comprueba el correo y la contraseña.';return}
+    if(data.user)showDashboard(data.user);
+  });
+  document.getElementById('privateReset').addEventListener('click',async()=>{
+    if(!client){message.textContent='Primero debemos conectar Supabase.';return}
+    const email=document.getElementById('privateEmail').value.trim();
+    if(!email){message.textContent='Escribe tu correo electrónico para recuperar la contraseña.';return}
+    const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
+    message.textContent=error?'No se ha podido enviar el correo. Revisa la configuración.':'Si el correo está registrado, recibirás instrucciones.';
+  });
+  document.getElementById('privateLogout').addEventListener('click',async()=>{
+    if(client)await client.auth.signOut();
+    dashboard.hidden=true;showLogin();
+  });
+  document.querySelectorAll('[data-private-tab]').forEach(button=>button.addEventListener('click',()=>{
+    document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b===button));
+    const title=button.dataset.privateTab;
+    document.getElementById('privatePanelTitle').textContent=title;
+    document.getElementById('privatePanelBody').textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
+  }));
+  if(client)client.auth.getUser().then(({data})=>{if(data?.user)showDashboard(data.user)});
+})();
+</script>
 </body>
 </html>
