@@ -1624,6 +1624,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       const card=budgetNode('article');card.className='ep-budget-card';
       card.append(budgetNode('h3',r.tipo||'Solicitud de presupuesto'),
         budgetNode('p','Solicitado: '+new Date(r.creado_en).toLocaleString('es-ES')),
+        budgetNode('p','Estado de la solicitud: '+(r.estado||'PENDIENTE').replaceAll('_',' ')),
         budgetNode('p','Fecha del evento: '+(r.fecha||'Por concretar')+' · Lugar: '+(r.lugar||'Por concretar')),
         budgetNode('p','Servicios: '+(r.servicios||[]).join(', ')),
         budgetNode('p','Horario: '+(r.horario||'Por concretar')+' · Invitados: '+(r.invitados||'Por concretar')),
@@ -1678,6 +1679,19 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
         budgetNode('p','Servicios: '+(r.servicios||[]).join(', ')),
         budgetNode('p','Invitados: '+(r.invitados||'Por concretar')+' · Horario: '+(r.horario||'Por concretar')),
         budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));
+      const statusWrap=budgetNode('label','Estado de la solicitud');
+      const statusSelect=budgetNode('select');
+      const statuses=[['PENDIENTE','Pendiente de revisar'],['EN_PREPARACION','En preparación'],['PRESUPUESTO_ENVIADO','Presupuesto enviado']];
+      statuses.forEach(([value,label])=>{const opt=budgetNode('option',label);opt.value=value;statusSelect.append(opt)});
+      statusSelect.value=r.estado||'PENDIENTE';
+      statusWrap.append(statusSelect);box.append(statusWrap);
+      const saveStatus=budgetButton('Guardar estado',async()=>{
+        saveStatus.disabled=true;
+        const {error}=await client.from('ep_solicitudes_presupuesto').update({estado:statusSelect.value}).eq('id',r.id);
+        if(error){alert('No se pudo actualizar: '+error.message);saveStatus.disabled=false}
+        else{alert('Estado actualizado');loadAdminBudgets()}
+      });
+      box.append(saveStatus);
       box.append(budgetButton('Crear presupuesto para este cliente',()=>createBudget(r.cliente_id)));
       eventBody.append(box);
     });
