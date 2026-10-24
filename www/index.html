@@ -1469,6 +1469,59 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     .ep-org-card a{color:#f2cf8c;text-decoration:underline}
   `;
   document.head.append(epOrgStyle);
+
+  epOrgStyle.textContent+=`
+    .ep-org-card{border:1px solid rgba(218,179,105,.19);border-radius:24px;background:linear-gradient(145deg,#201b17,#0e0e0e);box-shadow:0 16px 45px rgba(0,0,0,.23);padding:clamp(18px,4vw,32px)}
+    .ep-org-card h3{font-size:clamp(1.3rem,3vw,1.9rem);letter-spacing:-.025em}
+    .ep-org-btn{border-radius:50px;padding:12px 20px;transition:transform .18s,background .18s;min-height:46px}
+    .ep-org-btn:hover{transform:translateY(-2px);background:#3b2e1c}
+    .ep-org-btn.primary{background:linear-gradient(110deg,#b48a4c,#f3d8a2,#b58a4e);box-shadow:0 6px 22px #c99c4c35}
+    .ep-org-form{gap:20px;max-width:850px}
+    .ep-org-form label{gap:9px;font-size:.95rem}
+    .ep-org-form input,.ep-org-form select,.ep-org-form textarea{border:1px solid #5b4b36;border-radius:15px;padding:15px;background:#181715;min-height:48px}
+    .ep-org-form input:focus,.ep-org-form textarea:focus,.ep-org-form select:focus{outline:2px solid #c5a26b;outline-offset:2px}
+    .ep-org-form textarea{min-height:120px}
+    .ep-org-track{height:7px;background:#383028}
+    .ep-org-track>span{background:linear-gradient(90deg,#a67d43,#f0d39b)}
+    .ep-org-hero{position:relative;overflow:hidden;border-radius:26px;min-height:245px;padding:30px;display:flex;flex-direction:column;justify-content:end;color:#fff;background:#211b16}
+    .ep-org-hero:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,7,6,.88),rgba(8,7,6,.22)),var(--ep-photo);background-position:center;background-size:cover;z-index:0}
+    .ep-org-hero>*{position:relative;z-index:1}
+    .ep-org-hero h2{font-size:clamp(2rem,6vw,3.4rem);line-height:1.07;color:#fff;margin:10px 0}
+    .ep-org-hero p{max-width:570px;color:#f0e7d8;margin:4px 0}
+    .ep-org-eyebrow{text-transform:uppercase;letter-spacing:.24em;color:#f3d49b!important;font-size:.75rem;font-weight:700}
+    .ep-org-wedding-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:22px 0}
+    .ep-org-step{position:relative;isolation:isolate;min-height:210px;border:1px solid #75604470;border-radius:22px;overflow:hidden;padding:22px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;text-align:left;cursor:pointer;color:white;background:#17130f;transition:transform .2s,border-color .2s;box-shadow:0 10px 28px #0005}
+    .ep-org-step:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(5,5,5,.96),rgba(5,5,5,.08) 85%),var(--ep-photo);background-size:cover;background-position:center;transition:transform .3s}
+    .ep-org-step:hover{transform:translateY(-4px);border-color:#d9b777}
+    .ep-org-step:hover:before{transform:scale(1.06)}
+    .ep-org-step-num{font-size:.75rem;letter-spacing:.17em;color:#e9cb95;font-weight:700}
+    .ep-org-step-title{font-size:clamp(1.35rem,3vw,1.9rem);font-weight:700;margin:7px 0}
+    .ep-org-step-desc{font-size:.86rem;color:#e9dfcf}
+    .ep-org-step-state{margin-top:12px;display:inline-block;background:#e8ca93;color:#19140c;border-radius:30px;padding:5px 10px;font-size:.72rem;font-weight:700}
+    .ep-org-step-state.pending{background:#28231d;color:#e6cfaa;border:1px solid #8e734b}
+    .ep-org-section-intro{padding:18px 0 4px;color:#e6c992}
+    .ep-org-helper{border-left:3px solid #c9a269;padding:12px 17px;background:#241f19;border-radius:0 12px 12px 0;color:#e8ddc9;margin:10px 0 18px}
+    .ep-org-actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}
+    .ep-org-actions .ep-org-btn{margin:0}
+    .ep-org-soft{background:#1d1a17;border:1px solid #5a4a34;border-radius:20px;padding:16px;margin:15px 0}
+    @media(min-width:850px){.ep-org-wedding-grid .ep-org-step:first-child{grid-column:span 2;min-height:245px}}
+    @media(max-width:560px){.ep-org-wedding-grid{grid-template-columns:1fr}.ep-org-step{min-height:185px}.ep-org-hero{min-height:225px;padding:23px}.ep-org-card{padding:19px}.ep-org-actions{flex-direction:column}.ep-org-actions .ep-org-btn{width:100%}}
+    @media(prefers-reduced-motion:reduce){.ep-org-step,.ep-org-step:before,.ep-org-btn{transition:none}}
+  `;
+  const epWeddingVisuals={
+    'Ceremonia':{subtitle:'Cada entrada merece su propia banda sonora',image:'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=85'},
+    'Cóctel':{subtitle:'El ambiente perfecto para recibir a vuestros invitados',image:'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=85'},
+    'Banquete':{subtitle:'Los momentos especiales se recuerdan con música',image:'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=85'},
+    'Baile':{subtitle:'La canción que dará comienzo a vuestra historia',image:'https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=1200&q=85'},
+    'Fiesta':{subtitle:'Elegid el ritmo de una noche inolvidable',image:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=85'}
+  };
+  const epWeddingHero=(title,subtitle,photo)=>{
+    const hero=epEl('div',undefined,'ep-org-hero');
+    hero.style.setProperty('--ep-photo',`url("${photo}")`);
+    hero.append(epEl('span','EVENTS AND PARTIES · VUESTRA BODA','ep-org-eyebrow'),epEl('h2',title),epEl('p',subtitle));
+    return hero;
+  };
+
   const epField=(form,label,name,type='text',value='',required=false)=>{
     const wrap=epEl('label',label),i=epEl(type==='textarea'?'textarea':type==='select'?'select':'input');
     if(type!=='textarea'&&type!=='select')i.type=type;
@@ -1507,16 +1560,33 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       const org=await epGetOrg(id);
       const root=epOrgRoot();
       root.append(epBtn('← Volver a mis eventos',epOrgList));
-      const c=epCard(org.titulo||'Mi evento');c.append(epEl('p','Tipo: '+org.tipo+' · Estado: '+org.estado+' · Versión '+org.version));
       const sections=epTypes[org.tipo]||epTypes.OTRO;
       const content=org.contenido||{};
       const completed=sections.filter(x=>content[x]?.completado).length;
-      c.append(epInfo('Apartados completados: '+completed+' de '+sections.length));
-      const track=epEl('div',undefined,'ep-org-track'),fill=epEl('span');fill.style.width=(completed/sections.length*100)+'%';track.append(fill);c.append(track);
       const editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
-      const grid=epEl('div',undefined,'ep-org-grid');
-      sections.forEach(name=>grid.append(epBtn((content[name]?.completado?'✓ ':'○ ')+name,()=>epEditSection(id,name))));
-      c.append(grid,epBtn('🎵 Música y archivos',()=>epMusic(id)));
+      const wedding=org.tipo==='BODA';
+      if(wedding)root.append(epWeddingHero('Vuestra boda','Organizad cada momento a vuestro ritmo. Guardad los cambios y añadid vuestra música en cada etapa.',epWeddingVisuals.Ceremonia.image));
+      const c=epCard(org.titulo||'Mi evento');
+      c.append(epInfo(wedding?'Vuestro progreso · '+completed+' de '+sections.length+' momentos preparados':'Tipo: '+org.tipo+' · Estado: '+org.estado+' · Versión '+org.version));
+      const track=epEl('div',undefined,'ep-org-track'),fill=epEl('span');fill.style.width=(completed/sections.length*100)+'%';track.append(fill);c.append(track);
+      if(wedding){
+        c.append(epEl('p','Seleccionad el momento que queréis preparar. Podéis volver y cambiarlo mientras la organización esté abierta.','ep-org-section-intro'));
+        const grid=epEl('div',undefined,'ep-org-wedding-grid');
+        sections.forEach((name,i)=>{
+          const visual=epWeddingVisuals[name],button=epEl('button',undefined,'ep-org-step');
+          button.type='button';button.style.setProperty('--ep-photo',`url("${visual.image}")`);
+          button.append(epEl('span','MOMENTO '+String(i+1).padStart(2,'0'),'ep-org-step-num'),epEl('span',name,'ep-org-step-title'),epEl('span',visual.subtitle,'ep-org-step-desc'),epEl('span',content[name]?.completado?'✓ Preparado':'Pendiente de preparar','ep-org-step-state'+(content[name]?.completado?'':' pending')));
+          button.addEventListener('click',()=>epEditSection(id,name));grid.append(button);
+        });
+        c.append(grid);
+      }else{
+        const grid=epEl('div',undefined,'ep-org-grid');
+        sections.forEach(name=>grid.append(epBtn((content[name]?.completado?'✓ ':'○ ')+name,()=>epEditSection(id,name))));
+        c.append(grid);
+      }
+      const actions=epEl('div',undefined,'ep-org-actions');
+      actions.append(epBtn('♫ Ver toda la música',()=>epMusic(id)));
+      c.append(actions);
       if(editable){
         c.append(epBtn('Finalizar y enviar al DJ',async()=>{
           if(completed!==sections.length){alert('Completa todos los apartados antes de enviar.');return}
@@ -1572,7 +1642,9 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     try{
       const org=await epGetOrg(id),editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
       const root=epOrgRoot();root.append(epBtn('← Volver al evento',()=>epOpenOrg(id)));
-      const c=epCard(name),form=epEl('form',undefined,'ep-org-form'),old=org.contenido?.[name]||{};
+      if(org.tipo==='BODA'&&epWeddingVisuals[name])root.append(epWeddingHero(name,epWeddingVisuals[name].subtitle,epWeddingVisuals[name].image));
+      const c=epCard('Preparad vuestro momento'),form=epEl('form',undefined,'ep-org-form'),old=org.contenido?.[name]||{};
+      c.append(epEl('p','Rellenad lo que ya sepáis. Podéis guardar y continuar más adelante.','ep-org-helper'));
       const fields=org.tipo==='BODA'&&epWeddingFields[name]
         ?epWeddingFields[name]
         :[['Horario previsto','horario','text'],['Lugar o zona','lugar','text'],['Personas que participan','personas','text'],['Canciones o preferencias','canciones','textarea'],['Guion, actividades y detalles','detalles','textarea'],['Indicaciones al DJ o aportaciones','dj','textarea']];
@@ -1592,9 +1664,9 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       }else c.append(epInfo('Organización enviada: apartado de solo lectura.'));
       c.append(form);
       const music=epCard('Música y archivos · '+name);
-      music.append(epInfo('Añade aquí canciones, MP3, enlaces de Spotify o YouTube y documentos PDF/Word con listas musicales. Todo quedará asociado a '+name+'.'));
-      music.append(epBtn('🎵 Gestionar canciones y MP3 de '+name,()=>epMusic(id,name),'primary'));
-      music.append(epBtn('📎 Adjuntar listas PDF / Word de '+name,()=>epAttachments(id,name)));
+      music.append(epInfo('Todo lo que añadáis aquí quedará asociado a '+name+'. Podéis añadir canciones, MP3, enlaces o listas musicales.'));
+      music.append(epBtn('♫ Añadir canciones, Spotify o MP3',()=>epMusic(id,name),'primary'));
+      music.append(epBtn('📎 Adjuntar lista PDF o Word',()=>epAttachments(id,name)));
       root.append(c,music);
     }catch(e){epShowError(e)}
   };
