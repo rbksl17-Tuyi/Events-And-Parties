@@ -815,6 +815,7 @@ header.nav>#menu-principal.abierto{display:flex!important}
 .ep-budget-form label{display:grid;gap:6px}
 .ep-budget-card button,.ep-budget-form button,.private-panel>.ep-budget-actions button{padding:11px 16px;border-radius:8px;border:1px solid #d7ad55;background:#36260f;color:#f5d58c;font-weight:700;cursor:pointer}
 .ep-budget-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+ .ep-services{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}.ep-services label{display:flex;gap:8px;align-items:center;border:1px solid #775a32;padding:10px;border-radius:8px}.ep-services input{width:auto!important}.ep-budget-card .ep-budget-actions{margin-top:12px}.ep-budget-form select{width:100%;padding:12px;background:#181818;color:white;border:1px solid #a27a3b;border-radius:8px}.ep-budget-note{color:#cbbda7;font-size:.9rem} 
 </style>
 </head>
   
@@ -1016,6 +1017,9 @@ header.nav>#menu-principal.abierto{display:flex!important}
     <select name="tipo" required><option value="">Tipo de evento</option><option>Boda</option><option>Evento privado</option><option>Cumpleaños</option><option>Ceremonia</option><option>Evento escolar / colegio</option><option>Sonido e iluminación</option><option>Otro evento</option></select>
     <input name="lugar" placeholder="Lugar o localidad">
     <textarea name="detalles" placeholder="Cuéntanos un poco más (invitados, servicios, estilo musical...)"></textarea>
+    <fieldset class="full" style="border:1px solid #876536;border-radius:12px;padding:15px"><legend style="color:#f0c87a">¿Qué servicios necesitas?</legend><div class="ep-services"><label><input type="checkbox" name="servicios" value="DJ y música">DJ y música</label><label><input type="checkbox" name="servicios" value="Equipo de sonido">Equipo de sonido</label><label><input type="checkbox" name="servicios" value="Iluminación">Iluminación</label><label><input type="checkbox" name="servicios" value="Ceremonia">Ceremonia</label><label><input type="checkbox" name="servicios" value="Animación y juegos">Animación y juegos</label><label><input type="checkbox" name="servicios" value="Montaje técnico">Montaje técnico</label></div></fieldset>
+    <input name="invitados" type="number" min="1" placeholder="Número aproximado de invitados">
+    <input name="horario" placeholder="Horario aproximado (por ejemplo, 18:00 a 23:00)">
     
 <label style="display:flex;align-items:center;gap:10px;margin:15px 0;color:#fff;font-size:13px">
   <input type="checkbox" name="privacidad" required style="width:auto">
@@ -1132,7 +1136,7 @@ document.getElementById('year').textContent=new Date().getFullYear();
 const WHATSAPP_NUMBER='34652799029';
 document.getElementById('quoteForm').addEventListener('submit',function(e){
  e.preventDefault();const d=new FormData(this);
- const msg = `Hola, me gustaría consultar disponibilidad y presupuesto.\nNombre: ${d.get('nombre')}\nFecha: ${d.get('fecha')}\nTipo: ${d.get('tipo')}\nLugar: ${d.get('lugar')}\nDetalles: ${d.get('detalles')}`;
+ const msg = `Hola, me gustaría consultar disponibilidad y presupuesto.\nNombre: ${d.get('nombre')}\nFecha: ${d.get('fecha')}\nTipo: ${d.get('tipo')}\nLugar: ${d.get('lugar')}\nServicios: ${d.getAll('servicios').join(', ') || 'Por concretar'}\nInvitados: ${d.get('invitados') || 'Por concretar'}\nHorario: ${d.get('horario') || 'Por concretar'}\nDetalles: ${d.get('detalles')}`;
  window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 });
 </script>
@@ -1599,7 +1603,10 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const budgetNode=(tag,txt)=>{const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;return e};
   const budgetButton=(txt,fn)=>{const b=budgetNode('button',txt);b.type='button';b.addEventListener('click',fn);return b};
   const euro=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(n));
-  const budgetCard=p=>{const card=budgetNode('article');card.className='ep-budget-card';card.append(budgetNode('h3',p.titulo),budgetNode('p',p.descripcion||'Sin descripción'),budgetNode('p','Importe: '+euro(p.importe)),budgetNode('p','Estado: '+p.estado));return card};
+  const budgetCard=p=>{const card=budgetNode('article');card.className='ep-budget-card';card.append(budgetNode('h3',p.titulo),budgetNode('p',p.descripcion||'Sin descripción'),budgetNode('p','Importe: '+euro(p.importe)),budgetNode('p','Estado: '+p.estado));if(p.pdf_path){const open=budgetButton('📄 Ver / descargar PDF',async()=>{open.disabled=true;try{const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){alert('No se pudo abrir el PDF: '+e.message)}finally{open.disabled=false}});card.append(open)}return card};
+  const epFormField=(form,label,name,type='text',required=true)=>{const wrap=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':type==='select'?'select':'input');if(type!=='textarea'&&type!=='select')input.type=type;input.name=name;input.required=required;wrap.append(input);form.append(wrap);return input};
+  const epServices=['DJ y música','Sonido','Iluminación','Ceremonia','Animación y juegos','Montaje técnico','Otros'];
+  const epRequestForm=()=>{const section=budgetNode('section');section.className='ep-budget-card';section.append(budgetNode('h3','Solicitar un nuevo presupuesto'),budgetNode('p','Cuéntanos qué necesitas para tu evento. Te responderemos desde Events and Parties.'));const form=budgetNode('form');form.className='ep-budget-form';epFormField(form,'Nombre de contacto','nombre');const tipo=epFormField(form,'Tipo de evento','tipo','select');['','Boda','Cumpleaños','Evento privado','Colegio','Ceremonia','Otro'].forEach(v=>{const o=budgetNode('option',v||'Selecciona un evento');o.value=v;tipo.append(o)});epFormField(form,'Fecha del evento','fecha','date',false);epFormField(form,'Localidad / lugar','lugar','text',false);epFormField(form,'Horario aproximado','horario','text',false);const inv=epFormField(form,'Número de invitados','invitados','number',false);inv.min='1';const group=budgetNode('fieldset');const legend=budgetNode('legend','Servicios que necesitas');group.append(legend);const choices=budgetNode('div');choices.className='ep-services';epServices.forEach(v=>{const l=budgetNode('label');const input=budgetNode('input');input.type='checkbox';input.name='servicios';input.value=v;l.append(input,document.createTextNode(v));choices.append(l)});group.append(choices);form.append(group);epFormField(form,'Detalles o peticiones especiales','detalles','textarea',false);const send=budgetNode('button','Enviar solicitud');send.type='submit';form.append(send);form.addEventListener('submit',async e=>{e.preventDefault();send.disabled=true;const fd=new FormData(form);try{const {data:{user},error:authError}=await client.auth.getUser();if(authError||!user)throw new Error('Debes iniciar sesión');const payload={cliente_id:user.id,nombre:String(fd.get('nombre')||'').trim(),tipo:String(fd.get('tipo')||'').trim(),fecha:fd.get('fecha')||null,lugar:String(fd.get('lugar')||'').trim(),horario:String(fd.get('horario')||'').trim(),invitados:fd.get('invitados')?Number(fd.get('invitados')):null,servicios:fd.getAll('servicios'),detalles:String(fd.get('detalles')||'').trim()};const {error}=await client.from('ep_solicitudes_presupuesto').insert(payload);if(error)throw error;alert('Solicitud enviada correctamente');loadBudgets()}catch(err){alert('No se pudo enviar: '+err.message);send.disabled=false}});section.append(form);return section};
   const loadBudgets=async()=>{
     eventBody.textContent='Cargando presupuestos…';
     const {data:{user}}=await client.auth.getUser();
@@ -1607,8 +1614,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     const {data,error}=await client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false});
     if(eventTitle.textContent!=='Presupuestos')return;
     if(error){eventBody.textContent='Error: '+error.message;return}
-    eventBody.replaceChildren();
-    if(!data?.length){eventBody.textContent='Todavía no tienes presupuestos asignados.';return}
+    eventBody.replaceChildren(epRequestForm());
+    if(!data?.length){eventBody.append(budgetNode('p','Todavía no tienes presupuestos asignados.'));return}
     data.forEach(p=>{const card=budgetCard(p);if(p.estado==='PENDIENTE'){
       const actions=budgetNode('div');actions.className='ep-budget-actions';
       for(const estado of ['ACEPTADO','RECHAZADO'])actions.append(budgetButton(estado==='ACEPTADO'?'Aceptar':'Rechazar',async()=>{
@@ -1623,25 +1630,37 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     const {data,error}=await client.from('ep_presupuestos').select('*').order('creado_en',{ascending:false});
     if(eventTitle.textContent!=='Gestionar presupuestos')return;
     if(error){eventBody.textContent='Error: '+error.message;return}
-    eventBody.replaceChildren(budgetButton('+ Crear presupuesto',createBudget));
+    eventBody.replaceChildren(budgetButton('+ Crear presupuesto',()=>createBudget()));
+    const requestsTitle=budgetNode('h3','Solicitudes recibidas');eventBody.append(requestsTitle);
+    const {data:requests,error:reqError}=await client.from('ep_solicitudes_presupuesto').select('*').order('creado_en',{ascending:false}).limit(100);
+    if(reqError){eventBody.append(budgetNode('p','No se pudieron cargar las solicitudes: '+reqError.message))}
+    else if(!requests?.length){eventBody.append(budgetNode('p','Todavía no hay solicitudes.'))}
+    else requests.forEach(r=>{const box=budgetNode('article');box.className='ep-budget-card';box.append(budgetNode('h3',(r.tipo||'Evento')+' · '+r.nombre),budgetNode('p','Cliente UID: '+r.cliente_id),budgetNode('p','Fecha: '+(r.fecha||'Por concretar')+' · Lugar: '+(r.lugar||'Por concretar')),budgetNode('p','Servicios: '+(r.servicios||[]).join(', ')),budgetNode('p','Invitados: '+(r.invitados||'Por concretar')+' · Horario: '+(r.horario||'Por concretar')),budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));box.append(budgetButton('Crear presupuesto para este cliente',()=>createBudget(r.cliente_id)));eventBody.append(box)});
+    eventBody.append(budgetNode('h3','Presupuestos enviados'));
     if(!data?.length)eventBody.append(budgetNode('p','No hay presupuestos todavía.'));
     data?.forEach(p=>{const card=budgetCard(p);card.append(budgetNode('p','Cliente UID: '+p.cliente_id));
       card.append(budgetButton('Eliminar',async()=>{if(!confirm('¿Eliminar este presupuesto?'))return;
         const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
-        if(error)alert(error.message);else loadAdminBudgets();}));eventBody.append(card)});
+        if(error)alert(error.message);else{if(p.pdf_path)await client.storage.from('ep-presupuestos').remove([p.pdf_path]);loadAdminBudgets()}}));eventBody.append(card)});
   };
-  const createBudget=()=>{
+  const createBudget=(presetUid='')=>{
     eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'));
     const form=budgetNode('form');form.className='ep-budget-form';
     const field=(label,name,type='text')=>{const l=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':'input');
       if(type!=='textarea')input.type=type;input.name=name;input.required=name!=='descripcion';
       if(type==='number'){input.min='0';input.step='0.01'}l.append(input);form.append(l);return input};
-    field('UID del cliente','cliente_id');field('Título','titulo');field('Descripción','descripcion','textarea');field('Importe en euros','importe','number');
+    const uidInput=field('UID del cliente','cliente_id');uidInput.value=presetUid;field('Título','titulo');field('Descripción','descripcion','textarea');field('Importe en euros','importe','number');const pdf=field('Adjuntar presupuesto PDF (opcional)','pdf','file');pdf.accept='application/pdf';pdf.required=false;form.append(budgetNode('p','PDF máximo 10 MB. Solo el cliente asignado y la administración podrán acceder al archivo.'));
     const save=budgetNode('button','Guardar presupuesto');save.type='submit';form.append(save);
     form.addEventListener('submit',async e=>{e.preventDefault();save.disabled=true;
       const fd=new FormData(form);const payload={cliente_id:String(fd.get('cliente_id')).trim(),titulo:String(fd.get('titulo')).trim(),descripcion:String(fd.get('descripcion')||'').trim(),importe:Number(fd.get('importe')),estado:'PENDIENTE'};
-      const {error}=await client.from('ep_presupuestos').insert(payload);
-      if(error){alert(error.message);save.disabled=false}else loadAdminBudgets();});
+      let uploadedPath=null;
+      try{
+        const file=fd.get('pdf');
+        if(file instanceof File&&file.size){if(file.type!=='application/pdf'||file.size>10*1024*1024)throw new Error('Selecciona un PDF de máximo 10 MB');uploadedPath=payload.cliente_id+'/'+crypto.randomUUID()+'.pdf';const {error:uploadError}=await client.storage.from('ep-presupuestos').upload(uploadedPath,file,{contentType:'application/pdf',upsert:false});if(uploadError)throw uploadError;payload.pdf_path=uploadedPath}
+        const {error}=await client.from('ep_presupuestos').insert(payload);
+        if(error)throw error;
+        loadAdminBudgets();
+      }catch(error){if(uploadedPath)await client.storage.from('ep-presupuestos').remove([uploadedPath]);alert('No se pudo guardar: '+error.message);save.disabled=false}});
     eventBody.append(form,budgetButton('Cancelar',loadAdminBudgets));
   };
   const adminBudgetsNav=budgetButton('Gestionar presupuestos',()=>{
