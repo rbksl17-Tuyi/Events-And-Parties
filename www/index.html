@@ -1427,7 +1427,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   // ORGANIZADOR EVENTS AND PARTIES: presupuestos aceptados, edición por fases,
   // música, adjuntos, envío, solicitud y autorización de cambios, PDF e historial.
   const epTypes={
-    BODA:['Datos generales','Ceremonia','Entrada de novios','Cóctel','Banquete','Corte de tarta','Primer baile','Sorpresas y dedicatorias','Fiesta y baile','Últimos detalles'],
+    BODA:['Ceremonia','Cóctel','Banquete','Baile','Fiesta'],
     CUMPLEANOS:['Datos generales','Recepción','Entrada del homenajeado','Música ambiente','Tarta','Dedicatorias','Juegos y animación','Sorpresas','Fiesta y baile','Últimos detalles'],
     FIESTA:['Datos generales','Recepción','Ambientación musical','Actuaciones','Animación y concursos','Peticiones musicales','Momentos especiales','Fiesta y baile','Cierre','Últimos detalles'],
     COMUNION:['Datos generales','Recepción','Banquete','Música ambiente','Animación infantil','Juegos','Momentos especiales','Baile','Últimos detalles'],
@@ -1533,36 +1533,115 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       root.append(c);
     }catch(e){eventBody.replaceChildren(epInfo('No se pudo abrir el organizador: '+e.message),epBtn('Volver',epOrgList))}
   };
+  const epWeddingFields={
+    'Ceremonia':[
+      ['Horario de la ceremonia','horario','time'],
+      ['Canción de entrada del novio','entrada_novio','text'],
+      ['Canción de entrada de la novia','entrada_novia','text'],
+      ['Modificaciones o cambios previstos','modificaciones','textarea'],
+      ['Indicaciones al DJ o aportaciones','dj','textarea']],
+    'Cóctel':[
+      ['Hora de inicio del cóctel','inicio','time'],
+      ['Hora de finalización del cóctel','fin','time'],
+      ['Tipo de música o ambiente deseado','tipo_musica','textarea'],
+      ['Canciones o artistas preferidos','canciones','textarea'],
+      ['Indicaciones al DJ o aportaciones','dj','textarea']],
+    'Banquete':[
+      ['Horario del banquete','horario','time'],
+      ['Canción de entrada de los novios','entrada_novios','text'],
+      ['Canción del corte de tarta','corte_tarta','text'],
+      ['Música para momentos especiales','momentos','textarea'],
+      ['A quién se dedica cada momento y qué canción debe sonar','dedicatorias','textarea'],
+      ['Indicaciones al DJ o aportaciones','dj','textarea']],
+    'Baile':[
+      ['Hora de inicio del baile','horario','time'],
+      ['Canción de entrada o primer baile','primer_baile','text'],
+      ['Tipo de canción o estilo de baile','estilo','text'],
+      ['Otras canciones o momentos durante el baile','canciones','textarea'],
+      ['Indicaciones al DJ o aportaciones','dj','textarea']],
+    'Fiesta':[
+      ['Hora de inicio de la fiesta','inicio','time'],
+      ['Hora final de la fiesta','fin','time'],
+      ['Tipo de música que queréis','tipo_musica','textarea'],
+      ['Canciones y artistas que queréis escuchar','canciones','textarea'],
+      ['Canciones que NO queréis escuchar','excluidas','textarea'],
+      ['Canción de cierre o final de fiesta','cierre','text'],
+      ['Indicaciones al DJ o aportaciones','dj','textarea']]
+  };
   const epEditSection=async(id,name)=>{
     try{
       const org=await epGetOrg(id),editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
       const root=epOrgRoot();root.append(epBtn('← Volver al evento',()=>epOpenOrg(id)));
       const c=epCard(name),form=epEl('form',undefined,'ep-org-form'),old=org.contenido?.[name]||{};
-      epField(form,'Horario previsto','horario','text',old.horario);
-      epField(form,'Lugar o zona','lugar','text',old.lugar);
-      epField(form,'Personas que participan','personas','text',old.personas);
-      epField(form,'Canciones o preferencias para este momento','canciones','textarea',old.canciones);
-      epField(form,'Guion, dedicatorias, actividades y detalles','detalles','textarea',old.detalles);
-      epField(form,'Indicaciones para el DJ','dj','textarea',old.dj);
+      const fields=org.tipo==='BODA'&&epWeddingFields[name]
+        ?epWeddingFields[name]
+        :[['Horario previsto','horario','text'],['Lugar o zona','lugar','text'],['Personas que participan','personas','text'],['Canciones o preferencias','canciones','textarea'],['Guion, actividades y detalles','detalles','textarea'],['Indicaciones al DJ o aportaciones','dj','textarea']];
+      fields.forEach(([label,key,type])=>epField(form,label,key,type,old[key]||''));
       const check=epEl('label','Apartado completado'),checkbox=epEl('input');checkbox.type='checkbox';checkbox.name='completado';checkbox.checked=Boolean(old.completado);check.append(checkbox);form.append(check);
       [...form.elements].forEach(e=>{if(e.name)e.disabled=!editable});
       if(editable){
         const save=epEl('button','Guardar apartado','ep-org-btn primary');save.type='submit';form.append(save);
         form.addEventListener('submit',async e=>{
           e.preventDefault();save.disabled=true;
-          const fd=new FormData(form),next={...(org.contenido||{})};
-          next[name]={horario:String(fd.get('horario')||''),lugar:String(fd.get('lugar')||''),personas:String(fd.get('personas')||''),canciones:String(fd.get('canciones')||''),detalles:String(fd.get('detalles')||''),dj:String(fd.get('dj')||''),completado:fd.has('completado')};
+          const fd=new FormData(form),next={...(org.contenido||{})},section={};
+          fields.forEach(([,key])=>section[key]=String(fd.get(key)||''));
+          section.completado=fd.has('completado');next[name]=section;
           try{await epCall(client.from('ep_organizaciones').update({contenido:next}).eq('id',id));await epOpenOrg(id)}
           catch(err){epShowError(err);save.disabled=false}
         });
       }else c.append(epInfo('Organización enviada: apartado de solo lectura.'));
-      c.append(form);root.append(c);
+      c.append(form);
+      const music=epCard('Música y archivos · '+name);
+      music.append(epInfo('Añade aquí canciones, MP3, enlaces de Spotify o YouTube y documentos PDF/Word con listas musicales. Todo quedará asociado a '+name+'.'));
+      music.append(epBtn('🎵 Gestionar canciones y MP3 de '+name,()=>epMusic(id,name),'primary'));
+      music.append(epBtn('📎 Adjuntar listas PDF / Word de '+name,()=>epAttachments(id,name)));
+      root.append(c,music);
     }catch(e){epShowError(e)}
   };
-  const epMusic=async(id)=>{
+  const epAttachments=async(id,momento)=>{
     try{
       const org=await epGetOrg(id),editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
-      const songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',id).order('orden',{ascending:true}).order('creado_en',{ascending:true}));
+      const root=epOrgRoot();root.append(epBtn('← Volver a '+momento,()=>epEditSection(id,momento)));
+      const c=epCard('Documentos musicales · '+momento);
+      c.append(epInfo('Puedes adjuntar PDF, Word (.doc o .docx) o un listado de canciones en texto. Máximo 10 MB por archivo. Solo comparte documentos propios o autorizados.'));
+      if(editable){
+        const form=epEl('form',undefined,'ep-org-form');
+        const file=epField(form,'Seleccionar documento','archivo','file');file.accept='.pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain';file.required=true;
+        const submit=epEl('button','Subir documento','ep-org-btn primary');submit.type='submit';form.append(submit);
+        form.addEventListener('submit',async e=>{
+          e.preventDefault();submit.disabled=true;let path=null;
+          try{
+            const f=file.files?.[0];if(!f)throw Error('Selecciona un archivo');
+            const ext=f.name.split('.').pop().toLowerCase();
+            const mime={pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',txt:'text/plain'}[ext];
+            if(!mime||f.size>10*1024*1024)throw Error('Solo PDF, Word o TXT de hasta 10 MB');
+            path=org.cliente_id+'/'+id+'/'+crypto.randomUUID()+'.'+ext;
+            await epCall(client.storage.from('ep-documentos-evento').upload(path,f,{contentType:mime,upsert:false}));
+            await epCall(client.from('ep_adjuntos_evento').insert({organizacion_id:id,cliente_id:org.cliente_id,momento,nombre:f.name,archivo_path:path}));
+            await epAttachments(id,momento);
+          }catch(err){if(path)await client.storage.from('ep-documentos-evento').remove([path]);epShowError(err);submit.disabled=false}
+        });c.append(form);
+      }
+      const docs=await epCall(client.from('ep_adjuntos_evento').select('*').eq('organizacion_id',id).eq('momento',momento).order('creado_en',{ascending:false}));
+      if(!docs.length)c.append(epInfo('No hay documentos adjuntos.'));
+      for(const d of docs){
+        const row=epEl('div',undefined,'ep-org-song');
+        row.append(epEl('strong',d.nombre));
+        row.append(epBtn('Abrir / descargar',async()=>{
+          try{const {data,error}=await client.storage.from('ep-documentos-evento').createSignedUrl(d.archivo_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(err){epShowError(err)}
+        }));
+        if(editable)row.append(epBtn('Eliminar',async()=>{
+          if(!confirm('¿Eliminar el documento?'))return;
+          try{await epCall(client.from('ep_adjuntos_evento').delete().eq('id',d.id));await client.storage.from('ep-documentos-evento').remove([d.archivo_path]);await epAttachments(id,momento)}catch(err){epShowError(err)}
+        }));
+        c.append(row);
+      }root.append(c);
+    }catch(e){epShowError(e)}
+  };
+  const epMusic=async(id,momentoSeleccionado=null)=>{
+    try{
+      const org=await epGetOrg(id),editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
+      const songs=await epCall((momentoSeleccionado?client.from('ep_canciones_evento').select('*').eq('organizacion_id',id).eq('momento',momentoSeleccionado):client.from('ep_canciones_evento').select('*').eq('organizacion_id',id)).order('orden',{ascending:true}).order('creado_en',{ascending:true}));
       const root=epOrgRoot();root.append(epBtn('← Volver al evento',()=>epOpenOrg(id)));
       const c=epCard('Música y archivos de tu evento');
       c.append(epInfo('Añade título, artista, momento y enlaces de referencia. Puedes adjuntar MP3 propios o que tengas permiso para compartir (máximo 20 MB por archivo).'));
@@ -1592,8 +1671,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
               path=org.cliente_id+'/'+id+'/'+crypto.randomUUID()+'.mp3';
               await epCall(client.storage.from('ep-musica').upload(path,file,{contentType:'audio/mpeg',upsert:false}));
             }
-            await epCall(client.from('ep_canciones_evento').insert({organizacion_id:id,cliente_id:org.cliente_id,momento:String(fd.get('momento')),titulo:String(fd.get('titulo')).trim(),artista:String(fd.get('artista')||''),enlace:link||null,preferencia:String(fd.get('preferencia')),orden:Number(fd.get('orden')||0),notas:String(fd.get('notas')||''),mp3_path:path}));
-            await epMusic(id);
+            await epCall(client.from('ep_canciones_evento').insert({organizacion_id:id,cliente_id:org.cliente_id,momento:momentoSeleccionado||String(fd.get('momento')),titulo:String(fd.get('titulo')).trim(),artista:String(fd.get('artista')||''),enlace:link||null,preferencia:String(fd.get('preferencia')),orden:Number(fd.get('orden')||0),notas:String(fd.get('notas')||''),mp3_path:path}));
+            await epMusic(id,momentoSeleccionado);
           }catch(err){if(path)await client.storage.from('ep-musica').remove([path]);epShowError(err);save.disabled=false}
         });c.append(form);
       }
@@ -1689,7 +1768,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
           try{const {data,error}=await client.storage.from('ep-musica').createSignedUrl(s.mp3_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){epShowError(e)}
         }));
       });
-      c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.contenido,songs,o.titulo,o.version),'primary'));
+            c.append(epBtn('Ver documentos PDF / Word adjuntos',()=>epAdminAttachments(id)));
+c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.contenido,songs,o.titulo,o.version),'primary'));
       if(o.estado==='CAMBIO_SOLICITADO'){
         const requests=await epCall(client.from('ep_cambios_organizacion').select('*').eq('organizacion_id',id).eq('estado','PENDIENTE').order('creado_en',{ascending:false}));
         for(const r of requests){
@@ -1698,6 +1778,18 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
         }
       }
       c.append(epBtn('Ver historial de versiones',()=>epVersionsAdmin(id)));
+      eventBody.append(c);
+    }catch(e){epShowError(e)}
+  };
+  const epAdminAttachments=async(id)=>{
+    eventBody.replaceChildren(epBtn('← Volver al evento',()=>epAdminDetail(id)));
+    try{
+      const docs=await epCall(client.from('ep_adjuntos_evento').select('*').eq('organizacion_id',id).order('momento',{ascending:true}));
+      const c=epCard('Documentos adjuntos por apartado');
+      if(!docs.length)c.append(epInfo('No hay documentos adjuntos.'));
+      for(const d of docs)c.append(epBtn(d.momento+' · '+d.nombre,async()=>{
+        try{const {data,error}=await client.storage.from('ep-documentos-evento').createSignedUrl(d.archivo_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){epShowError(e)}
+      }));
       eventBody.append(c);
     }catch(e){epShowError(e)}
   };
@@ -2101,6 +2193,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     const title=button.dataset.privateTab;
     eventTitle.textContent=title;
     if(title==='Mis eventos'){++calRequest;loadEvents();return}
+    if(title==='Organizadores recibidos'){if(!isAdmin)return;epAdminOrganizers();return}
     if(title==='Organizadores recibidos'){if(!isAdmin){eventBody.textContent='Acceso no autorizado';return}epAdminOrganizers();return}
     ++eventsRequest;
     if(title==='Calendario'){loadCalendar();return}
