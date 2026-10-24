@@ -1360,12 +1360,14 @@ tarjeta.addEventListener("touchend", (e) => {
       <button type="button" data-private-tab="Documentos">Documentos</button>
       <button type="button" data-private-tab="Mi perfil">Mi perfil</button>
       <button type="button" id="adminNav" data-private-tab="Administración" hidden>Administración</button>
+      <button type="button" id="epOrgAdminNav" data-private-tab="Organizadores recibidos" hidden>Organizadores recibidos</button>
     </nav>
     <section class="private-panel"><h2 id="privatePanelTitle">Mis eventos</h2><p id="privateWelcome"></p><div class="private-empty" id="privatePanelBody">Todavía no hay eventos para mostrar.</div></section>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script>
 /* Sustituir estos valores por la URL y la clave PUBLICABLE del proyecto.
    Nunca introducir aquí la clave secret o service_role. */
@@ -1422,19 +1424,302 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const formatDate=(value)=>{if(!value)return 'Sin fecha';const parts=String(value).split('-');return parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:String(value)};
   const addDetail=(parent,label,value)=>{if(value===null||value===undefined||value==='')return;const line=document.createElement('p');line.style.margin='7px 0';const strong=document.createElement('strong');strong.textContent=label+': ';line.append(strong,document.createTextNode(String(value)));parent.appendChild(line)};
   let eventsRequest=0;
+  // ORGANIZADOR EVENTS AND PARTIES: presupuestos aceptados, edición por fases,
+  // música, adjuntos, envío, solicitud y autorización de cambios, PDF e historial.
+  const epTypes={
+    BODA:['Datos generales','Ceremonia','Entrada de novios','Cóctel','Banquete','Corte de tarta','Primer baile','Sorpresas y dedicatorias','Fiesta y baile','Últimos detalles'],
+    CUMPLEANOS:['Datos generales','Recepción','Entrada del homenajeado','Música ambiente','Tarta','Dedicatorias','Juegos y animación','Sorpresas','Fiesta y baile','Últimos detalles'],
+    FIESTA:['Datos generales','Recepción','Ambientación musical','Actuaciones','Animación y concursos','Peticiones musicales','Momentos especiales','Fiesta y baile','Cierre','Últimos detalles'],
+    COMUNION:['Datos generales','Recepción','Banquete','Música ambiente','Animación infantil','Juegos','Momentos especiales','Baile','Últimos detalles'],
+    OTRO:['Datos generales','Recepción','Programa y horarios','Música ambiente','Actividades','Momentos especiales','Fiesta y baile','Últimos detalles']
+  };
+  const epTypeOf=(value)=>{
+    const t=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+    if(t.includes('BODA'))return 'BODA';
+    if(t.includes('CUMPLE'))return 'CUMPLEANOS';
+    if(t.includes('COMUNION'))return 'COMUNION';
+    if(t.includes('FIESTA')||t.includes('PRIVADO')||t.includes('VERBENA'))return 'FIESTA';
+    return 'OTRO';
+  };
+  const epEl=(tag,txt,cls)=>{const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e};
+  const epBtn=(label,cb,cls='')=>{const b=epEl('button',label,'ep-org-btn '+cls);b.type='button';b.addEventListener('click',cb);return b};
+  const epInfo=(txt)=>epEl('p',txt,'ep-org-muted');
+  const epCall=async(query)=>{const {data,error}=await query;if(error)throw error;return data};
+  const epShowError=(error)=>alert('No se pudo completar la operación: '+error.message);
+  const epCard=(title)=>{const c=epEl('section',undefined,'ep-org-card');c.append(epEl('h3',title));return c};
+  const epOrgStyle=document.createElement('style');
+  epOrgStyle.textContent=`
+    .ep-org-card{padding:22px;margin:15px 0;border:1px solid #8b6b3c;border-radius:15px;background:linear-gradient(145deg,#191711,#100f0d);color:#eee1ca}
+    .ep-org-card h3{color:#e8c789;margin:0 0 14px}
+    .ep-org-muted{color:#c6b9a4;font-size:.93rem}
+    .ep-org-btn{border:1px solid #a9884f;background:#231d13;color:#f5dfb1;padding:11px 14px;border-radius:9px;margin:5px;cursor:pointer}
+    .ep-org-btn.primary{background:linear-gradient(110deg,#a47c38,#d9b874);color:#17120b;font-weight:700}
+    .ep-org-btn:disabled{opacity:.45;cursor:not-allowed}
+    .ep-org-form{display:grid;gap:13px;margin:14px 0}
+    .ep-org-form label{display:grid;gap:5px;color:#e5c88e;font-weight:600}
+    .ep-org-form input,.ep-org-form select,.ep-org-form textarea{box-sizing:border-box;width:100%;background:#100e0b;color:#fff;border:1px solid #7e673e;border-radius:8px;padding:11px;font:inherit}
+    .ep-org-form textarea{min-height:90px}
+    .ep-org-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+    .ep-org-grid button{min-height:65px;text-align:left}
+    .ep-org-pill{display:inline-block;border:1px solid #9d7d43;border-radius:30px;padding:5px 10px;margin:5px;color:#f1d6a1}
+    .ep-org-track{height:9px;background:#3e3527;border-radius:20px;overflow:hidden;margin:12px 0}
+    .ep-org-track>span{display:block;height:100%;background:#d3ae6c}
+    .ep-org-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px}
+    .ep-org-song{padding:12px;border-bottom:1px solid #6c5735}
+    .ep-org-card a{color:#f2cf8c;text-decoration:underline}
+  `;
+  document.head.append(epOrgStyle);
+  const epField=(form,label,name,type='text',value='',required=false)=>{
+    const wrap=epEl('label',label),i=epEl(type==='textarea'?'textarea':type==='select'?'select':'input');
+    if(type!=='textarea'&&type!=='select')i.type=type;
+    i.name=name;i.required=required;
+    if(type==='textarea')i.value=value||'';else if(type!=='select')i.value=value??'';
+    wrap.append(i);form.append(wrap);return i;
+  };
+  const epOrgRoot=()=>{eventBody.replaceChildren();const h=epEl('div',undefined,'ep-org-row');h.append(epEl('h3','Organiza tu evento'));eventBody.append(h);return eventBody};
+  const epOrgList=async()=>{
+    const root=epOrgRoot();root.append(epInfo('Solo los presupuestos aceptados permiten organizar un evento. Guarda cada apartado y envía la organización al DJ cuando esté lista.'));
+    try{
+      const {data:{user}}=await client.auth.getUser();
+      const [budgets,orgs]=await Promise.all([
+        epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado,creado_en').eq('cliente_id',user.id).eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
+        epCall(client.from('ep_organizaciones').select('*').eq('cliente_id',user.id).order('actualizado_en',{ascending:false}))
+      ]);
+      if(!budgets.length)root.append(epInfo('Aún no tienes presupuestos aceptados. Cuando aceptes uno, aparecerá aquí para organizar tu evento.'));
+      for(const b of budgets){
+        const o=orgs.find(x=>String(x.presupuesto_id)===String(b.id)),card=epCard(b.titulo||'Mi celebración');
+        card.append(epInfo(o?'Estado: '+o.estado+' · Versión '+o.version:'Presupuesto aceptado · Pendiente de organizar'));
+        card.append(epBtn(o?'Abrir organizador':'Comenzar a organizar',async()=>{
+          try{
+            let org=o;
+            if(!org){
+              org=await epCall(client.from('ep_organizaciones').insert({presupuesto_id:b.id,cliente_id:user.id,tipo:epTypeOf(b.titulo+' '+(b.descripcion||'')),titulo:b.titulo,estado:'BORRADOR'}).select('*').single());
+            }
+            await epOpenOrg(org.id);
+          }catch(e){epShowError(e)}
+        },'primary'));root.append(card);
+      }
+    }catch(e){root.append(epInfo('El organizador necesita las nuevas tablas de Supabase. '+e.message))}
+  };
+  const epGetOrg=async(id)=>epCall(client.from('ep_organizaciones').select('*').eq('id',id).single());
+  const epOpenOrg=async(id)=>{
+    try{
+      const org=await epGetOrg(id);
+      const root=epOrgRoot();
+      root.append(epBtn('← Volver a mis eventos',epOrgList));
+      const c=epCard(org.titulo||'Mi evento');c.append(epEl('p','Tipo: '+org.tipo+' · Estado: '+org.estado+' · Versión '+org.version));
+      const sections=epTypes[org.tipo]||epTypes.OTRO;
+      const content=org.contenido||{};
+      const completed=sections.filter(x=>content[x]?.completado).length;
+      c.append(epInfo('Apartados completados: '+completed+' de '+sections.length));
+      const track=epEl('div',undefined,'ep-org-track'),fill=epEl('span');fill.style.width=(completed/sections.length*100)+'%';track.append(fill);c.append(track);
+      const editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
+      const grid=epEl('div',undefined,'ep-org-grid');
+      sections.forEach(name=>grid.append(epBtn((content[name]?.completado?'✓ ':'○ ')+name,()=>epEditSection(id,name))));
+      c.append(grid,epBtn('🎵 Música y archivos',()=>epMusic(id)));
+      if(editable){
+        c.append(epBtn('Finalizar y enviar al DJ',async()=>{
+          if(completed!==sections.length){alert('Completa todos los apartados antes de enviar.');return}
+          if(!confirm('¿Enviar la organización al DJ? Quedará bloqueada hasta que se autoricen cambios.'))return;
+          try{await epCall(client.rpc('ep_enviar_organizacion',{p_organizacion:id}));await epOpenOrg(id)}
+          catch(e){epShowError(e)}
+        },'primary'));
+      }else{
+        c.append(epInfo('Esta organización está bloqueada. Para editarla necesitas autorización.'));
+        if(org.estado==='ENVIADA'||org.estado==='CAMBIO_RECHAZADO')c.append(epBtn('Solicitar modificaciones',()=>epRequestChanges(id)));
+        if(org.estado==='CAMBIO_SOLICITADO')c.append(epInfo('Solicitud de cambios pendiente de revisión.'));
+      }
+      c.append(epBtn('Ver historial de versiones',()=>epVersions(id)));
+      root.append(c);
+    }catch(e){eventBody.replaceChildren(epInfo('No se pudo abrir el organizador: '+e.message),epBtn('Volver',epOrgList))}
+  };
+  const epEditSection=async(id,name)=>{
+    try{
+      const org=await epGetOrg(id),editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
+      const root=epOrgRoot();root.append(epBtn('← Volver al evento',()=>epOpenOrg(id)));
+      const c=epCard(name),form=epEl('form',undefined,'ep-org-form'),old=org.contenido?.[name]||{};
+      epField(form,'Horario previsto','horario','text',old.horario);
+      epField(form,'Lugar o zona','lugar','text',old.lugar);
+      epField(form,'Personas que participan','personas','text',old.personas);
+      epField(form,'Canciones o preferencias para este momento','canciones','textarea',old.canciones);
+      epField(form,'Guion, dedicatorias, actividades y detalles','detalles','textarea',old.detalles);
+      epField(form,'Indicaciones para el DJ','dj','textarea',old.dj);
+      const check=epEl('label','Apartado completado'),checkbox=epEl('input');checkbox.type='checkbox';checkbox.name='completado';checkbox.checked=Boolean(old.completado);check.append(checkbox);form.append(check);
+      [...form.elements].forEach(e=>{if(e.name)e.disabled=!editable});
+      if(editable){
+        const save=epEl('button','Guardar apartado','ep-org-btn primary');save.type='submit';form.append(save);
+        form.addEventListener('submit',async e=>{
+          e.preventDefault();save.disabled=true;
+          const fd=new FormData(form),next={...(org.contenido||{})};
+          next[name]={horario:String(fd.get('horario')||''),lugar:String(fd.get('lugar')||''),personas:String(fd.get('personas')||''),canciones:String(fd.get('canciones')||''),detalles:String(fd.get('detalles')||''),dj:String(fd.get('dj')||''),completado:fd.has('completado')};
+          try{await epCall(client.from('ep_organizaciones').update({contenido:next}).eq('id',id));await epOpenOrg(id)}
+          catch(err){epShowError(err);save.disabled=false}
+        });
+      }else c.append(epInfo('Organización enviada: apartado de solo lectura.'));
+      c.append(form);root.append(c);
+    }catch(e){epShowError(e)}
+  };
+  const epMusic=async(id)=>{
+    try{
+      const org=await epGetOrg(id),editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
+      const songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',id).order('orden',{ascending:true}).order('creado_en',{ascending:true}));
+      const root=epOrgRoot();root.append(epBtn('← Volver al evento',()=>epOpenOrg(id)));
+      const c=epCard('Música y archivos de tu evento');
+      c.append(epInfo('Añade título, artista, momento y enlaces de referencia. Puedes adjuntar MP3 propios o que tengas permiso para compartir (máximo 20 MB por archivo).'));
+      if(editable){
+        const form=epEl('form',undefined,'ep-org-form');
+        const moment=epField(form,'Momento del evento','momento','select');
+        (epTypes[org.tipo]||epTypes.OTRO).forEach(v=>{const o=epEl('option',v);o.value=v;moment.append(o)});
+        epField(form,'Título de la canción','titulo','text','',true);
+        epField(form,'Artista','artista');
+        epField(form,'Enlace de Spotify o YouTube (opcional)','enlace','url');
+        const pref=epField(form,'Preferencia','preferencia','select');
+        ['Imprescindible','Me gustaría','No poner'].forEach(v=>{const o=epEl('option',v);o.value=v;pref.append(o)});
+        const orden=epField(form,'Orden de reproducción (opcional)','orden','number',songs.length+1);
+        orden.min='0';
+        epField(form,'Notas para el DJ','notas','textarea');
+        const mp3=epField(form,'Archivo MP3 (opcional, máximo 20 MB)','mp3','file');mp3.accept='.mp3,audio/mpeg';
+        const save=epEl('button','Añadir canción','ep-org-btn primary');save.type='submit';form.append(save);
+        form.addEventListener('submit',async e=>{
+          e.preventDefault();save.disabled=true;
+          const fd=new FormData(form),link=String(fd.get('enlace')||'').trim();
+          let path=null;
+          try{
+            if(link&&!/^https:\/\/(open\.spotify\.com|(?:www\.)?(youtube\.com|youtu\.be|music\.youtube\.com))\//i.test(link))throw Error('Solo se permiten enlaces HTTPS de Spotify o YouTube.');
+            const file=fd.get('mp3');
+            if(file instanceof File&&file.size){
+              if(file.size>20*1024*1024||(!file.name.toLowerCase().endsWith('.mp3')&&file.type!=='audio/mpeg'))throw Error('Solo MP3 de máximo 20 MB');
+              path=org.cliente_id+'/'+id+'/'+crypto.randomUUID()+'.mp3';
+              await epCall(client.storage.from('ep-musica').upload(path,file,{contentType:'audio/mpeg',upsert:false}));
+            }
+            await epCall(client.from('ep_canciones_evento').insert({organizacion_id:id,cliente_id:org.cliente_id,momento:String(fd.get('momento')),titulo:String(fd.get('titulo')).trim(),artista:String(fd.get('artista')||''),enlace:link||null,preferencia:String(fd.get('preferencia')),orden:Number(fd.get('orden')||0),notas:String(fd.get('notas')||''),mp3_path:path}));
+            await epMusic(id);
+          }catch(err){if(path)await client.storage.from('ep-musica').remove([path]);epShowError(err);save.disabled=false}
+        });c.append(form);
+      }
+      c.append(epEl('h3','Canciones añadidas'));
+      if(!songs.length)c.append(epInfo('Todavía no hay canciones.'));
+      songs.forEach(song=>{
+        const row=epEl('div',undefined,'ep-org-song');
+        row.append(epEl('strong',(song.titulo||'Canción')+' — '+(song.artista||'Artista por concretar')),epInfo(song.momento+' · '+song.preferencia+' · Orden '+song.orden),epInfo(song.notas||''));
+        if(song.enlace){const a=epEl('a','Abrir referencia musical');a.href=song.enlace;a.target='_blank';a.rel='noopener noreferrer';row.append(a)}
+        if(song.mp3_path)row.append(epBtn('Escuchar / descargar MP3',async()=>{
+          try{const {data,error}=await client.storage.from('ep-musica').createSignedUrl(song.mp3_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){epShowError(e)}
+        }));
+        if(editable)row.append(epBtn('Eliminar canción',async()=>{
+          if(!confirm('¿Eliminar esta canción?'))return;
+          try{await epCall(client.from('ep_canciones_evento').delete().eq('id',song.id));if(song.mp3_path)await client.storage.from('ep-musica').remove([song.mp3_path]);await epMusic(id)}catch(e){epShowError(e)}
+        }));
+        c.append(row);
+      });root.append(c);
+    }catch(e){epShowError(e)}
+  };
+  const epRequestChanges=async(id)=>{
+    const root=epOrgRoot();root.append(epBtn('← Volver',()=>epOpenOrg(id)));
+    const c=epCard('Solicitar modificaciones'),form=epEl('form',undefined,'ep-org-form');
+    epField(form,'Explica qué necesitas cambiar','motivo','textarea','',true);
+    const send=epEl('button','Enviar solicitud de cambios','ep-org-btn primary');send.type='submit';form.append(send);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();send.disabled=true;
+      try{await epCall(client.rpc('ep_solicitar_cambios',{p_organizacion:id,p_motivo:String(new FormData(form).get('motivo')).trim()}));await epOpenOrg(id)}
+      catch(err){epShowError(err);send.disabled=false}
+    });c.append(form);root.append(c);
+  };
+  const epVersions=async(id)=>{
+    const root=epOrgRoot();root.append(epBtn('← Volver',()=>epOpenOrg(id)));
+    try{
+      const versions=await epCall(client.from('ep_organizaciones_versiones').select('*').eq('organizacion_id',id).order('version',{ascending:false}));
+      root.append(epEl('h3','Historial de versiones'));
+      if(!versions.length)root.append(epInfo('Aún no hay versiones enviadas.'));
+      versions.forEach(v=>{
+        const c=epCard('Versión '+v.version+' · '+new Date(v.creado_en).toLocaleString('es-ES'));
+        c.append(epBtn('Descargar PDF de esta versión',()=>epExportPdf(v.contenido,v.canciones||[],v.titulo||'Mi evento',v.version)));
+        root.append(c);
+      });
+    }catch(e){root.append(epInfo(e.message))}
+  };
+  const epExportPdf=async(content,songs,title,version)=>{
+    if(!window.jspdf?.jsPDF){alert('No se ha cargado el generador de PDF. Comprueba la conexión a Internet.');return}
+    const doc=new window.jspdf.jsPDF(),margin=17,width=176;let y=20;
+    const line=(text,size=10)=>{
+      doc.setFontSize(size);
+      const wrapped=doc.splitTextToSize(String(text??''),width);
+      for(const part of wrapped){if(y>275){doc.addPage();y=20}doc.text(part,margin,y);y+=size*.52+2}
+    };
+    doc.setTextColor(154,113,44);line('EVENTS AND PARTIES · ORGANIZACION DE EVENTO',15);
+    doc.setTextColor(35,35,35);line(title+' · Version '+version,13);y+=6;
+    for(const [section,fields] of Object.entries(content||{})){
+      doc.setTextColor(154,113,44);line(section,12);doc.setTextColor(35,35,35);
+      for(const [key,value] of Object.entries(fields||{}))if(key!=='completado'&&value)line(key.toUpperCase()+': '+value);
+      y+=5;
+    }
+    doc.setTextColor(154,113,44);line('LISTA MUSICAL',12);doc.setTextColor(35,35,35);
+    for(const song of songs)line((song.momento||'')+' · '+(song.titulo||'')+' — '+(song.artista||'')+' · '+(song.preferencia||'')+(song.enlace?' · '+song.enlace:'')+(song.mp3_path?' · MP3 adjunto (descarga por separado)':''));
+    doc.save('Events_and_Parties_Organizacion_v'+version+'.pdf');
+  };
+  const epAdminOrganizers=async()=>{
+    eventBody.replaceChildren(epEl('h3','Organizaciones de clientes'),epInfo('Avisos de organizaciones recibidas y solicitudes de cambios. Los PDF se generan desde cada versión.'));
+    try{
+      const orgs=await epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}).limit(200));
+      const profiles=await epCall(client.from('ep_clientes_perfiles').select('id,nombre,email'));
+      if(!orgs.length)eventBody.append(epInfo('No hay organizaciones todavía.'));
+      for(const o of orgs){
+        const p=profiles.find(x=>x.id===o.cliente_id),c=epCard(o.titulo||'Evento');
+        c.append(epInfo('Cliente: '+(p?.nombre||p?.email||'Cliente')+' · Estado: '+o.estado+' · Versión '+o.version));
+        if(['ENVIADA','CAMBIO_SOLICITADO'].includes(o.estado))c.append(epEl('span',o.estado==='ENVIADA'?'● Organización recibida':'● Solicitud de modificación pendiente','ep-org-pill'));
+        c.append(epBtn('Consultar organización y descargar PDF',()=>epAdminDetail(o.id),'primary'));
+        eventBody.append(c);
+      }
+    }catch(e){eventBody.append(epInfo('Es necesario crear las tablas y políticas de Supabase: '+e.message))}
+  };
+  const epAdminDetail=async(id)=>{
+    try{
+      const o=await epGetOrg(id),songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',id).order('orden',{ascending:true}));
+      eventBody.replaceChildren(epBtn('← Volver a organizaciones',epAdminOrganizers));
+      const c=epCard(o.titulo+' · '+o.estado);
+      c.append(epInfo('Tipo: '+o.tipo+' · Versión '+o.version));
+      for(const [name,fields] of Object.entries(o.contenido||{})){
+        c.append(epEl('h3',name));
+        for(const [key,value] of Object.entries(fields||{}))if(key!=='completado'&&value)c.append(epInfo(key+': '+value));
+      }
+      c.append(epEl('h3','Música'));
+      songs.forEach(s=>{
+        c.append(epInfo(s.momento+' · '+s.titulo+' — '+s.artista+' · '+s.preferencia));
+        if(s.mp3_path)c.append(epBtn('Descargar MP3: '+s.titulo,async()=>{
+          try{const {data,error}=await client.storage.from('ep-musica').createSignedUrl(s.mp3_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){epShowError(e)}
+        }));
+      });
+      c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.contenido,songs,o.titulo,o.version),'primary'));
+      if(o.estado==='CAMBIO_SOLICITADO'){
+        const requests=await epCall(client.from('ep_cambios_organizacion').select('*').eq('organizacion_id',id).eq('estado','PENDIENTE').order('creado_en',{ascending:false}));
+        for(const r of requests){
+          c.append(epInfo('Solicitud del cliente: '+r.motivo));
+          c.append(epBtn('Autorizar cambios',()=>epDecideChange(r.id,true,id),'primary'),epBtn('Rechazar cambios',()=>epDecideChange(r.id,false,id)));
+        }
+      }
+      c.append(epBtn('Ver historial de versiones',()=>epVersionsAdmin(id)));
+      eventBody.append(c);
+    }catch(e){epShowError(e)}
+  };
+  const epVersionsAdmin=async(id)=>{
+    eventBody.replaceChildren(epBtn('← Volver al evento',()=>epAdminDetail(id)));
+    try{
+      const versions=await epCall(client.from('ep_organizaciones_versiones').select('*').eq('organizacion_id',id).order('version',{ascending:false}));
+      for(const v of versions){
+        const c=epCard('Versión '+v.version+' · '+new Date(v.creado_en).toLocaleString('es-ES'));
+        c.append(epBtn('Descargar PDF',()=>epExportPdf(v.contenido,v.canciones||[],v.titulo,v.version)));eventBody.append(c);
+      }
+    }catch(e){epShowError(e)}
+  };
+  const epDecideChange=async(requestId,approve,id)=>{
+    if(!confirm(approve?'¿Autorizar al cliente para volver a editar?':'¿Rechazar la solicitud de cambios?'))return;
+    try{await epCall(client.rpc('ep_resolver_cambios',{p_solicitud:requestId,p_autorizar:approve}));await epAdminDetail(id)}
+    catch(e){epShowError(e)}
+  };
   const loadEvents=async()=>{
-    const request=++eventsRequest;
     if(!client)return;
-    eventBody.textContent='Cargando tus eventos…';
-    const {data:{user},error:userError}=await client.auth.getUser();
-    if(request!==eventsRequest||eventTitle.textContent!=='Mis eventos')return;
-    if(userError||!user){eventBody.textContent='Inicia sesión para consultar tus eventos.';return}
-    const {data,error}=await client.from('EVENTOS').select('id,nombrecliente,fecha_evento,tipo_evento,lugar_evento,hora_inicio,hora_fin,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:true});
-    if(request!==eventsRequest||eventTitle.textContent!=='Mis eventos')return;
-    if(error){eventBody.textContent='No se han podido cargar los eventos. Comprueba los permisos y los nombres de las columnas en Supabase.';console.error('Error al cargar EVENTOS:',error.message);return}
-    eventBody.replaceChildren();
-    if(!data||data.length===0){eventBody.textContent='Todavía no hay eventos asignados a tu cuenta.';return}
-    data.forEach(ev=>{const item=document.createElement('article');item.style.cssText='border:1px solid #7b5b2c;border-radius:10px;padding:17px;margin:0 0 14px;background:#17130d';const heading=document.createElement('h3');heading.style.cssText='color:#f0c87a;margin:0 0 10px';heading.textContent=ev.tipo_evento||'Mi evento';item.appendChild(heading);addDetail(item,'Cliente',ev.nombrecliente);addDetail(item,'Fecha',formatDate(ev.fecha_evento));addDetail(item,'Lugar',ev.lugar_evento);addDetail(item,'Inicio',ev.hora_inicio);addDetail(item,'Fin',ev.hora_fin);addDetail(item,'Estado',ev.estado_evento);eventBody.appendChild(item)});
+    eventBody.textContent='Cargando el organizador de tus eventos…';
+    await epOrgList();
   };
   // Calendario privado: utiliza la misma tabla y los mismos permisos que Mis eventos.
   const calendarStyle=document.createElement('style');
@@ -1530,13 +1815,13 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const adminBtn=(label,handler,primary=false)=>{const b=document.createElement('button');b.type='button';b.className='adm-btn'+(primary?' primary':'');b.textContent=label;b.addEventListener('click',handler);return b};
   const adminMessage=(msg)=>{const e=document.getElementById('adm-status');if(e)e.textContent=msg};
   const checkAdmin=async(user)=>{
-    isAdmin=false;adminNav.hidden=true;
+    isAdmin=false;adminNav.hidden=true;document.getElementById('epOrgAdminNav').hidden=true;
     if(!client||!user)return;
     const {data,error}=await client.from('ep_admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
     if(error){console.info('Administración pendiente de configurar:',error.message);return}
     const {data:session}=await client.auth.getUser();
     if(session?.user?.id!==user.id)return;
-    isAdmin=Boolean(data);adminNav.hidden=!isAdmin;
+    isAdmin=Boolean(data);adminNav.hidden=!isAdmin;document.getElementById('epOrgAdminNav').hidden=!isAdmin;
   };
   const adminForm=(ev)=>{
     if(!isAdmin)return;
@@ -1808,14 +2093,15 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   });
   document.getElementById('privateLogout').addEventListener('click',async()=>{
     if(client)await client.auth.signOut();
-    isAdmin=false;adminNav.hidden=true;++adminRequest;dashboard.hidden=true;showLogin();
+    isAdmin=false;adminNav.hidden=true;document.getElementById('epOrgAdminNav').hidden=true;++adminRequest;dashboard.hidden=true;showLogin();
   });
   document.querySelectorAll('[data-private-tab]').forEach(button=>button.addEventListener('click',()=>{
-    if(button.dataset.privateTab==='Administración'&&!isAdmin)return;
+    if(['Administración','Organizadores recibidos'].includes(button.dataset.privateTab)&&!isAdmin)return;
     document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b===button));
     const title=button.dataset.privateTab;
     eventTitle.textContent=title;
     if(title==='Mis eventos'){++calRequest;loadEvents();return}
+    if(title==='Organizadores recibidos'){if(!isAdmin){eventBody.textContent='Acceso no autorizado';return}epAdminOrganizers();return}
     ++eventsRequest;
     if(title==='Calendario'){loadCalendar();return}
     if(title==='Administración'){++calRequest;if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}adminView='lista';loadAdmin();return}
