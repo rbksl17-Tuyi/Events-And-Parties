@@ -1608,60 +1608,137 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const epServices=['DJ y música','Sonido','Iluminación','Ceremonia','Animación y juegos','Montaje técnico','Otros'];
   const epRequestForm=()=>{const section=budgetNode('section');section.className='ep-budget-card';section.append(budgetNode('h3','Solicitar un nuevo presupuesto'),budgetNode('p','Cuéntanos qué necesitas para tu evento. Te responderemos desde Events and Parties.'));const form=budgetNode('form');form.className='ep-budget-form';epFormField(form,'Nombre de contacto','nombre');const tipo=epFormField(form,'Tipo de evento','tipo','select');['','Boda','Cumpleaños','Evento privado','Colegio','Ceremonia','Otro'].forEach(v=>{const o=budgetNode('option',v||'Selecciona un evento');o.value=v;tipo.append(o)});epFormField(form,'Fecha del evento','fecha','date',false);epFormField(form,'Localidad / lugar','lugar','text',false);epFormField(form,'Horario aproximado','horario','text',false);const inv=epFormField(form,'Número de invitados','invitados','number',false);inv.min='1';const group=budgetNode('fieldset');const legend=budgetNode('legend','Servicios que necesitas');group.append(legend);const choices=budgetNode('div');choices.className='ep-services';epServices.forEach(v=>{const l=budgetNode('label');const input=budgetNode('input');input.type='checkbox';input.name='servicios';input.value=v;l.append(input,document.createTextNode(v));choices.append(l)});group.append(choices);form.append(group);epFormField(form,'Detalles o peticiones especiales','detalles','textarea',false);const send=budgetNode('button','Enviar solicitud');send.type='submit';form.append(send);form.addEventListener('submit',async e=>{e.preventDefault();send.disabled=true;const fd=new FormData(form);try{const {data:{user},error:authError}=await client.auth.getUser();if(authError||!user)throw new Error('Debes iniciar sesión');const payload={cliente_id:user.id,nombre:String(fd.get('nombre')||'').trim(),tipo:String(fd.get('tipo')||'').trim(),fecha:fd.get('fecha')||null,lugar:String(fd.get('lugar')||'').trim(),horario:String(fd.get('horario')||'').trim(),invitados:fd.get('invitados')?Number(fd.get('invitados')):null,servicios:fd.getAll('servicios'),detalles:String(fd.get('detalles')||'').trim()};const {error}=await client.from('ep_solicitudes_presupuesto').insert(payload);if(error)throw error;alert('Solicitud enviada correctamente');loadBudgets()}catch(err){alert('No se pudo enviar: '+err.message);send.disabled=false}});section.append(form);return section};
   const loadBudgets=async()=>{
-    eventBody.textContent='Cargando presupuestos…';
+    eventBody.textContent='Cargando presupuestos y solicitudes…';
     const {data:{user}}=await client.auth.getUser();
     if(!user){eventBody.textContent='Inicia sesión.';return}
-    const {data,error}=await client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false});
+    const [budgetResult,requestResult]=await Promise.all([
+      client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false}),
+      client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false})
+    ]);
     if(eventTitle.textContent!=='Presupuestos')return;
-    if(error){eventBody.textContent='Error: '+error.message;return}
-    eventBody.replaceChildren(epRequestForm());
-    if(!data?.length){eventBody.append(budgetNode('p','Todavía no tienes presupuestos asignados.'));return}
-    data.forEach(p=>{const card=budgetCard(p);if(p.estado==='PENDIENTE'){
-      const actions=budgetNode('div');actions.className='ep-budget-actions';
-      for(const estado of ['ACEPTADO','RECHAZADO'])actions.append(budgetButton(estado==='ACEPTADO'?'Aceptar':'Rechazar',async()=>{
-        if(!confirm('¿Confirmas que deseas '+(estado==='ACEPTADO'?'aceptar':'rechazar')+' el presupuesto?'))return;
-        const {error}=await client.rpc('ep_responder_presupuesto',{p_id:p.id,p_respuesta:estado});
-        if(error)alert(error.message);else loadBudgets();
-      }));card.append(actions)}eventBody.append(card)});
+    eventBody.replaceChildren();
+    const requestsTitle=budgetNode('h3','Mis presupuestos solicitados');eventBody.append(requestsTitle);
+    if(requestResult.error)eventBody.append(budgetNode('p','Error al consultar solicitudes: '+requestResult.error.message));
+    else if(!requestResult.data?.length)eventBody.append(budgetNode('p','Todavía no has solicitado ningún presupuesto.'));
+    else requestResult.data.forEach(r=>{
+      const card=budgetNode('article');card.className='ep-budget-card';
+      card.append(budgetNode('h3',r.tipo||'Solicitud de presupuesto'),
+        budgetNode('p','Solicitado: '+new Date(r.creado_en).toLocaleString('es-ES')),
+        budgetNode('p','Fecha del evento: '+(r.fecha||'Por concretar')+' · Lugar: '+(r.lugar||'Por concretar')),
+        budgetNode('p','Servicios: '+(r.servicios||[]).join(', ')),
+        budgetNode('p','Horario: '+(r.horario||'Por concretar')+' · Invitados: '+(r.invitados||'Por concretar')),
+        budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));
+      eventBody.append(card);
+    });
+    eventBody.append(budgetNode('h3','Presupuestos recibidos'));
+    if(budgetResult.error)eventBody.append(budgetNode('p','Error: '+budgetResult.error.message));
+    else if(!budgetResult.data?.length)eventBody.append(budgetNode('p','Todavía no tienes presupuestos enviados por Events and Parties.'));
+    else budgetResult.data.forEach(p=>{
+      const card=budgetCard(p);
+      if(p.estado==='PENDIENTE'){
+        const actions=budgetNode('div');actions.className='ep-budget-actions';
+        for(const estado of ['ACEPTADO','RECHAZADO'])actions.append(budgetButton(estado==='ACEPTADO'?'Aceptar':'Rechazar',async()=>{
+          if(!confirm('¿Confirmas que deseas '+(estado==='ACEPTADO'?'aceptar':'rechazar')+' el presupuesto?'))return;
+          const {error}=await client.rpc('ep_responder_presupuesto',{p_id:p.id,p_respuesta:estado});
+          if(error)alert(error.message);else loadBudgets();
+        }));card.append(actions);
+      }eventBody.append(card);
+    });
+    eventBody.append(epRequestForm());
+  };
+  const loadClientProfiles=async()=>{
+    const {data,error}=await client.from('ep_clientes_perfiles').select('id,nombre,email').order('nombre',{ascending:true});
+    if(error)throw new Error('No se pudo cargar la lista de clientes. Comprueba que ejecutaste el SQL: '+error.message);
+    return data||[];
+  };
+  const clientLabel=(id,profiles)=>{
+    const profile=profiles.find(p=>p.id===id);
+    return profile?(profile.nombre||profile.email||'Cliente')+(profile.email?' · '+profile.email:''):'Cliente sin perfil';
   };
   const loadAdminBudgets=async()=>{
     if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}
     eventBody.textContent='Cargando presupuestos…';
-    const {data,error}=await client.from('ep_presupuestos').select('*').order('creado_en',{ascending:false});
+    const [budgetResult,requestResult,profileResult]=await Promise.all([
+      client.from('ep_presupuestos').select('*').order('creado_en',{ascending:false}),
+      client.from('ep_solicitudes_presupuesto').select('*').order('creado_en',{ascending:false}).limit(100),
+      loadClientProfiles().then(data=>({data})).catch(error=>({error}))
+    ]);
     if(eventTitle.textContent!=='Gestionar presupuestos')return;
-    if(error){eventBody.textContent='Error: '+error.message;return}
     eventBody.replaceChildren(budgetButton('+ Crear presupuesto',()=>createBudget()));
-    const requestsTitle=budgetNode('h3','Solicitudes recibidas');eventBody.append(requestsTitle);
-    const {data:requests,error:reqError}=await client.from('ep_solicitudes_presupuesto').select('*').order('creado_en',{ascending:false}).limit(100);
-    if(reqError){eventBody.append(budgetNode('p','No se pudieron cargar las solicitudes: '+reqError.message))}
-    else if(!requests?.length){eventBody.append(budgetNode('p','Todavía no hay solicitudes.'))}
-    else requests.forEach(r=>{const box=budgetNode('article');box.className='ep-budget-card';box.append(budgetNode('h3',(r.tipo||'Evento')+' · '+r.nombre),budgetNode('p','Cliente UID: '+r.cliente_id),budgetNode('p','Fecha: '+(r.fecha||'Por concretar')+' · Lugar: '+(r.lugar||'Por concretar')),budgetNode('p','Servicios: '+(r.servicios||[]).join(', ')),budgetNode('p','Invitados: '+(r.invitados||'Por concretar')+' · Horario: '+(r.horario||'Por concretar')),budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));box.append(budgetButton('Crear presupuesto para este cliente',()=>createBudget(r.cliente_id)));eventBody.append(box)});
+    const profiles=profileResult.data||[];
+    if(profileResult.error)eventBody.append(budgetNode('p',profileResult.error.message));
+    eventBody.append(budgetNode('h3','Solicitudes recibidas'));
+    if(requestResult.error)eventBody.append(budgetNode('p','No se pudieron cargar las solicitudes: '+requestResult.error.message));
+    else if(!requestResult.data?.length)eventBody.append(budgetNode('p','Todavía no hay solicitudes.'));
+    else requestResult.data.forEach(r=>{
+      const box=budgetNode('article');box.className='ep-budget-card';
+      box.append(budgetNode('h3',(r.tipo||'Evento')+' · '+r.nombre),
+        budgetNode('p','Cuenta: '+clientLabel(r.cliente_id,profiles)),
+        budgetNode('p','Fecha: '+(r.fecha||'Por concretar')+' · Lugar: '+(r.lugar||'Por concretar')),
+        budgetNode('p','Servicios: '+(r.servicios||[]).join(', ')),
+        budgetNode('p','Invitados: '+(r.invitados||'Por concretar')+' · Horario: '+(r.horario||'Por concretar')),
+        budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));
+      box.append(budgetButton('Crear presupuesto para este cliente',()=>createBudget(r.cliente_id)));
+      eventBody.append(box);
+    });
     eventBody.append(budgetNode('h3','Presupuestos enviados'));
-    if(!data?.length)eventBody.append(budgetNode('p','No hay presupuestos todavía.'));
-    data?.forEach(p=>{const card=budgetCard(p);card.append(budgetNode('p','Cliente UID: '+p.cliente_id));
-      card.append(budgetButton('Eliminar',async()=>{if(!confirm('¿Eliminar este presupuesto?'))return;
+    if(budgetResult.error)eventBody.append(budgetNode('p','Error: '+budgetResult.error.message));
+    else if(!budgetResult.data?.length)eventBody.append(budgetNode('p','No hay presupuestos todavía.'));
+    else budgetResult.data.forEach(p=>{
+      const card=budgetCard(p);card.append(budgetNode('p','Cliente: '+clientLabel(p.cliente_id,profiles)));
+      card.append(budgetButton('Eliminar',async()=>{
+        if(!confirm('¿Eliminar este presupuesto?'))return;
         const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
-        if(error)alert(error.message);else{if(p.pdf_path)await client.storage.from('ep-presupuestos').remove([p.pdf_path]);loadAdminBudgets()}}));eventBody.append(card)});
+        if(error)alert(error.message);
+        else{if(p.pdf_path)await client.storage.from('ep-presupuestos').remove([p.pdf_path]);loadAdminBudgets()}
+      }));eventBody.append(card);
+    });
   };
-  const createBudget=(presetUid='')=>{
-    eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'));
+  const createBudget=async(presetUid='')=>{
+    eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'),budgetNode('p','Cargando clientes registrados…'));
+    let profiles;
+    try{profiles=await loadClientProfiles()}catch(error){eventBody.append(budgetNode('p',error.message),budgetButton('Volver',loadAdminBudgets));return}
+    if(eventTitle.textContent!=='Gestionar presupuestos')return;
     const form=budgetNode('form');form.className='ep-budget-form';
-    const field=(label,name,type='text')=>{const l=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':'input');
+    const field=(label,name,type='text')=>{
+      const l=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':'input');
       if(type!=='textarea')input.type=type;input.name=name;input.required=name!=='descripcion';
-      if(type==='number'){input.min='0';input.step='0.01'}l.append(input);form.append(l);return input};
-    const uidInput=field('UID del cliente','cliente_id');uidInput.value=presetUid;field('Título','titulo');field('Descripción','descripcion','textarea');field('Importe en euros','importe','number');const pdf=field('Adjuntar presupuesto PDF (opcional)','pdf','file');pdf.accept='application/pdf';pdf.required=false;form.append(budgetNode('p','PDF máximo 10 MB. Solo el cliente asignado y la administración podrán acceder al archivo.'));
+      if(type==='number'){input.min='0';input.step='0.01'}
+      l.append(input);form.append(l);return input;
+    };
+    const clientWrap=budgetNode('label','Seleccionar cliente registrado');
+    const clientSelect=budgetNode('select');clientSelect.name='cliente_id';clientSelect.required=true;
+    const placeholder=budgetNode('option','Selecciona un cliente');placeholder.value='';clientSelect.append(placeholder);
+    profiles.forEach(p=>{const option=budgetNode('option',clientLabel(p.id,profiles));option.value=p.id;clientSelect.append(option)});
+    clientSelect.value=presetUid;clientWrap.append(clientSelect);form.append(clientWrap);
+    field('Título','titulo');field('Descripción','descripcion','textarea');field('Importe en euros','importe','number');
+    const pdf=field('Adjuntar presupuesto PDF (opcional)','pdf','file');pdf.accept='application/pdf';pdf.required=false;
+    form.append(budgetNode('p','PDF máximo 10 MB. Solo el cliente asignado y la administración podrán acceder al archivo.'));
     const save=budgetNode('button','Guardar presupuesto');save.type='submit';form.append(save);
-    form.addEventListener('submit',async e=>{e.preventDefault();save.disabled=true;
-      const fd=new FormData(form);const payload={cliente_id:String(fd.get('cliente_id')).trim(),titulo:String(fd.get('titulo')).trim(),descripcion:String(fd.get('descripcion')||'').trim(),importe:Number(fd.get('importe')),estado:'PENDIENTE'};
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();save.disabled=true;
+      const fd=new FormData(form);
+      const payload={cliente_id:String(fd.get('cliente_id')).trim(),titulo:String(fd.get('titulo')).trim(),
+        descripcion:String(fd.get('descripcion')||'').trim(),importe:Number(fd.get('importe')),estado:'PENDIENTE'};
       let uploadedPath=null;
       try{
+        if(!profiles.some(p=>p.id===payload.cliente_id))throw new Error('Selecciona un cliente válido');
         const file=fd.get('pdf');
-        if(file instanceof File&&file.size){if(file.type!=='application/pdf'||file.size>10*1024*1024)throw new Error('Selecciona un PDF de máximo 10 MB');uploadedPath=payload.cliente_id+'/'+crypto.randomUUID()+'.pdf';const {error:uploadError}=await client.storage.from('ep-presupuestos').upload(uploadedPath,file,{contentType:'application/pdf',upsert:false});if(uploadError)throw uploadError;payload.pdf_path=uploadedPath}
-        const {error}=await client.from('ep_presupuestos').insert(payload);
-        if(error)throw error;
+        if(file instanceof File&&file.size){
+          if(file.type!=='application/pdf'||file.size>10*1024*1024)throw new Error('Selecciona un PDF de máximo 10 MB');
+          uploadedPath=payload.cliente_id+'/'+crypto.randomUUID()+'.pdf';
+          const {error:uploadError}=await client.storage.from('ep-presupuestos').upload(uploadedPath,file,{contentType:'application/pdf',upsert:false});
+          if(uploadError)throw uploadError;payload.pdf_path=uploadedPath;
+        }
+        const {error}=await client.from('ep_presupuestos').insert(payload);if(error)throw error;
         loadAdminBudgets();
-      }catch(error){if(uploadedPath)await client.storage.from('ep-presupuestos').remove([uploadedPath]);alert('No se pudo guardar: '+error.message);save.disabled=false}});
-    eventBody.append(form,budgetButton('Cancelar',loadAdminBudgets));
+      }catch(error){
+        if(uploadedPath)await client.storage.from('ep-presupuestos').remove([uploadedPath]);
+        alert('No se pudo guardar: '+error.message);save.disabled=false;
+      }
+    });
+    eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'),form,budgetButton('Cancelar',loadAdminBudgets));
+    if(!profiles.length)eventBody.prepend(budgetNode('p','No hay clientes registrados disponibles.'));
   };
   const adminBudgetsNav=budgetButton('Gestionar presupuestos',()=>{
     if(!isAdmin)return;
