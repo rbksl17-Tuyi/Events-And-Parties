@@ -806,6 +806,16 @@ header.nav>#menu-principal.abierto{display:flex!important}
 }
 </style>
 <style id="private-recovery-visibility">#privateRecoveryForm[hidden],#privateLoginForm[hidden],#privateSignupForm[hidden],#privateReset[hidden],#privateSignupToggle[hidden]{display:none!important}</style>
+<style id="ep-budgets-style">
+.ep-budget-card{padding:18px;margin:14px 0;background:#17130d;border:1px solid #a27a3b;border-radius:12px}
+.ep-budget-card h3{color:#f0c87a;margin:0 0 12px}
+.ep-budget-card p{overflow-wrap:anywhere}
+.ep-budget-form{display:grid;gap:12px;margin:18px 0}
+.ep-budget-form input,.ep-budget-form textarea{width:100%;padding:12px;background:#181818;color:white;border:1px solid #a27a3b;border-radius:8px;font:inherit}
+.ep-budget-form label{display:grid;gap:6px}
+.ep-budget-card button,.ep-budget-form button,.private-panel>.ep-budget-actions button{padding:11px 16px;border-radius:8px;border:1px solid #d7ad55;background:#36260f;color:#f5d58c;font-weight:700;cursor:pointer}
+.ep-budget-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+</style>
 </head>
   
 <body>
@@ -1585,6 +1595,66 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     if(error){eventBody.textContent='No se pudo cargar la administración: '+error.message;return}
     adminEvents=data||[];renderAdmin();
   };
+  // Gestión de presupuestos: acceso protegido por RLS en Supabase.
+  const budgetNode=(tag,txt)=>{const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;return e};
+  const budgetButton=(txt,fn)=>{const b=budgetNode('button',txt);b.type='button';b.addEventListener('click',fn);return b};
+  const euro=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(n));
+  const budgetCard=p=>{const card=budgetNode('article');card.className='ep-budget-card';card.append(budgetNode('h3',p.titulo),budgetNode('p',p.descripcion||'Sin descripción'),budgetNode('p','Importe: '+euro(p.importe)),budgetNode('p','Estado: '+p.estado));return card};
+  const loadBudgets=async()=>{
+    eventBody.textContent='Cargando presupuestos…';
+    const {data:{user}}=await client.auth.getUser();
+    if(!user){eventBody.textContent='Inicia sesión.';return}
+    const {data,error}=await client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false});
+    if(eventTitle.textContent!=='Presupuestos')return;
+    if(error){eventBody.textContent='Error: '+error.message;return}
+    eventBody.replaceChildren();
+    if(!data?.length){eventBody.textContent='Todavía no tienes presupuestos asignados.';return}
+    data.forEach(p=>{const card=budgetCard(p);if(p.estado==='PENDIENTE'){
+      const actions=budgetNode('div');actions.className='ep-budget-actions';
+      for(const estado of ['ACEPTADO','RECHAZADO'])actions.append(budgetButton(estado==='ACEPTADO'?'Aceptar':'Rechazar',async()=>{
+        if(!confirm('¿Confirmas que deseas '+(estado==='ACEPTADO'?'aceptar':'rechazar')+' el presupuesto?'))return;
+        const {error}=await client.rpc('ep_responder_presupuesto',{p_id:p.id,p_respuesta:estado});
+        if(error)alert(error.message);else loadBudgets();
+      }));card.append(actions)}eventBody.append(card)});
+  };
+  const loadAdminBudgets=async()=>{
+    if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}
+    eventBody.textContent='Cargando presupuestos…';
+    const {data,error}=await client.from('ep_presupuestos').select('*').order('creado_en',{ascending:false});
+    if(eventTitle.textContent!=='Gestionar presupuestos')return;
+    if(error){eventBody.textContent='Error: '+error.message;return}
+    eventBody.replaceChildren(budgetButton('+ Crear presupuesto',createBudget));
+    if(!data?.length)eventBody.append(budgetNode('p','No hay presupuestos todavía.'));
+    data?.forEach(p=>{const card=budgetCard(p);card.append(budgetNode('p','Cliente UID: '+p.cliente_id));
+      card.append(budgetButton('Eliminar',async()=>{if(!confirm('¿Eliminar este presupuesto?'))return;
+        const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
+        if(error)alert(error.message);else loadAdminBudgets();}));eventBody.append(card)});
+  };
+  const createBudget=()=>{
+    eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'));
+    const form=budgetNode('form');form.className='ep-budget-form';
+    const field=(label,name,type='text')=>{const l=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':'input');
+      if(type!=='textarea')input.type=type;input.name=name;input.required=name!=='descripcion';
+      if(type==='number'){input.min='0';input.step='0.01'}l.append(input);form.append(l);return input};
+    field('UID del cliente','cliente_id');field('Título','titulo');field('Descripción','descripcion','textarea');field('Importe en euros','importe','number');
+    const save=budgetNode('button','Guardar presupuesto');save.type='submit';form.append(save);
+    form.addEventListener('submit',async e=>{e.preventDefault();save.disabled=true;
+      const fd=new FormData(form);const payload={cliente_id:String(fd.get('cliente_id')).trim(),titulo:String(fd.get('titulo')).trim(),descripcion:String(fd.get('descripcion')||'').trim(),importe:Number(fd.get('importe')),estado:'PENDIENTE'};
+      const {error}=await client.from('ep_presupuestos').insert(payload);
+      if(error){alert(error.message);save.disabled=false}else loadAdminBudgets();});
+    eventBody.append(form,budgetButton('Cancelar',loadAdminBudgets));
+  };
+  const adminBudgetsNav=budgetButton('Gestionar presupuestos',()=>{
+    if(!isAdmin)return;
+    document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b===adminBudgetsNav));
+    eventTitle.textContent='Gestionar presupuestos';loadAdminBudgets();
+  });
+  adminBudgetsNav.hidden=true;
+  adminBudgetsNav.dataset.privateTab='Gestionar presupuestos';
+  document.querySelector('.private-sidebar').append(adminBudgetsNav);
+  const budgetNavObserver=new MutationObserver(()=>{adminBudgetsNav.hidden=adminNav.hidden});
+  budgetNavObserver.observe(adminNav,{attributes:true,attributeFilter:['hidden']});
+  adminBudgetsNav.hidden=adminNav.hidden;
   const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;checkAdmin(user);document.getElementById('privateWelcome').textContent=user?.email?'Sesión iniciada: '+user.email:'';document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b.dataset.privateTab==='Mis eventos'));eventTitle.textContent='Mis eventos';loadEvents()};
   document.getElementById('openPrivate').addEventListener('click',e=>{e.preventDefault();showLogin()});
   document.getElementById('closePrivate').addEventListener('click',()=>overlay.hidden=true);
@@ -1639,6 +1709,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     ++eventsRequest;
     if(title==='Calendario'){loadCalendar();return}
     if(title==='Administración'){++calRequest;if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}adminView='lista';loadAdmin();return}
+    if(title==='Presupuestos'){loadBudgets();return}
+    if(title==='Gestionar presupuestos'){if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}loadAdminBudgets();return}
     ++calRequest;eventBody.textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
   }));
   if(client){
