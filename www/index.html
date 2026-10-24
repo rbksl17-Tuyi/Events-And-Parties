@@ -1364,16 +1364,103 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const eventTitle=document.getElementById('privatePanelTitle');
   const formatDate=(value)=>{if(!value)return 'Sin fecha';const parts=String(value).split('-');return parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:String(value)};
   const addDetail=(parent,label,value)=>{if(value===null||value===undefined||value==='')return;const line=document.createElement('p');line.style.margin='7px 0';const strong=document.createElement('strong');strong.textContent=label+': ';line.append(strong,document.createTextNode(String(value)));parent.appendChild(line)};
+  let eventsRequest=0;
   const loadEvents=async()=>{
+    const request=++eventsRequest;
     if(!client)return;
     eventBody.textContent='Cargando tus eventos…';
     const {data:{user},error:userError}=await client.auth.getUser();
+    if(request!==eventsRequest||eventTitle.textContent!=='Mis eventos')return;
     if(userError||!user){eventBody.textContent='Inicia sesión para consultar tus eventos.';return}
     const {data,error}=await client.from('EVENTOS').select('id,nombrecliente,fecha_evento,tipo_evento,lugar_evento,hora_inicio,hora_fin,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:true});
+    if(request!==eventsRequest||eventTitle.textContent!=='Mis eventos')return;
     if(error){eventBody.textContent='No se han podido cargar los eventos. Comprueba los permisos y los nombres de las columnas en Supabase.';console.error('Error al cargar EVENTOS:',error.message);return}
     eventBody.replaceChildren();
     if(!data||data.length===0){eventBody.textContent='Todavía no hay eventos asignados a tu cuenta.';return}
     data.forEach(ev=>{const item=document.createElement('article');item.style.cssText='border:1px solid #7b5b2c;border-radius:10px;padding:17px;margin:0 0 14px;background:#17130d';const heading=document.createElement('h3');heading.style.cssText='color:#f0c87a;margin:0 0 10px';heading.textContent=ev.tipo_evento||'Mi evento';item.appendChild(heading);addDetail(item,'Cliente',ev.nombrecliente);addDetail(item,'Fecha',formatDate(ev.fecha_evento));addDetail(item,'Lugar',ev.lugar_evento);addDetail(item,'Inicio',ev.hora_inicio);addDetail(item,'Fin',ev.hora_fin);addDetail(item,'Estado',ev.estado_evento);eventBody.appendChild(item)});
+  };
+  // Calendario privado: utiliza la misma tabla y los mismos permisos que Mis eventos.
+  const calendarStyle=document.createElement('style');
+  calendarStyle.textContent=`
+    .ep-cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px;flex-wrap:wrap}
+    .ep-cal-head h3{color:#f0c87a;margin:0;font-size:1.2rem;text-transform:capitalize}
+    .ep-cal-nav{display:flex;gap:8px;align-items:center}
+    .ep-cal-nav button{border:1px solid #95703a;background:#1d1913;color:#f0c87a;border-radius:8px;padding:9px 13px;cursor:pointer}
+    .ep-cal-nav button:focus-visible,.ep-cal-day:focus-visible{outline:2px solid #f0c87a;outline-offset:2px}
+    .ep-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+    .ep-cal-weekday{text-align:center;color:#d6bd90;font-size:.8rem;padding:8px 0}
+    .ep-cal-day{min-height:57px;border:1px solid #57452b;border-radius:8px;background:#17130d;color:#f6f1e8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;font:inherit}
+    .ep-cal-day:disabled{cursor:default;opacity:.2}
+    .ep-cal-day.has-event{border-color:#d7ac5e;background:#322512;color:#ffdfa2;font-weight:700}
+    .ep-cal-day.selected{outline:2px solid #f0c87a;outline-offset:-2px}
+    .ep-cal-dot{width:6px;height:6px;border-radius:50%;background:#f0c87a}
+    .ep-cal-detail{margin-top:18px;border:1px solid #7b5b2c;border-radius:10px;padding:15px;background:#17130d}
+    .ep-cal-detail h4{color:#f0c87a;margin:0 0 10px}
+    .ep-cal-help{color:#d6bd90;font-size:.9rem;margin:12px 0}
+    @media(max-width:480px){.ep-cal-day{min-height:43px;font-size:.85rem}.ep-cal-grid{gap:3px}}
+  `;
+  document.head.appendChild(calendarStyle);
+  let calYear=new Date().getFullYear();
+  let calMonth=new Date().getMonth();
+  let calSelected='';
+  let calEvents=[];
+  let calRequest=0;
+  const dateKey=(year,month,day)=>`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const renderCalendar=()=>{
+    eventBody.replaceChildren();
+    const head=document.createElement('div');head.className='ep-cal-head';
+    const monthTitle=document.createElement('h3');
+    monthTitle.textContent=new Intl.DateTimeFormat('es-ES',{month:'long',year:'numeric'}).format(new Date(calYear,calMonth,1));
+    const nav=document.createElement('div');nav.className='ep-cal-nav';
+    const prev=document.createElement('button');prev.type='button';prev.textContent='‹ Anterior';prev.setAttribute('aria-label','Mes anterior');
+    const next=document.createElement('button');next.type='button';next.textContent='Siguiente ›';next.setAttribute('aria-label','Mes siguiente');
+    prev.addEventListener('click',()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--}calSelected='';renderCalendar()});
+    next.addEventListener('click',()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++}calSelected='';renderCalendar()});
+    nav.append(prev,next);head.append(monthTitle,nav);eventBody.appendChild(head);
+    const grid=document.createElement('div');grid.className='ep-cal-grid';grid.setAttribute('role','group');grid.setAttribute('aria-label','Calendario de eventos');
+    ['L','M','X','J','V','S','D'].forEach(day=>{const el=document.createElement('div');el.className='ep-cal-weekday';el.textContent=day;grid.appendChild(el)});
+    const first=(new Date(calYear,calMonth,1).getDay()+6)%7;
+    const total=new Date(calYear,calMonth+1,0).getDate();
+    for(let i=0;i<first;i++){const blank=document.createElement('div');grid.appendChild(blank)}
+    for(let day=1;day<=total;day++){
+      const key=dateKey(calYear,calMonth,day);
+      const count=calEvents.filter(ev=>ev.fecha_evento===key).length;
+      const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-day'+(count?' has-event':'')+(calSelected===key?' selected':'');
+      btn.setAttribute('aria-label',`${day} de ${monthTitle.textContent}${count?', '+count+' evento(s)':''}`);
+      btn.setAttribute('aria-pressed',String(calSelected===key));
+      const number=document.createElement('span');number.textContent=String(day);btn.appendChild(number);
+      if(count){const dot=document.createElement('span');dot.className='ep-cal-dot';dot.setAttribute('aria-hidden','true');btn.appendChild(dot)}
+      btn.addEventListener('click',()=>{calSelected=key;renderCalendar()});grid.appendChild(btn);
+    }
+    eventBody.appendChild(grid);
+    const hint=document.createElement('p');hint.className='ep-cal-help';hint.textContent='Los días marcados en dorado tienen eventos. Selecciona una fecha para consultar sus detalles.';eventBody.appendChild(hint);
+    if(calSelected){
+      const detail=document.createElement('section');detail.className='ep-cal-detail';
+      const heading=document.createElement('h4');heading.textContent='Eventos del '+formatDate(calSelected);detail.appendChild(heading);
+      const matching=calEvents.filter(ev=>ev.fecha_evento===calSelected);
+      if(!matching.length){const empty=document.createElement('p');empty.textContent='No tienes eventos asignados para este día.';detail.appendChild(empty)}
+      matching.forEach(ev=>{const article=document.createElement('article');const h=document.createElement('h4');h.textContent=ev.tipo_evento||'Mi evento';article.appendChild(h);addDetail(article,'Cliente',ev.nombrecliente);addDetail(article,'Lugar',ev.lugar_evento);addDetail(article,'Inicio',ev.hora_inicio);addDetail(article,'Fin',ev.hora_fin);addDetail(article,'Estado',ev.estado_evento);detail.appendChild(article)});
+      eventBody.appendChild(detail);
+    }
+  };
+  const loadCalendar=async()=>{
+    const request=++calRequest;
+    if(!client){eventBody.textContent='No se ha configurado la conexión con Supabase.';return}
+    eventBody.textContent='Cargando calendario…';
+    const {data:{user},error:userError}=await client.auth.getUser();
+    if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
+    if(userError||!user){eventBody.textContent='Inicia sesión para consultar tu calendario.';return}
+    const {data,error}=await client.from('EVENTOS').select('id,nombrecliente,fecha_evento,tipo_evento,lugar_evento,hora_inicio,hora_fin,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:true});
+    if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
+    if(error){eventBody.textContent='No se ha podido cargar el calendario. Comprueba la conexión y los permisos de Supabase.';console.error('Error al cargar calendario:',error.message);return}
+    calEvents=data||[];
+    // Al abrir el calendario, mostrar el mes del próximo evento si existe.
+    const today=dateKey(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
+    const nextEvent=calEvents.find(ev=>ev.fecha_evento&&ev.fecha_evento>=today);
+    const firstEvent=nextEvent||calEvents.find(ev=>ev.fecha_evento);
+    if(firstEvent){const parts=firstEvent.fecha_evento.split('-');calYear=Number(parts[0]);calMonth=Number(parts[1])-1}
+    else{calYear=new Date().getFullYear();calMonth=new Date().getMonth()}
+    calSelected='';renderCalendar();
   };
   const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;document.getElementById('privateWelcome').textContent=user?.email?'Sesión iniciada: '+user.email:'';document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b.dataset.privateTab==='Mis eventos'));eventTitle.textContent='Mis eventos';loadEvents()};
   document.getElementById('openPrivate').addEventListener('click',e=>{e.preventDefault();showLogin()});
@@ -1424,8 +1511,10 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b===button));
     const title=button.dataset.privateTab;
     eventTitle.textContent=title;
-    if(title==='Mis eventos'){loadEvents();return}
-    eventBody.textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
+    if(title==='Mis eventos'){++calRequest;loadEvents();return}
+    ++eventsRequest;
+    if(title==='Calendario'){loadCalendar();return}
+    ++calRequest;eventBody.textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
   }));
   if(client){
     client.auth.onAuthStateChange((event)=>{
