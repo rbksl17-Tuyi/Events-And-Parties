@@ -1360,7 +1360,22 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const configured=Boolean(PRIVATE_SUPABASE_URL && PRIVATE_SUPABASE_PUBLISHABLE_KEY && window.supabase);
   const client=configured?window.supabase.createClient(PRIVATE_SUPABASE_URL,PRIVATE_SUPABASE_PUBLISHABLE_KEY):null;
   const showLogin=()=>{if(recoveryMode){showRecovery();return}overlay.hidden=false;dashboard.hidden=true;loginForm.hidden=false;resetButton.hidden=false;recoveryForm.hidden=true;titleElement.textContent='ÁREA PRIVADA';message.textContent='';document.getElementById('privateEmail').focus()};
-  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;document.getElementById('privateWelcome').textContent=user?.email?'Sesión iniciada: '+user.email:''};
+  const eventBody=document.getElementById('privatePanelBody');
+  const eventTitle=document.getElementById('privatePanelTitle');
+  const formatDate=(value)=>{if(!value)return 'Sin fecha';const parts=String(value).split('-');return parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:String(value)};
+  const addDetail=(parent,label,value)=>{if(value===null||value===undefined||value==='')return;const line=document.createElement('p');line.style.margin='7px 0';const strong=document.createElement('strong');strong.textContent=label+': ';line.append(strong,document.createTextNode(String(value)));parent.appendChild(line)};
+  const loadEvents=async()=>{
+    if(!client)return;
+    eventBody.textContent='Cargando tus eventos…';
+    const {data:{user},error:userError}=await client.auth.getUser();
+    if(userError||!user){eventBody.textContent='Inicia sesión para consultar tus eventos.';return}
+    const {data,error}=await client.from('EVENTOS').select('id,nombrecliente,fecha_evento,tipo_evento,lugar_evento,hora_inicio,hora_fin,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:true});
+    if(error){eventBody.textContent='No se han podido cargar los eventos. Comprueba los permisos y los nombres de las columnas en Supabase.';console.error('Error al cargar EVENTOS:',error.message);return}
+    eventBody.replaceChildren();
+    if(!data||data.length===0){eventBody.textContent='Todavía no hay eventos asignados a tu cuenta.';return}
+    data.forEach(ev=>{const item=document.createElement('article');item.style.cssText='border:1px solid #7b5b2c;border-radius:10px;padding:17px;margin:0 0 14px;background:#17130d';const heading=document.createElement('h3');heading.style.cssText='color:#f0c87a;margin:0 0 10px';heading.textContent=ev.tipo_evento||'Mi evento';item.appendChild(heading);addDetail(item,'Cliente',ev.nombrecliente);addDetail(item,'Fecha',formatDate(ev.fecha_evento));addDetail(item,'Lugar',ev.lugar_evento);addDetail(item,'Inicio',ev.hora_inicio);addDetail(item,'Fin',ev.hora_fin);addDetail(item,'Estado',ev.estado_evento);eventBody.appendChild(item)});
+  };
+  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;document.getElementById('privateWelcome').textContent=user?.email?'Sesión iniciada: '+user.email:'';document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b.dataset.privateTab==='Mis eventos'));eventTitle.textContent='Mis eventos';loadEvents()};
   document.getElementById('openPrivate').addEventListener('click',e=>{e.preventDefault();showLogin()});
   document.getElementById('closePrivate').addEventListener('click',()=>overlay.hidden=true);
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.hidden=true});
@@ -1408,8 +1423,9 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   document.querySelectorAll('[data-private-tab]').forEach(button=>button.addEventListener('click',()=>{
     document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b===button));
     const title=button.dataset.privateTab;
-    document.getElementById('privatePanelTitle').textContent=title;
-    document.getElementById('privatePanelBody').textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
+    eventTitle.textContent=title;
+    if(title==='Mis eventos'){loadEvents();return}
+    eventBody.textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
   }));
   if(client){
     client.auth.onAuthStateChange((event)=>{
