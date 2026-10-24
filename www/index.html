@@ -1331,6 +1331,7 @@ tarjeta.addEventListener("touchend", (e) => {
       <button type="button" data-private-tab="Mensajes">Mensajes</button>
       <button type="button" data-private-tab="Documentos">Documentos</button>
       <button type="button" data-private-tab="Mi perfil">Mi perfil</button>
+      <button type="button" id="adminNav" data-private-tab="Administración" hidden>Administración</button>
     </nav>
     <section class="private-panel"><h2 id="privatePanelTitle">Mis eventos</h2><p id="privateWelcome"></p><div class="private-empty" id="privatePanelBody">Todavía no hay eventos para mostrar.</div></section>
   </div>
@@ -1462,7 +1463,87 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     else{calYear=new Date().getFullYear();calMonth=new Date().getMonth()}
     calSelected='';renderCalendar();
   };
-  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;document.getElementById('privateWelcome').textContent=user?.email?'Sesión iniciada: '+user.email:'';document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b.dataset.privateTab==='Mis eventos'));eventTitle.textContent='Mis eventos';loadEvents()};
+  // ADMINISTRACIÓN: el botón es solo interfaz; Supabase RLS autoriza cada operación.
+  const adminCSS=document.createElement('style');adminCSS.textContent=`
+    .adm-actions{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}.adm-btn{border:1px solid #bb9254;border-radius:9px;padding:10px 14px;background:#241b11;color:#f6d393;cursor:pointer;font:inherit}.adm-btn.primary{background:#a77a33;color:#100d08;font-weight:700}.adm-btn:disabled{opacity:.5;cursor:wait}
+    .adm-card{border:1px solid #74552e;background:#17130d;border-radius:12px;padding:16px;margin:12px 0}.adm-card h3{color:#f0c87a;margin:0 0 12px}.adm-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.adm-form label{display:flex;flex-direction:column;gap:5px;color:#eed4a5;font-size:.9rem}.adm-form input,.adm-form select{background:#211b14;color:#fff;border:1px solid #83643d;border-radius:7px;padding:10px;width:100%;box-sizing:border-box;font:inherit}.adm-full{grid-column:1/-1}.adm-msg{color:#f0c87a;min-height:20px}.adm-list article{border-bottom:1px solid #57452b;padding:12px 0}.adm-list article:last-child{border-bottom:0}.adm-list h4{color:#f0c87a;margin:0 0 8px}.adm-muted{color:#d6bd90;font-size:.9rem}@media(max-width:650px){.adm-form{grid-template-columns:1fr}}
+  `;document.head.appendChild(adminCSS);
+  const adminNav=document.getElementById('adminNav');
+  let isAdmin=false,adminEvents=[],adminView='lista',adminMonth=new Date().getMonth(),adminYear=new Date().getFullYear(),adminEditId=null,adminRequest=0;
+  const adminFields=['cliente_id','nombrecliente','fecha_evento','tipo_evento','lugar_evento','hora_inicio','hora_fin','estado_evento'];
+  const adminBtn=(label,handler,primary=false)=>{const b=document.createElement('button');b.type='button';b.className='adm-btn'+(primary?' primary':'');b.textContent=label;b.addEventListener('click',handler);return b};
+  const adminMessage=(msg)=>{const e=document.getElementById('adm-status');if(e)e.textContent=msg};
+  const checkAdmin=async(user)=>{
+    isAdmin=false;adminNav.hidden=true;
+    if(!client||!user)return;
+    const {data,error}=await client.from('ep_admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
+    if(error){console.info('Administración pendiente de configurar:',error.message);return}
+    const {data:session}=await client.auth.getUser();
+    if(session?.user?.id!==user.id)return;
+    isAdmin=Boolean(data);adminNav.hidden=!isAdmin;
+  };
+  const adminForm=(ev)=>{
+    if(!isAdmin)return;
+    adminEditId=ev?.id??null;adminView='form';eventBody.replaceChildren();
+    const box=document.createElement('section');box.className='adm-card';const h=document.createElement('h3');h.textContent=ev?'Editar evento':'Nuevo evento';box.appendChild(h);
+    const form=document.createElement('form');form.className='adm-form';form.id='adm-form';
+    const labels={cliente_id:'UID del cliente (Supabase Authentication → Users)',nombrecliente:'Nombre del cliente',fecha_evento:'Fecha',tipo_evento:'Tipo de evento',lugar_evento:'Lugar',hora_inicio:'Hora de inicio',hora_fin:'Hora de fin',estado_evento:'Estado'};
+    for(const field of adminFields){
+      const label=document.createElement('label');label.textContent=labels[field];let input;
+      if(field==='estado_evento'){input=document.createElement('select');['PENDIENTE','CONFIRMADO','CANCELADO','FINALIZADO'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;input.appendChild(o)})}
+      else{input=document.createElement('input');input.type=field==='fecha_evento'?'date':field.startsWith('hora_')?'time':'text';if(field==='cliente_id'){input.placeholder='xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';input.pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';input.title='Introduce un UUID válido'}if(field==='tipo_evento')input.placeholder='BODA, CUMPLEAÑOS, FIESTA…'}
+      input.name=field;input.value=ev?.[field]??(field==='estado_evento'?'PENDIENTE':'');if(['cliente_id','nombrecliente','fecha_evento','tipo_evento'].includes(field))input.required=true;
+      label.appendChild(input);form.appendChild(label);
+    }
+    const actions=document.createElement('div');actions.className='adm-actions adm-full';const save=document.createElement('button');save.type='submit';save.className='adm-btn primary';save.textContent='Guardar evento';actions.append(save,adminBtn('Cancelar',()=>{adminView='lista';renderAdmin()}));form.appendChild(actions);
+    const status=document.createElement('p');status.id='adm-status';status.className='adm-msg adm-full';status.setAttribute('role','status');form.appendChild(status);
+    form.addEventListener('submit',async(e)=>{
+      e.preventDefault();if(!isAdmin)return;save.disabled=true;adminMessage('Guardando…');
+      const fd=new FormData(form),payload={};for(const key of adminFields){const v=String(fd.get(key)||'').trim();payload[key]=v||null}
+      const query=adminEditId===null?client.from('EVENTOS').insert(payload):client.from('EVENTOS').update(payload).eq('id',adminEditId);
+      const {error}=await query;
+      if(error){adminMessage('No se pudo guardar: '+error.message);save.disabled=false;return}
+      adminView='lista';await loadAdmin();
+    });
+    box.appendChild(form);eventBody.appendChild(box);
+  };
+  const adminRemove=async(ev)=>{
+    if(!isAdmin||!window.confirm('¿Eliminar definitivamente el evento de '+(ev.nombrecliente||'este cliente')+'?'))return;
+    const {error}=await client.from('EVENTOS').delete().eq('id',ev.id);
+    if(error){window.alert('No se pudo eliminar: '+error.message);return}await loadAdmin();
+  };
+  const adminArticle=(ev)=>{
+    const a=document.createElement('article'),h=document.createElement('h4');h.textContent=(ev.tipo_evento||'Evento')+' · '+formatDate(ev.fecha_evento);a.appendChild(h);
+    addDetail(a,'Cliente',ev.nombrecliente);addDetail(a,'Lugar',ev.lugar_evento);addDetail(a,'Horario',[ev.hora_inicio,ev.hora_fin].filter(Boolean).join(' – '));addDetail(a,'Estado',ev.estado_evento);
+    const buttons=document.createElement('div');buttons.className='adm-actions';buttons.append(adminBtn('Editar',()=>adminForm(ev)),adminBtn('Eliminar',()=>adminRemove(ev)));a.appendChild(buttons);return a;
+  };
+  const renderAdmin=()=>{
+    if(!isAdmin||eventTitle.textContent!=='Administración')return;
+    eventBody.replaceChildren();const tools=document.createElement('div');tools.className='adm-actions';
+    tools.append(adminBtn('＋ Crear evento',()=>adminForm(null),true),adminBtn('Lista de eventos',()=>{adminView='lista';renderAdmin()}),adminBtn('Calendario general',()=>{adminView='cal';renderAdmin()}),adminBtn('Actualizar',loadAdmin));eventBody.appendChild(tools);
+    if(adminView==='form'){adminForm(adminEvents.find(e=>e.id===adminEditId)||null);return}
+    if(adminView==='lista'){
+      const info=document.createElement('p');info.className='adm-muted';info.textContent=adminEvents.length+' evento(s) · Para asignar un cliente necesitas su UID de Authentication → Users.';eventBody.appendChild(info);
+      const list=document.createElement('div');list.className='adm-list adm-card';if(!adminEvents.length)list.textContent='Todavía no hay eventos.';adminEvents.forEach(ev=>list.appendChild(adminArticle(ev)));eventBody.appendChild(list);return;
+    }
+    const header=document.createElement('div');header.className='ep-cal-head';const title=document.createElement('h3');title.textContent=new Intl.DateTimeFormat('es-ES',{month:'long',year:'numeric'}).format(new Date(adminYear,adminMonth,1));
+    const nav=document.createElement('div');nav.className='ep-cal-nav';nav.append(adminBtn('‹ Anterior',()=>{adminMonth--;if(adminMonth<0){adminMonth=11;adminYear--}renderAdmin()}),adminBtn('Siguiente ›',()=>{adminMonth++;if(adminMonth>11){adminMonth=0;adminYear++}renderAdmin()}));header.append(title,nav);eventBody.appendChild(header);
+    const grid=document.createElement('div');grid.className='ep-cal-grid';['L','M','X','J','V','S','D'].forEach(d=>{const el=document.createElement('div');el.className='ep-cal-weekday';el.textContent=d;grid.appendChild(el)});
+    for(let i=0;i<(new Date(adminYear,adminMonth,1).getDay()+6)%7;i++)grid.appendChild(document.createElement('div'));
+    for(let d=1;d<=new Date(adminYear,adminMonth+1,0).getDate();d++){
+      const date=dateKey(adminYear,adminMonth,d),matching=adminEvents.filter(e=>e.fecha_evento===date),b=document.createElement('button');b.type='button';b.className='ep-cal-day'+(matching.length?' has-event':'');b.textContent=String(d)+(matching.length?' · '+matching.length:'');b.setAttribute('aria-label',date+', '+matching.length+' eventos');
+      b.addEventListener('click',()=>{const detail=document.getElementById('adm-day-detail');detail.replaceChildren();const h=document.createElement('h3');h.textContent='Eventos del '+formatDate(date);detail.appendChild(h);if(!matching.length){const p=document.createElement('p');p.textContent='Sin eventos';detail.appendChild(p)}matching.forEach(ev=>detail.appendChild(adminArticle(ev)))});grid.appendChild(b)
+    }eventBody.appendChild(grid);const detail=document.createElement('div');detail.id='adm-day-detail';detail.className='adm-card';detail.textContent='Selecciona un día para consultar los eventos.';eventBody.appendChild(detail);
+  };
+  const loadAdmin=async()=>{
+    const request=++adminRequest;if(!isAdmin||!client||eventTitle.textContent!=='Administración')return;
+    eventBody.textContent='Cargando todos los eventos…';
+    const {data,error}=await client.from('EVENTOS').select('id,cliente_id,nombrecliente,fecha_evento,tipo_evento,lugar_evento,hora_inicio,hora_fin,estado_evento').order('fecha_evento',{ascending:true}).limit(1000);
+    if(request!==adminRequest||eventTitle.textContent!=='Administración')return;
+    if(error){eventBody.textContent='No se pudo cargar la administración: '+error.message;return}
+    adminEvents=data||[];renderAdmin();
+  };
+  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;checkAdmin(user);document.getElementById('privateWelcome').textContent=user?.email?'Sesión iniciada: '+user.email:'';document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b.dataset.privateTab==='Mis eventos'));eventTitle.textContent='Mis eventos';loadEvents()};
   document.getElementById('openPrivate').addEventListener('click',e=>{e.preventDefault();showLogin()});
   document.getElementById('closePrivate').addEventListener('click',()=>overlay.hidden=true);
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.hidden=true});
@@ -1505,7 +1586,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   });
   document.getElementById('privateLogout').addEventListener('click',async()=>{
     if(client)await client.auth.signOut();
-    dashboard.hidden=true;showLogin();
+    isAdmin=false;adminNav.hidden=true;++adminRequest;dashboard.hidden=true;showLogin();
   });
   document.querySelectorAll('[data-private-tab]').forEach(button=>button.addEventListener('click',()=>{
     document.querySelectorAll('[data-private-tab]').forEach(b=>b.classList.toggle('active',b===button));
@@ -1514,6 +1595,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     if(title==='Mis eventos'){++calRequest;loadEvents();return}
     ++eventsRequest;
     if(title==='Calendario'){loadCalendar();return}
+    if(title==='Administración'){++calRequest;if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}adminView='lista';loadAdmin();return}
     ++calRequest;eventBody.textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
   }));
   if(client){
