@@ -803,7 +803,7 @@ header.nav>#menu-principal.abierto{display:flex!important}
  header.nav>#menu-principal,header.nav>#menu-principal.abierto{grid-column:1/-1!important;grid-row:2!important;order:initial!important;width:100%!important;min-width:0!important;flex-basis:auto!important}
 }
 </style>
-<style id="private-recovery-visibility">#privateRecoveryForm[hidden],#privateLoginForm[hidden],#privateReset[hidden]{display:none!important}</style>
+<style id="private-recovery-visibility">#privateRecoveryForm[hidden],#privateLoginForm[hidden],#privateSignupForm[hidden],#privateReset[hidden],#privateSignupToggle[hidden]{display:none!important}</style>
 </head>
   
 <body>
@@ -1307,6 +1307,17 @@ tarjeta.addEventListener("touchend", (e) => {
       <input id="privatePassword" type="password" autocomplete="current-password" required placeholder="Contraseña">
       <button class="private-submit" type="submit">INICIAR SESIÓN</button>
     </form>
+    <form id="privateSignupForm" hidden>
+      <label for="signupName">Nombre y apellidos</label>
+      <input id="signupName" type="text" autocomplete="name" maxlength="100" required placeholder="Tu nombre">
+      <label for="signupEmail">Correo electrónico</label>
+      <input id="signupEmail" type="email" autocomplete="email" required placeholder="Tu correo electrónico">
+      <label for="signupPassword">Contraseña</label>
+      <input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo 8 caracteres">
+      <label for="signupConfirm">Repetir contraseña</label>
+      <input id="signupConfirm" type="password" autocomplete="new-password" minlength="8" required placeholder="Repite la contraseña">
+      <button class="private-submit" type="submit">CREAR CUENTA</button>
+    </form>
     <form id="privateRecoveryForm" hidden>
       <label for="privateNewPassword">Nueva contraseña</label>
       <input id="privateNewPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo 8 caracteres">
@@ -1315,6 +1326,7 @@ tarjeta.addEventListener("touchend", (e) => {
       <button class="private-submit" type="submit">GUARDAR NUEVA CONTRASEÑA</button>
     </form>
     <button class="private-secondary" type="button" id="privateReset">¿Has olvidado tu contraseña?</button>
+    <button class="private-secondary" type="button" id="privateSignupToggle">¿No tienes cuenta? Regístrate</button>
     <p class="private-message" id="privateMessage" role="status" aria-live="polite"></p>
   </div>
 </div>
@@ -1349,18 +1361,46 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const message=document.getElementById('privateMessage');
   const loginForm=document.getElementById('privateLoginForm');
   const recoveryForm=document.getElementById('privateRecoveryForm');
+  const signupForm=document.getElementById('privateSignupForm');
+  const signupToggle=document.getElementById('privateSignupToggle');
   const resetButton=document.getElementById('privateReset');
   const titleElement=document.getElementById('privateTitle');
   let recoveryMode=window.location.hash.includes('type=recovery') || new URLSearchParams(window.location.search).get('type')==='recovery';
   const showRecovery=()=>{
     recoveryMode=true;overlay.hidden=false;dashboard.hidden=true;
-    loginForm.hidden=true;resetButton.hidden=true;recoveryForm.hidden=false;
+    loginForm.hidden=true;signupForm.hidden=true;signupToggle.hidden=true;resetButton.hidden=true;recoveryForm.hidden=false;
     titleElement.textContent='NUEVA CONTRASEÑA';
     message.textContent='Introduce y confirma tu nueva contraseña.';
   };
   const configured=Boolean(PRIVATE_SUPABASE_URL && PRIVATE_SUPABASE_PUBLISHABLE_KEY && window.supabase);
   const client=configured?window.supabase.createClient(PRIVATE_SUPABASE_URL,PRIVATE_SUPABASE_PUBLISHABLE_KEY):null;
-  const showLogin=()=>{if(recoveryMode){showRecovery();return}overlay.hidden=false;dashboard.hidden=true;loginForm.hidden=false;resetButton.hidden=false;recoveryForm.hidden=true;titleElement.textContent='ÁREA PRIVADA';message.textContent='';document.getElementById('privateEmail').focus()};
+  const showLogin=()=>{if(recoveryMode){showRecovery();return}overlay.hidden=false;dashboard.hidden=true;loginForm.hidden=false;signupForm.hidden=true;signupToggle.hidden=false;signupToggle.textContent='¿No tienes cuenta? Regístrate';resetButton.hidden=false;recoveryForm.hidden=true;titleElement.textContent='ÁREA PRIVADA';message.textContent='';document.getElementById('privateEmail').focus()};
+  const showSignup=()=>{overlay.hidden=false;dashboard.hidden=true;loginForm.hidden=true;signupForm.hidden=false;recoveryForm.hidden=true;resetButton.hidden=true;signupToggle.hidden=false;signupToggle.textContent='¿Ya tienes cuenta? Inicia sesión';titleElement.textContent='CREAR CUENTA';message.textContent='Confirma tu correo electrónico después de registrarte.';};
+  signupToggle.addEventListener('click',()=>signupForm.hidden?showSignup():showLogin());
+  signupForm.addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!client){message.textContent='No se ha podido conectar con Supabase.';return}
+    const name=document.getElementById('signupName').value.trim();
+    const email=document.getElementById('signupEmail').value.trim();
+    const password=document.getElementById('signupPassword').value;
+    const confirm=document.getElementById('signupConfirm').value;
+    if(!name){message.textContent='Escribe tu nombre.';return}
+    if(password.length<8){message.textContent='La contraseña debe tener al menos 8 caracteres.';return}
+    if(password!==confirm){message.textContent='Las contraseñas no coinciden.';return}
+    const submit=signupForm.querySelector('button[type="submit"]');
+    submit.disabled=true;message.textContent='Creando tu cuenta…';
+    try{
+      const {data,error}=await client.auth.signUp({
+        email,password,
+        options:{data:{nombre:name},emailRedirectTo:window.location.origin+window.location.pathname}
+      });
+      if(error){message.textContent='No se pudo completar el registro: '+error.message;return}
+      signupForm.reset();
+      if(data?.session){showDashboard(data.user);return}
+      message.textContent='Solicitud recibida. Revisa tu correo y confirma tu cuenta antes de iniciar sesión.';
+    }catch(err){message.textContent='No se pudo conectar. Inténtalo de nuevo.'}
+    finally{submit.disabled=false}
+  });
   const eventBody=document.getElementById('privatePanelBody');
   const eventTitle=document.getElementById('privatePanelTitle');
   const formatDate=(value)=>{if(!value)return 'Sin fecha';const parts=String(value).split('-');return parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:String(value)};
