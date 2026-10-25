@@ -2572,9 +2572,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     try{
       const {data:{user},error:authError}=await client.auth.getUser();
       if(authError||!user){info.textContent='Inicia sesión para ver tus eventos.';return}
-      const [eventResult,requestResult]=await Promise.all([
+      const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
-      isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null}),
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
@@ -2767,9 +2768,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
     if(userError||!user){eventBody.textContent='Inicia sesión para consultar tu calendario.';return}
     // Consulta columnas existentes sin exigir campos opcionales que pueden estar dentro de datos (JSONB).
-    const [eventResult,requestResult]=await Promise.all([
+    const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
-      isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null}),
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
@@ -2778,6 +2780,33 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
     if(error){eventBody.textContent='No se ha podido cargar el calendario: '+(error.message||'Error de acceso a eventos')+'.';console.error('Error al cargar calendario:',error);return}
     calEvents=(data||[]).map(normalizeEpEvent).sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
+    if(isAdmin && !acceptedBudgetResult.error){
+      // Una solicitud pasa a evento cuando tiene presupuesto aceptado.
+      // Evitar duplicados si el cliente ya creó el evento en ep_eventos.
+      const acceptedByClient=new Map();
+      for(const budget of (acceptedBudgetResult.data||[])){
+        const id=String(budget.cliente_id||'');
+        if(!acceptedByClient.has(id))acceptedByClient.set(id,[]);
+        acceptedByClient.get(id).push(budget);
+      }
+      const stillPending=[];
+      for(const r of adminCalendarRequests){
+        const accepted=acceptedByClient.get(String(r.cliente_id||''))||[];
+        const date=String(r.fecha||'').slice(0,10);
+        // Solo vincular automáticamente cuando hay un único presupuesto aceptado
+        // para el cliente; de otro modo, no es seguro asociarlo a esta solicitud.
+        if(date && accepted.length===1){
+          const budget=accepted[0];
+          const existing=calEvents.some(ev=>String(ev.presupuesto_id||'')===String(budget.id) || (String(ev.cliente_id||'')===String(r.cliente_id||'') && ev.fecha_evento===date));
+          if(!existing)calEvents.push({fecha_evento:date,nombrecliente:r.nombre||'',tipo_evento:r.tipo||budget.titulo||'Evento',lugar_evento:r.lugar||'',hora_inicio:r.horario||'',estado_evento:'Confirmado',presupuesto_id:budget.id,cliente_id:r.cliente_id});
+          continue;
+        }
+        stillPending.push(r);
+      }
+      adminCalendarRequests=stillPending;
+      calEvents.sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
+    }
+    if(isAdmin && acceptedBudgetResult.error)console.warn('No se pudieron comprobar los presupuestos aceptados del calendario:',acceptedBudgetResult.error.message);
     // Al abrir el calendario, mostrar el mes del próximo evento si existe.
     const today=dateKey(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
     const nextEvent=calEvents.find(ev=>ev.fecha_evento&&ev.fecha_evento>=today);
