@@ -2308,6 +2308,9 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
         c.append(epEl('h3',name));
         for(const [key,value] of Object.entries(fields||{}))if(key!=='completado'&&value)c.append(epInfo(key+': '+value));
       }
+      // Edición administrativa de los apartados, incluso después de ENVIADA.
+      // No se cambia el estado de la organización ni se desbloquea la edición del cliente.
+      if(isAdmin)c.append(epBtn('✎ Modificar apartados de la organización',()=>epAdminEditOrganization(id),'primary'));
       c.append(epEl('h3','Música'));
       songs.forEach(s=>{
         c.append(epInfo(s.momento+' · '+s.titulo+' — '+s.artista+' · '+s.preferencia));
@@ -2327,6 +2330,55 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       c.append(epBtn('Ver historial de versiones',()=>epVersionsAdmin(id)));
       eventBody.append(c);
     }catch(e){epShowError(e)}
+  };
+  const epAdminEditOrganization=async(id)=>{
+    if(!isAdmin){epShowError(new Error('Solo el administrador puede editar desde esta sección.'));return}
+    try{
+      const org=await epGetOrg(id);
+      const sections=epTypes[org.tipo]||epTypes.OTRO;
+      const content=org.contenido||{};
+      eventBody.replaceChildren(epBtn('← Volver a la organización',()=>epAdminDetail(id)));
+      const intro=epCard('Editar organización · '+(org.titulo||'Evento'));
+      intro.append(epInfo('Puedes modificar los apartados aunque el cliente ya haya enviado su organización. El estado del cliente no cambiará. Los cambios se guardarán en la organización actual.'));
+      intro.append(epInfo('Estado actual: '+org.estado+' · Versión '+(org.version||1)));
+      eventBody.append(intro);
+      const form=epEl('form',undefined,'ep-org-form');
+      const fieldsBySection={};
+      for(const name of sections){
+        const card=epCard(name);
+        const fields=(org.tipo==='BODA'?epWeddingFields[name]:epEventFields[org.tipo]?.[name])||[['Horario previsto','horario','time'],['Indicaciones al DJ o aportaciones','dj','textarea']];
+        fieldsBySection[name]=fields;
+        const previous=content[name]||{};
+        for(const [label,key,type] of fields){
+          const wrapper=epEl('div');
+          epField(wrapper,label,name+'__'+key,type,previous[key]||'');
+          card.append(wrapper);
+        }
+        const lab=epEl('label','Apartado completado');
+        const check=epEl('input');check.type='checkbox';check.name=name+'__completado';check.checked=!!previous.completado;lab.append(check);card.append(lab);
+        form.append(card);
+      }
+      const save=epEl('button','Guardar modificaciones del administrador','ep-org-btn primary');save.type='submit';form.append(save);
+      form.addEventListener('submit',async e=>{
+        e.preventDefault();
+        if(!confirm('¿Guardar los cambios en la organización? El PDF descargado después reflejará estos datos.'))return;
+        save.disabled=true;
+        try{
+          const fd=new FormData(form);
+          // Recuperar la versión actual evita sobrescribir datos ajenos a los apartados editados.
+          const latest=await epGetOrg(id),next={...(latest.contenido||{})};
+          for(const [name,fields] of Object.entries(fieldsBySection)){
+            const section={...(next[name]||{})};
+            for(const [,key] of fields)section[key]=String(fd.get(name+'__'+key)||'');
+            section.completado=fd.has(name+'__completado');next[name]=section;
+          }
+          const result=await epCall(client.from('ep_organizaciones').update({contenido:next}).eq('id',id).select('id').maybeSingle());
+          if(!result)throw new Error('No se confirmó la actualización. Revisa que Supabase permita al administrador editar organizaciones.');
+          await epAdminDetail(id);
+        }catch(err){epShowError(err);save.disabled=false}
+      });
+      eventBody.append(form);
+    }catch(err){epShowError(err)}
   };
   const epAdminAttachments=async(id)=>{
     eventBody.replaceChildren(epBtn('← Volver al evento',()=>epAdminDetail(id)));
