@@ -872,6 +872,11 @@ background:
 #epLuxurySidebar .ep-lux-brand small{color:#edc77d!important;letter-spacing:.08em}
 @media(max-width:700px){#epPrivateInner.private-layout{padding:10px!important}#epPrivateInner .private-panel{padding:15px!important}#epPrivateInner .private-panel:before{height:120px}#epPrivateInner #privatePanelBody{padding:12px;overflow-x:auto}#privateDashboard .private-top strong{font-size:10px!important;letter-spacing:0!important}}
 
+
+/* Corrección: los botones ocultos por rol no deben mostrarse por display:flex. */
+#epLuxurySidebar button[hidden],
+#epLuxurySidebar [hidden]{display:none!important}
+#epClientHome:not(.ep-is-admin) .ep-admin-home-only{display:none!important}
 </style>
 
 <style>
