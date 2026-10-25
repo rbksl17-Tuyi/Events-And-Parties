@@ -1908,9 +1908,9 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       const org=await epGetOrg(id);
       const root=epOrgRoot();
       const acceptedBudget=await epCall(client.from('ep_presupuestos').select('titulo,descripcion,estado').eq('id',org.presupuesto_id).eq('estado','ACEPTADO').single());
-      root.append(epBtn('← Volver a mis eventos',epOrgList));
+      root.append(epBtn('← Volver a eventos creados',epClientEvents));
       const effectiveType=epTypeOf((acceptedBudget.titulo||'')+' '+(acceptedBudget.descripcion||''));
-      const displayType=effectiveType==='OTRO'?org.tipo:effectiveType;
+      const displayType=org.tipo&&org.tipo!=='OTRO'?org.tipo:effectiveType;
       const sections=epTypes[displayType]||epTypes.OTRO;
       const content=org.contenido||{};
       const completed=sections.filter(x=>content[x]?.completado).length;
@@ -2382,7 +2382,25 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         const card=document.createElement('article');card.className='ep-budget-card';
         card.append(budgetNode('h3',field('nombrecliente','nombre_cliente','nombre')||field('tipo_evento','tipo')||'Evento'),budgetNode('p','Tipo: '+(field('tipo_evento','tipo')||'Por concretar')),budgetNode('p','Fecha: '+(date?formatDate(date):'Por concretar')),budgetNode('p','Lugar: '+(field('lugar_evento','lugar')||'Por concretar')),budgetNode('p','Estado: '+(field('estado_evento','estado')||'Pendiente')));
         if(date)card.append(budgetButton('Ver fecha en calendario',()=>{const link=[...document.querySelectorAll('#epLuxurySidebar button')].find(b=>b.textContent.trim()==='Calendario');if(link)link.click()}));
-        card.append(budgetButton('Modificar evento',()=>epEditClientEvent(row)));
+        card.append(budgetButton('Organizar evento · música y documentos',async()=>{
+          try{
+            const {data:{user}}=await client.auth.getUser();
+            if(!user)throw Error('Debes iniciar sesión.');
+            if(!row.presupuesto_id)throw Error('Este evento no tiene un presupuesto vinculado. Para organizarlo necesitas asociarlo a un presupuesto aceptado.');
+            const budget=await epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado').eq('id',row.presupuesto_id).eq('cliente_id',user.id).single());
+            if(budget.estado!=='ACEPTADO')throw Error('El presupuesto vinculado debe estar aceptado.');
+            let org=await epCall(client.from('ep_organizaciones').select('*').eq('cliente_id',user.id).eq('presupuesto_id',row.presupuesto_id).maybeSingle());
+            if(!org){
+              const eventType=epTypeOf(row.tipo_evento||budget.titulo+' '+(budget.descripcion||''));
+              org=await epCall(client.from('ep_organizaciones').insert({
+                presupuesto_id:row.presupuesto_id,cliente_id:user.id,tipo:eventType,
+                titulo:row.nombre||budget.titulo,estado:'BORRADOR'
+              }).select('*').single());
+            }
+            await epOpenOrg(org.id);
+          }catch(e){epShowError(e)}
+        }));
+        card.append(budgetButton('Modificar datos del evento',()=>epEditClientEvent(row)));
         group.append(card);
       }
       eventBody.append(group);
