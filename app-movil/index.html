@@ -956,67 +956,75 @@ body > main > :not(#privateOverlay):not(#privateDashboard):not(script):not(style
 </style>
 
 
-<style id="ep-visual-rebuild-oct2026">
-/* EVENTS AND PARTIES · interfaz app, diseñada para móvil y tablet.
-   Mantiene íntegros los controles, identificadores y llamadas Supabase. */
-:root{--epp-gold:#f8cd78;--epp-border:#bd965a55;--epp-black:#06080b}
-html,body{background:#050608!important}
-#privateDashboard{background:#050608!important;color:#f6f2e9!important}
-#privateDashboard .private-top{max-width:540px;margin:auto;background:#080a0e!important;border:0!important;min-height:74px;padding:14px 20px!important;position:relative!important}
-#privateDashboard .private-top>div{gap:8px!important}
-#privateDashboard .private-top img{width:45px!important;height:45px!important;filter:drop-shadow(0 0 6px #d9a74d50)}
-#privateDashboard .private-top strong{font-size:11px!important;letter-spacing:.12em!important;color:#f4d18d!important;line-height:1.45}
-#privateDashboard .private-top #privateLogout{font-size:10px!important;border:1px solid #b991564a!important;padding:8px 10px!important}
-#epClientHome{max-width:540px!important;width:100%!important;padding:0 18px 112px!important;background:#050608!important;min-height:calc(100dvh - 74px)!important}
-#epClientHome .ep-home-intro{border:1px solid #a9854d4f!important;border-radius:20px!important;min-height:300px!important;margin:0 0 18px!important;padding:36px 24px 28px!important;justify-content:flex-end!important;align-items:flex-start!important;text-align:left!important;background:linear-gradient(180deg,#07090c13 0%,#06080b40 28%,#06080bee 83%,#050608 100%),url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1100&q=90') center 43%/cover!important;box-shadow:0 14px 35px #000b!important}
-#epClientHome .ep-home-intro:before{content:"EVENTS AND PARTIES";position:absolute;top:22px;left:24px;letter-spacing:.24em;color:#ffe1a0;font-size:10px;font-weight:800;text-shadow:0 1px 6px #000}
-#epClientHome .ep-home-intro>span{color:#ffd68b!important;font-size:10px!important;letter-spacing:.23em!important;position:relative;z-index:1}
-#epClientHome .ep-home-intro h1{font-size:clamp(26px,5.8vw,36px)!important;line-height:1.09!important;margin:11px 0 10px!important;max-width:380px!important;letter-spacing:-.035em!important;text-transform:none!important;text-shadow:0 2px 12px #000!important}
-#epClientHome .ep-home-intro h1 .ep-gold-word{display:block;color:#f6c773!important}
-#epClientHome .ep-home-intro p{font-size:12px!important;line-height:1.55!important;max-width:290px!important;color:#f2ede7!important;margin:0!important}
-#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
-#epClientHome .ep-home-tile{height:220px!important;min-height:220px!important;border-radius:16px!important;border:1px solid #bb945c78!important;padding:14px!important;box-shadow:inset 0 0 0 1px #fff1,0 12px 20px #000a!important;background-size:cover!important;background-position:center!important;overflow:hidden!important}
-#epClientHome .ep-home-tile::before{background:linear-gradient(180deg,#0004 0%,#0001 28%,#050608a8 59%,#050608f8 100%)!important}
-#epClientHome .ep-home-icon{position:absolute!important;top:12px!important;left:12px!important;font-size:23px!important;width:43px!important;height:43px!important;border-radius:12px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#0b0e13ce!important;border:1px solid #d2aa6870!important;color:#ffd07a!important}
-#epClientHome .ep-home-copy{position:relative!important;z-index:2!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;margin-top:auto!important}
-#epClientHome .ep-home-copy strong{font-size:20px!important;line-height:1.05!important;font-weight:800!important;color:#fff!important}
-#epClientHome .ep-home-copy small{font-size:11px!important;line-height:1.35!important;color:#f2e9da!important;min-height:28px!important}
-#epClientHome .ep-home-link{display:none!important}
-#epClientHome .ep-home-events{background-image:url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=850&q=85')!important}
-#epClientHome .ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=850&q=85')!important}
-#epClientHome .ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=850&q=85')!important}
-#epClientHome .ep-home-profile{background-image:url('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=850&q=85')!important}
-#epClientHome .ep-home-admin{background-image:url('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=850&q=85')!important}
-#epClientHome .ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1507504031003-b417219a0fde?auto=format&fit=crop&w=850&q=85')!important}
-#epClientHome .ep-home-manage{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=850&q=85')!important}
-#epClientHome .ep-home-tile[hidden]{display:none!important}
-#epPrivateInner{max-width:540px!important;width:100%!important;margin:0 auto!important;padding:8px 18px 112px!important}
-#epPrivateInner .private-panel{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:8px 0 20px!important;min-height:calc(100dvh - 150px)!important}
-#epPrivateInner .private-panel>h2{font-size:27px!important;line-height:1.2!important;color:#f7d083!important;margin:12px 0 20px!important}
-#epPrivateInner .ep-back-home{color:#ffd18b!important;border:0!important;background:transparent!important;padding:9px 0!important;font-weight:700!important}
-#epPrivateInner .private-empty{background:transparent!important;border:0!important;padding:0!important}
-#epPrivateInner .ep-budget-card,#epPrivateInner .ep-org-card,#epPrivateInner .ep-adm-progress,#epPrivateInner .ep-cal-detail,#epPrivateInner .ep-cal-grid,#epPrivateInner .ep-cal-header,#epPrivateInner .ep-org-soft{background:#10141a!important;border:1px solid #bd965a55!important;border-radius:17px!important;box-shadow:0 8px 24px #0008!important;margin:12px 0!important}
-#epPrivateInner .ep-budget-card{padding:18px!important}
-#epPrivateInner .ep-budget-card h3{color:#f6d089!important;font-size:18px!important}
-#epPrivateInner .ep-budget-card p{font-size:13px!important;color:#e1d8c9!important}
-#epPrivateInner button:not(.ep-cal-day){border-radius:12px!important}
-#epPrivateInner button.ep-org-btn.primary,#epPrivateInner .ep-budget-card button{background:linear-gradient(135deg,#ffe1a0,#d29a47)!important;color:#211506!important;border:0!important;font-weight:800!important}
-#epPrivateInner .ep-org-hero{min-height:190px!important;border-radius:18px!important}
-#epPrivateInner .ep-org-wedding-grid{grid-template-columns:1fr!important;gap:10px!important}
-#epPrivateInner .ep-org-step,#epPrivateInner .ep-org-wedding-grid .ep-org-step:first-child{min-height:96px!important;padding:16px 18px!important;border-radius:14px!important;justify-content:center!important;background:#12171d!important}
-#epPrivateInner .ep-org-step:before{opacity:.35!important}
-#epPrivateInner .ep-org-step-title{font:700 17px Inter,Arial,sans-serif!important;margin:4px 0!important}
-#epPrivateInner .ep-org-step-desc{font-size:11px!important}
-#epPrivateInner .ep-org-step-state{font-size:10px!important;margin-top:4px!important}
-#epPremiumNav{max-width:540px!important;left:50%!important;right:auto!important;width:100%!important;transform:translateX(-50%)!important;border:1px solid #b58c4e55!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;padding:11px 8px calc(12px + env(safe-area-inset-bottom))!important;background:#080a0ef7!important}
-#epPremiumNav button{font-size:10px!important;gap:6px!important}
-#epPremiumNav button span{font-size:23px!important}
-#epPremiumNav button.ep-active{color:#ffd581!important}
-#privateOverlay .private-modal{max-width:420px!important}
-@media(max-width:390px){#epClientHome .ep-home-tile{min-height:184px!important;height:184px!important;padding:11px!important}#epClientHome .ep-home-copy strong{font-size:17px!important}#epClientHome .ep-home-intro{min-height:265px!important}}
-@media(min-width:800px){#epClientHome,#epPrivateInner{box-shadow:0 0 0 1px #d2a66317,0 0 75px #000!important}#epClientHome .ep-home-tile{height:230px!important}}
-</style>
 
+
+
+<style id="ep-design-system-v4">
+:root{--gold:#f8cc78;--gold2:#d9a64f;--ink:#050608;--panel:#10141a;--line:#51432e}
+html,body{background:var(--ink)!important;color:#fff!important}
+#privateDashboard{background:var(--ink)!important;min-height:100dvh!important}
+#privateDashboard .private-top{position:relative!important;max-width:1500px!important;margin:auto!important;padding:13px clamp(18px,4vw,48px)!important;min-height:78px!important;background:#080a0d!important;border-bottom:1px solid #59482e!important}
+#privateDashboard .private-top img{height:49px!important;width:49px!important;object-fit:contain!important}
+#privateDashboard .private-top strong{font-size:clamp(10px,1.15vw,14px)!important;letter-spacing:.12em!important;color:#f6d38f!important}
+#privateDashboard .private-top #privateLogout{border:1px solid #b58a4c!important;color:#ffe2a7!important;border-radius:10px!important;background:#131313!important}
+#epClientHome{max-width:1500px!important;width:100%!important;min-height:calc(100dvh - 78px)!important;margin:auto!important;padding:20px clamp(18px,4vw,54px) 140px!important;background:#050608!important}
+#epClientHome:before,#epClientHome:after{display:none!important}
+#epClientHome .ep-home-intro{position:relative!important;max-width:none!important;min-height:clamp(260px,30vw,390px)!important;margin:0 0 24px!important;padding:clamp(24px,4vw,55px)!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;text-align:left!important;overflow:hidden!important;border-radius:24px!important;border:1px solid #b68c5050!important;background:linear-gradient(90deg,#060608f7 0%,#060608b9 42%,#0606081a 100%),url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1800&q=90') center 48%/cover!important;box-shadow:0 15px 50px #000b!important}
+#epClientHome .ep-home-intro:before{content:"EVENTS AND PARTIES   ✦   MÚSICA · EMOCIONES · PASIÓN";position:absolute;top:22px;left:clamp(24px,4vw,55px);color:#f5cb7b;font-weight:800;font-size:11px;letter-spacing:.15em}
+#epClientHome .ep-home-intro>span{font-size:11px!important;letter-spacing:.24em!important;color:#f4cc7b!important}
+#epClientHome .ep-home-intro h1{font-size:clamp(32px,4.1vw,61px)!important;line-height:1.03!important;letter-spacing:-.04em!important;text-shadow:0 2px 18px #000!important;max-width:690px!important;margin:12px 0 18px!important}
+#epClientHome .ep-home-intro .ep-gold-word{display:block!important;color:#f4c875!important}
+#epClientHome .ep-home-intro p{font-size:clamp(12px,1.3vw,17px)!important;color:#f3eee6!important;max-width:480px!important}
+#epClientHome .ep-home-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
+#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#epClientHome .ep-home-tile{height:clamp(220px,26vw,350px)!important;min-height:0!important;padding:22px!important;border-radius:18px!important;border:1px solid #b8905178!important;background-position:center!important;background-size:cover!important;box-shadow:0 12px 28px #0009!important;transition:transform .15s, border-color .15s!important}
+#epClientHome .ep-home-tile:hover{transform:translateY(-3px)!important;border-color:#ffd58c!important}
+#epClientHome .ep-home-tile::before{background:linear-gradient(180deg,#0004 0%,#0000 25%,#050608b0 62%,#050608f9 100%)!important}
+#epClientHome .ep-home-icon{font-size:27px!important;background:#0b0d11dd!important;color:#f6ca7a!important;border:1px solid #d8a75699!important;border-radius:13px!important;width:49px!important;height:49px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+#epClientHome .ep-home-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:7px!important;z-index:2!important}
+#epClientHome .ep-home-copy strong{font-family:Arial,sans-serif!important;font-size:clamp(19px,2.1vw,28px)!important;font-weight:800!important;color:white!important;line-height:1.1!important}
+#epClientHome .ep-home-copy small{font-size:clamp(11px,1.05vw,14px)!important;color:#eee9e0!important;line-height:1.4!important}
+#epClientHome .ep-home-link{display:none!important}
+#epClientHome .ep-home-events{background-image:url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=85')!important}
+#epClientHome .ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=900&q=85')!important}
+#epClientHome .ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=85')!important}
+#epClientHome .ep-home-profile{background-image:url('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=900&q=85')!important}
+#epClientHome .ep-home-admin{background-image:url('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=900&q=85')!important}
+#epClientHome .ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1507504031003-b417219a0fde?auto=format&fit=crop&w=900&q=85')!important}
+#epClientHome .ep-home-manage{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=85')!important}
+#epClientHome .ep-home-tile[hidden]{display:none!important}
+#epPrivateInner.private-layout{display:block!important;max-width:1320px!important;width:100%!important;margin:0 auto!important;padding:28px clamp(18px,4vw,50px) 140px!important}
+#epPrivateInner[hidden]{display:none!important}
+#epPrivateInner .private-sidebar{display:none!important}
+#epPrivateInner .private-panel{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+#epPrivateInner #privatePanelTitle{font:800 clamp(28px,3.5vw,43px)/1.1 Arial,sans-serif!important;color:#f5cc80!important;margin:12px 0 22px!important}
+#epPrivateInner .ep-back-home{border:0!important;background:transparent!important;color:#f7cb78!important;padding:8px 0!important;font-size:15px!important}
+#epPrivateInner #privatePanelBody{color:#f3eee6!important}
+#epPrivateInner .ep-budget-card,#epPrivateInner .ep-org-card,#epPrivateInner .ep-adm-progress,#epPrivateInner .ep-org-soft{background:#10141a!important;border:1px solid #4f4b46!important;border-radius:17px!important;padding:clamp(16px,2vw,25px)!important;margin:13px 0!important;box-shadow:0 8px 20px #0009!important}
+#epPrivateInner .ep-budget-card h3{color:#f7cd7e!important;font-size:21px!important}
+#epPrivateInner .ep-budget-card p{font-size:14px!important;color:#d4d3d0!important}
+#epPrivateInner button:not(.ep-cal-day){border-radius:11px!important}
+#epPrivateInner .ep-org-btn.primary,#epPrivateInner .ep-budget-card button{background:linear-gradient(120deg,#ffe5a9,#e7b75e)!important;color:#211708!important;border:0!important;font-weight:800!important}
+#epPrivateInner .ep-org-wedding-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+#epPrivateInner .ep-org-step{min-height:150px!important;border-radius:15px!important}
+#epPrivateInner .ep-org-step-title{font-size:clamp(18px,2vw,25px)!important}
+#epPrivateInner .ep-cal-grid{background:#0e1217!important;border:1px solid #46413a!important;border-radius:16px!important;padding:12px!important}
+#epPrivateInner .ep-cal-day{background:#151a20!important;border-color:#33373d!important}
+#epPrivateInner .ep-cal-day.has-event{background:#50391a!important}
+#epPremiumNav{max-width:1320px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:calc(100% - 20px)!important;border:1px solid #9f804e6b!important;border-bottom:0!important;border-radius:20px 20px 0 0!important;background:#080b10f7!important;box-shadow:0 -10px 25px #0008!important;padding:13px 8px calc(14px + env(safe-area-inset-bottom))!important}
+#epPremiumNav button{font-size:12px!important;gap:7px!important}
+#epPremiumNav button span{font-size:24px!important}
+#epPremiumNav button.ep-active{color:#f7cc7e!important}
+.ep-v4-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 18px}
+.ep-v4-controls button{background:#10141a;border:1px solid #4b4842;border-radius:12px;color:#fff;padding:11px 17px;cursor:pointer;font:700 13px Arial,sans-serif}
+.ep-v4-controls button.selected{background:linear-gradient(120deg,#ffe1a2,#dfad55);color:#19130b;border-color:transparent}
+.ep-v4-search{width:100%;box-sizing:border-box;border:1px solid #45484d!important;border-radius:14px!important;background:#10161d!important;color:#fff!important;padding:14px 17px!important;margin:0 0 18px!important;font:14px Arial,sans-serif!important}
+.ep-v4-search::placeholder{color:#a5a9ae}
+.ep-v4-heading{display:flex;align-items:center;gap:12px;color:#f9d18a;font-weight:800;font-size:16px;letter-spacing:.03em;margin:8px 0 14px}
+.ep-v4-heading:before{content:"✦";display:grid;place-items:center;width:34px;height:34px;border:1px solid #b88d51;border-radius:10px}
+@media(max-width:850px){#epClientHome .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#epClientHome .ep-home-tile{height:clamp(190px,35vw,280px)!important}}
+@media(max-width:560px){#privateDashboard .private-top{min-height:60px!important;padding:9px 14px!important}#privateDashboard .private-top img{height:35px!important;width:35px!important}#privateDashboard .private-top strong{font-size:9px!important}#epClientHome{padding:10px 12px 112px!important}#epClientHome .ep-home-intro{min-height:285px!important;border-radius:17px!important;padding:25px!important;margin-bottom:12px!important}#epClientHome .ep-home-intro h1{font-size:31px!important}#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{gap:10px!important}#epClientHome .ep-home-tile{height:200px!important;padding:12px!important;border-radius:13px!important}#epClientHome .ep-home-icon{width:39px!important;height:39px!important;font-size:21px!important}#epClientHome .ep-home-copy strong{font-size:18px!important}#epClientHome .ep-home-copy small{font-size:10px!important}#epPrivateInner.private-layout{padding:15px 14px 120px!important}#epPrivateInner .ep-org-wedding-grid{grid-template-columns:1fr!important}#epPremiumNav{width:100%!important;border-radius:15px 15px 0 0!important}#epPremiumNav button{font-size:9px!important}}
+</style>
 </head>
   
 <body>
@@ -2657,6 +2665,56 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  panel.appendChild(nav);
  function update(){nav.hidden=panel.hidden;const title=document.getElementById('privatePanelTitle');const current=home.hidden?(title?title.textContent.trim():''):'Inicio';nav.querySelectorAll('button').forEach(b=>{const active=b.dataset.destination===current;b.classList.toggle('ep-active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
  const observer=new MutationObserver(update);observer.observe(panel,{attributes:true,attributeFilter:['hidden']});observer.observe(home,{attributes:true,attributeFilter:['hidden']});const title=document.getElementById('privatePanelTitle');if(title)observer.observe(title,{childList:true,characterData:true,subtree:true});update();
+})();
+</script>
+
+<script id="ep-design-interactions-v4">
+(function(){
+const home=document.getElementById('epClientHome'),inner=document.getElementById('epPrivateInner');
+const body=document.getElementById('privatePanelBody'),title=document.getElementById('privatePanelTitle');
+if(!home||!inner||!body||!title)return;
+const icons={'Mis eventos':'♧','Calendario':'▦','Presupuestos':'▤','Mi perfil':'♙','Administración':'✧','Organizadores recibidos':'♫','Gestionar presupuestos':'▤'};
+home.querySelectorAll('.ep-home-tile').forEach(function(tile){
+ const key=tile.dataset.homeDestination,ico=tile.querySelector('.ep-home-icon');
+ if(ico)ico.textContent=icons[key]||'✦';
+ const copy=tile.querySelector('.ep-home-copy');
+ if(copy){let arrow=copy.querySelector('.ep-v4-arrow');if(!arrow){arrow=document.createElement('span');arrow.className='ep-v4-arrow';arrow.textContent='›';arrow.style.cssText='position:absolute;right:4px;bottom:0;font-size:32px;color:#f8cf83';copy.style.position='relative';copy.style.width='100%';copy.appendChild(arrow)}}
+});
+let currentTab='',filter='Todos',term='';
+function decorate(){
+ if(inner.hidden||!title.textContent.trim())return;
+ const tab=title.textContent.trim();
+ if(tab!==currentTab){currentTab=tab;filter='Todos';term=''}
+ if(tab==='Mis eventos'||tab==='Presupuestos'||tab==='Gestionar presupuestos'||tab==='Administración'){
+  let bar=inner.querySelector('#epV4Toolbar');
+  if(!bar){bar=document.createElement('div');bar.id='epV4Toolbar';bar.innerHTML='<div class="ep-v4-heading">Gestión de '+(tab==='Mis eventos'?'celebraciones':'solicitudes y presupuestos')+'</div><div class="ep-v4-controls"></div><input class="ep-v4-search" type="search" placeholder="⌕  Buscar por nombre, evento o fecha..." aria-label="Buscar en la sección">';body.parentElement.insertBefore(bar,body)}
+  bar.querySelector('.ep-v4-heading').textContent=tab==='Mis eventos'?'✦  Consulta y organización de eventos':'✦  Gestión de presupuestos y solicitudes';
+  const options=tab==='Mis eventos'?['Todos','Pendientes','En organización','Finalizados']:['Todos','Pendientes','Aceptados','Rechazados'];
+  const control=bar.querySelector('.ep-v4-controls');
+  if(control.dataset.tab!==tab){control.replaceChildren();control.dataset.tab=tab;options.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x;b.addEventListener('click',()=>{filter=x;control.querySelectorAll('button').forEach(n=>n.classList.toggle('selected',n===b));applyFilter()});control.appendChild(b)});control.firstElementChild.classList.add('selected')}
+  const input=bar.querySelector('input');if(input.dataset.tab!==tab){input.dataset.tab=tab;input.value='';input.oninput=()=>{term=input.value.trim().toLowerCase();applyFilter()}}
+  applyFilter();
+ }else{inner.querySelector('#epV4Toolbar')?.remove()}
+}
+function applyFilter(){
+ const cards=Array.from(body.querySelectorAll('.ep-budget-card,.ep-org-card,.ep-adm-event-card,.ep-org-list-card'));
+ if(!cards.length)return;
+ cards.forEach(card=>{
+ const t=card.textContent.toLowerCase();
+ let match=true;
+ if(filter==='Pendientes')match=/pendiente|borrador|sin organizar/.test(t);
+ else if(filter==='En organización')match=/en preparación|organización|en proceso/.test(t);
+ else if(filter==='Finalizados')match=/finalizado|terminado|completado/.test(t);
+ else if(filter==='Aceptados')match=/aceptad/.test(t);
+ else if(filter==='Rechazados')match=/rechazad/.test(t);
+ card.style.display=match&&(!term||t.includes(term))?'':'none';
+ });
+}
+const observer=new MutationObserver(()=>{if(window.__epV4Busy)return;window.__epV4Busy=true;queueMicrotask(()=>{window.__epV4Busy=false;decorate()})});
+observer.observe(inner,{attributes:true,attributeFilter:['hidden']});
+observer.observe(title,{childList:true,subtree:true,characterData:true});
+observer.observe(body,{childList:true,subtree:false});
+decorate();
 })();
 </script>
 </body>
