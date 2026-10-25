@@ -2313,10 +2313,33 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     });
     box.append(form);eventBody.append(epClientTabs([['Eventos creados',epClientEvents],['Crear evento',epClientCreateEvent]],1),box);
   };
-  const epClientEvents=async()=>{const holder=document.createElement('div');holder.className='ep-client-events-list';await epOrgList();holder.append(...eventBody.childNodes);const {data:{user}}=await client.auth.getUser();if(user){const {data,error}=await client.from('ep_eventos').select('id,tipo_evento,fecha_evento,lugar_evento,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});if(!error&&data?.length){const group=document.createElement('section');group.className='ep-client-form';group.append(budgetNode('h3','Eventos registrados'));data.forEach(ev=>{const card=document.createElement('article');card.className='ep-budget-card';card.append(budgetNode('h3',ev.tipo_evento||'Evento'),budgetNode('p','Fecha: '+formatDate(ev.fecha_evento)),budgetNode('p','Lugar: '+(ev.lugar_evento||'Por concretar')),budgetNode('p','Estado: '+(ev.estado_evento||'Pendiente')));
-          const calendarLink=budgetButton('Ver fecha en calendario',()=>{const link=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Calendario' && b.offsetParent!==null);if(link)link.click();});
-          if(ev.fecha_evento)card.append(calendarLink);
-          group.append(card)});holder.prepend(group)}}const tabs=epClientTabs([['Eventos creados',()=>epClientEvents()],['Crear evento',epClientCreateEvent]]);eventBody.append(tabs,holder)};
+  // Listado coherente con Calendario: lee la misma tabla y muestra errores reales.
+  const epClientEvents=async()=>{
+    eventBody.replaceChildren();
+    const tabs=epClientTabs([['Eventos creados',epClientEvents],['Crear evento',epClientCreateEvent]]);
+    eventBody.append(tabs);
+    const info=budgetNode('p','Cargando eventos registrados…');eventBody.append(info);
+    try{
+      const {data:{user},error:authError}=await client.auth.getUser();
+      if(authError||!user){info.textContent='Inicia sesión para ver tus eventos.';return}
+      const {data,error}=await client.from('ep_eventos').select('*').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});
+      if(error){info.textContent='No se pudieron consultar tus eventos: '+error.message+' (revisa permisos de lectura en Supabase).';return}
+      info.remove();
+      if(!data?.length){eventBody.append(budgetNode('p','No aparecen eventos asociados a tu usuario. Si el evento existe en Supabase, comprueba que cliente_id corresponde al usuario con el que has iniciado sesión y que la política RLS permite leerlo.'));return}
+      const group=document.createElement('section');group.className='ep-client-form';group.append(budgetNode('h3','Eventos registrados'));
+      for(const row of data){
+        let extra=row.datos||{};if(typeof extra==='string'){try{extra=JSON.parse(extra)}catch(_){extra={}}}
+        const ev=extra.evento&&typeof extra.evento==='object'?extra.evento:{};
+        const field=(...keys)=>{for(const k of keys){const v=row[k]??extra[k]??ev[k];if(v!==undefined&&v!==null&&v!=='')return String(v)}return ''};
+        const date=field('fecha_evento','fecha','fechaEvento').slice(0,10);
+        const card=document.createElement('article');card.className='ep-budget-card';
+        card.append(budgetNode('h3',field('nombrecliente','nombre_cliente','nombre')||field('tipo_evento','tipo')||'Evento'),budgetNode('p','Tipo: '+(field('tipo_evento','tipo')||'Por concretar')),budgetNode('p','Fecha: '+(date?formatDate(date):'Por concretar')),budgetNode('p','Lugar: '+(field('lugar_evento','lugar')||'Por concretar')),budgetNode('p','Estado: '+(field('estado_evento','estado')||'Pendiente')));
+        if(date)card.append(budgetButton('Ver fecha en calendario',()=>{const link=[...document.querySelectorAll('#epLuxurySidebar button')].find(b=>b.textContent.trim()==='Calendario');if(link)link.click()}));
+        group.append(card);
+      }
+      eventBody.append(group);
+    }catch(err){info.textContent='Error al cargar tus eventos: '+err.message}
+  };
   const epClientProfile=async()=>{eventBody.replaceChildren();const {data:{user},error}=await client.auth.getUser();if(error||!user){eventBody.textContent='Inicia sesión para consultar tu perfil.';return}const box=document.createElement('section');box.className='ep-client-form';const heading=document.createElement('h3');heading.textContent='Mis datos de registro';box.append(heading);addDetail(box,'Nombre y apellidos',user.user_metadata?.nombre||user.user_metadata?.full_name||'No indicado');addDetail(box,'Correo electrónico',user.email);addDetail(box,'Teléfono',user.phone||user.user_metadata?.telefono||'No indicado');eventBody.append(box);const history=document.createElement('section');history.className='ep-client-form';history.innerHTML='<h3>Mis eventos y celebraciones</h3>';eventBody.append(history);const {data:events,error:err}=await client.from('ep_eventos').select('tipo_evento,fecha_evento,lugar_evento,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});if(err){history.append(budgetNode('p','No se pudo consultar el historial: '+err.message));return}if(!events?.length)history.append(budgetNode('p','Todavía no tienes eventos registrados.'));(events||[]).forEach(ev=>{const item=document.createElement('article');item.className='ep-budget-card';item.append(budgetNode('h3',ev.tipo_evento||'Evento'),budgetNode('p','Fecha: '+formatDate(ev.fecha_evento)),budgetNode('p','Lugar: '+(ev.lugar_evento||'Por concretar')),budgetNode('p','Estado: '+(ev.estado_evento||'Pendiente')));history.append(item)})};
   const loadEvents=async()=>{
     if(!client)return;
