@@ -806,6 +806,36 @@ background:
 .ep-adm-check b{display:block;color:#eecb8c;margin-bottom:5px}
 .ep-adm-check small{color:#bfae97}
 
+
+/* RENOVACIÓN VISUAL ADMINISTRADOR — fotografías editoriales y tarjetas premium.
+   Los accesos del cliente, navegación y funciones permanecen intactos. */
+#epClientHome.ep-is-admin .ep-home-tile{
+  min-height:270px;border-radius:22px;border:1px solid rgba(236,190,110,.65);
+  background-color:#17110b;background-size:cover;background-position:center;
+  box-shadow:0 18px 44px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,224,155,.08);
+  transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease,filter .3s ease;
+}
+#epClientHome.ep-is-admin .ep-home-tile::before{
+  background:linear-gradient(180deg,rgba(6,5,5,.10) 0%,rgba(7,6,5,.18) 35%,rgba(7,5,4,.78) 72%,rgba(4,3,3,.96) 100%);
+}
+#epClientHome.ep-is-admin .ep-home-tile:hover,
+#epClientHome.ep-is-admin .ep-home-tile:focus-visible{
+  transform:translateY(-5px);filter:saturate(1.13);
+  border-color:#f6d58c;box-shadow:0 22px 50px #000b,0 0 22px #d9a44130;
+}
+#epClientHome.ep-is-admin .ep-home-icon{backdrop-filter:blur(9px);background:#0a0908a8;border-color:#f0cc8b;color:#ffdfa1}
+#epClientHome.ep-is-admin .ep-home-copy strong{color:#fff8e9;text-shadow:0 2px 12px #000}
+#epClientHome.ep-is-admin .ep-home-link{background:linear-gradient(120deg,#f8da94,#c58b36);border-color:#e9bd6b}
+#epClientHome.ep-is-admin .ep-home-events{background-image:url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=88')}
+#epClientHome.ep-is-admin .ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=88')}
+#epClientHome.ep-is-admin .ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=88')}
+#epClientHome.ep-is-admin .ep-home-profile{background-image:url('https://images.unsplash.com/photo-1571266028243-d220c9c3c157?auto=format&fit=crop&w=1200&q=88')}
+#epClientHome.ep-is-admin .ep-home-admin{background-image:url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=88')}
+#epClientHome.ep-is-admin .ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=88')}
+#epClientHome.ep-is-admin .ep-home-manage{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=88')}
+@media(max-width:600px){#epClientHome.ep-is-admin .ep-home-tile{min-height:240px}}
+@media(prefers-reduced-motion:reduce){#epClientHome.ep-is-admin .ep-home-tile{transition:none}}
+
 </style>
 
 <style>
