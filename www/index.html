@@ -2407,10 +2407,22 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const {data:{user},error:userError}=await client.auth.getUser();
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
     if(userError||!user){eventBody.textContent='Inicia sesión para consultar tu calendario.';return}
-    const {data,error}=await client.from('ep_eventos').select('id,nombrecliente,fecha_evento,tipo_evento,lugar_evento,hora_inicio,hora_fin,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:true});
+    // Consulta columnas existentes sin exigir campos opcionales que pueden estar dentro de datos (JSONB).
+    const {data,error}=await client.from('ep_eventos').select('*').eq('cliente_id',user.id);
+
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
-    if(error){eventBody.textContent='No se ha podido cargar el calendario. Comprueba la conexión y los permisos de Supabase.';console.error('Error al cargar calendario:',error.message);return}
-    calEvents=data||[];
+    if(error){eventBody.textContent='No se ha podido cargar el calendario: '+(error.message||'Error de acceso a eventos')+'.';console.error('Error al cargar calendario:',error);return}
+    const normalizeCalendarEvent=(row)=>{
+      let extra=row.datos||{};
+      if(typeof extra==='string'){try{extra=JSON.parse(extra)}catch(_){extra={}}}
+      if(!extra||typeof extra!=='object'||Array.isArray(extra))extra={};
+      const event=extra.evento&&typeof extra.evento==='object'?extra.evento:{};
+      const get=(...keys)=>{for(const k of keys){const v=row[k]??extra[k]??event[k];if(v!==undefined&&v!==null&&v!=='')return v}return ''};
+      const rawDate=get('fecha_evento','fecha','fechaEvento','event_date');
+      const date=typeof rawDate==='string'?rawDate.slice(0,10):'';
+      return {...row,fecha_evento:/^\d{4}-\d{2}-\d{2}$/.test(date)?date:'',nombrecliente:get('nombrecliente','nombre_cliente','nombre'),tipo_evento:get('tipo_evento','tipo','tipoEvento')||'Evento',lugar_evento:get('lugar_evento','lugar','ubicacion'),hora_inicio:get('hora_inicio','hora','horaInicio'),hora_fin:get('hora_fin','horaFin'),estado_evento:get('estado_evento','estado')||'Pendiente'};
+    };
+    calEvents=(data||[]).map(normalizeCalendarEvent).sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
     // Al abrir el calendario, mostrar el mes del próximo evento si existe.
     const today=dateKey(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
     const nextEvent=calEvents.find(ev=>ev.fecha_evento&&ev.fecha_evento>=today);
