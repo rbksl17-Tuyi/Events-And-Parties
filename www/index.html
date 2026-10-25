@@ -2329,12 +2329,38 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const ev=extra.evento&&typeof extra.evento==='object'?extra.evento:{};
     const get=(...keys)=>{for(const k of keys){const v=row[k]??extra[k]??ev[k];if(v!==undefined&&v!==null&&v!=='')return String(v)}return ''};
     const date=get('fecha_evento','fecha','fechaEvento','event_date').slice(0,10);
-    return {...row,fecha_evento:/^\\d{4}-\\d{2}-\\d{2}$/.test(date)?date:'',
+    return {...row,fecha_evento:/^\d{4}-\d{2}-\d{2}$/.test(date)?date:'',
       nombrecliente:get('nombrecliente','nombre_cliente','nombre'),
       tipo_evento:get('tipo_evento','tipo')||'Evento',
       lugar_evento:get('lugar_evento','lugar'),
       hora_inicio:get('hora_inicio','hora'),hora_fin:get('hora_fin'),
       estado_evento:get('estado_evento','estado')||'Pendiente'};
+  };
+  const epEditClientEvent=async(row)=>{
+    eventBody.replaceChildren();
+    const ev=normalizeEpEvent(row);
+    const box=document.createElement('section');box.className='ep-client-form';
+    box.append(budgetNode('h3','Modificar evento'),budgetNode('p','Puedes modificar los detalles de tu celebración. Para cambiar la fecha, utiliza la solicitud de cambio de fecha del calendario.'));
+    const form=document.createElement('form');form.className='adm-form';
+    const fields=[['nombrecliente','Nombre de la celebración','text'],['tipo_evento','Tipo de evento','text'],['lugar_evento','Lugar','text'],['hora_inicio','Hora de inicio','time'],['hora_fin','Hora de finalización','time']];
+    fields.forEach(([key,label,type])=>{
+      const wrap=document.createElement('label');wrap.textContent=label;
+      const input=document.createElement('input');input.name=key;input.type=type;input.value=ev[key]||'';wrap.append(input);form.append(wrap);
+    });
+    const note=budgetNode('p','Fecha registrada: '+(ev.fecha_evento?formatDate(ev.fecha_evento):'Sin fecha'));form.append(note);
+    const status=budgetNode('p','');status.setAttribute('role','status');
+    const save=budgetNode('button','Guardar modificaciones');save.type='submit';save.className='adm-btn primary';
+    form.append(save,status);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();save.disabled=true;status.textContent='Guardando cambios…';
+      const changes=Object.fromEntries(new FormData(form).entries());
+      const updated={...(row.datos&&typeof row.datos==='object'?row.datos:{}),...changes};
+      const {error}=await client.from('ep_eventos').update({nombre:changes.nombrecliente||row.nombre,datos:updated}).eq('id',row.id).eq('cliente_id',row.cliente_id);
+      save.disabled=false;
+      if(error){status.textContent='No se pudieron guardar los cambios: '+error.message;return}
+      status.textContent='Cambios guardados.';await epClientEvents();
+    });
+    box.append(form);eventBody.append(budgetButton('← Volver a eventos creados',epClientEvents),box);
   };
   // Listado coherente con Calendario: lee la misma tabla y muestra errores reales.
   const epClientEvents=async()=>{
@@ -2356,6 +2382,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         const card=document.createElement('article');card.className='ep-budget-card';
         card.append(budgetNode('h3',field('nombrecliente','nombre_cliente','nombre')||field('tipo_evento','tipo')||'Evento'),budgetNode('p','Tipo: '+(field('tipo_evento','tipo')||'Por concretar')),budgetNode('p','Fecha: '+(date?formatDate(date):'Por concretar')),budgetNode('p','Lugar: '+(field('lugar_evento','lugar')||'Por concretar')),budgetNode('p','Estado: '+(field('estado_evento','estado')||'Pendiente')));
         if(date)card.append(budgetButton('Ver fecha en calendario',()=>{const link=[...document.querySelectorAll('#epLuxurySidebar button')].find(b=>b.textContent.trim()==='Calendario');if(link)link.click()}));
+        card.append(budgetButton('Modificar evento',()=>epEditClientEvent(row)));
         group.append(card);
       }
       eventBody.append(group);
@@ -2415,7 +2442,8 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     .ep-cal-day:disabled{cursor:default;opacity:.2}
     .ep-cal-day.has-event{border-color:#ffdd8a;background:linear-gradient(145deg,#d59a2c,#7a430b);color:#fff9e8;font-weight:800;box-shadow:inset 0 0 0 1px #f9d38c,0 0 13px #c68b3250}
     .ep-cal-day.selected{outline:2px solid #f0c87a;outline-offset:-2px}
-    .ep-cal-dot{width:6px;height:6px;border-radius:50%;background:#f0c87a}
+    .ep-cal-dot{width:8px;height:8px;border-radius:50%;background:#7a4100}
+    .ep-cal-day.has-event{background:#ffe45a!important;color:#231500!important;border:2px solid #fff3a2!important;box-shadow:0 0 15px #e9bc4377!important}
     .ep-cal-detail{margin-top:18px;border:1px solid #7b5b2c;border-radius:10px;padding:15px;background:#17130d}
     .ep-cal-detail h4{color:#f0c87a;margin:0 0 10px}
     .ep-cal-help{color:#d6bd90;font-size:.9rem;margin:12px 0}
@@ -2596,9 +2624,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     ]);
     if(eventTitle.textContent!=='Presupuestos')return;
     eventBody.replaceChildren();
-    const panes=['Solicitados','Recibidos','Aceptados'].map(()=>document.createElement('section'));
+    const panes=['Nuevo','Solicitados','Recibidos','Aceptados'].map(()=>document.createElement('section'));
     panes.forEach((pane,i)=>{pane.className='ep-client-budget-pane';pane.hidden=i!==0});
-    const requested=panes[0],received=panes[1],accepted=panes[2];
+    const newRequest=panes[0],requested=panes[1],received=panes[2],accepted=panes[3];
+    newRequest.append(epRequestForm());
     requested.append(budgetNode('h3','Presupuestos solicitados'));
     if(requestResult.error)requested.append(budgetNode('p','No se pudieron consultar las solicitudes: '+requestResult.error.message));
     else if(!requestResult.data?.length)requested.append(budgetNode('p','Todavía no has solicitado ningún presupuesto.'));
@@ -2613,15 +2642,12 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));
       requested.append(card);
     });
-    const formBox=document.createElement('div');formBox.className='ep-client-request-box';formBox.hidden=true;formBox.append(epRequestForm());
-    const formToggle=budgetButton('＋ Solicitar nuevo presupuesto',()=>{formBox.hidden=!formBox.hidden});
-    requested.append(formToggle,formBox);
     received.append(budgetNode('h3','Presupuestos recibidos'));
     accepted.append(budgetNode('h3','Presupuestos aceptados'));
     if(budgetResult.error){received.append(budgetNode('p','No se pudieron consultar los presupuestos: '+budgetResult.error.message));accepted.append(budgetNode('p','No se pudieron consultar los presupuestos.'))}
     else {
       const budgets=budgetResult.data||[];
-      const incoming=budgets;
+      const incoming=budgets.filter(p=>p.estado!=='ACEPTADO');
       const approved=budgets.filter(p=>p.estado==='ACEPTADO');
       if(!incoming.length)received.append(budgetNode('p','No tienes presupuestos recibidos pendientes o rechazados.'));
       if(!approved.length)accepted.append(budgetNode('p','Todavía no tienes presupuestos aceptados.'));
@@ -2636,14 +2662,17 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
           }));
           card.append(actions);
         }
+        if(p.estado==='RECHAZADO')card.append(budgetNode('p','Presupuesto rechazado. Puedes solicitar una nueva propuesta en «Solicita nuevo presupuesto».'));
+        card.append(budgetButton('Solicitar modificación',()=>{const msg=prompt('Indica qué quieres modificar del presupuesto:');if(msg?.trim()){const title='Modificación de presupuesto #'+p.id;window.location.href='mailto:perezrobeta@gmail.com?subject='+encodeURIComponent(title)+'&body='+encodeURIComponent(msg.trim())}}));
         received.append(card);
       });
       approved.forEach(p=>accepted.append(budgetCard(p)));
     }
     const tabs=epClientTabs([
-      ['Presupuestos solicitados',()=>panes.forEach((p,i)=>p.hidden=i!==0)],
-      ['Presupuestos recibidos',()=>panes.forEach((p,i)=>p.hidden=i!==1)],
-      ['Presupuestos aceptados',()=>panes.forEach((p,i)=>p.hidden=i!==2)]
+      ['Solicita nuevo presupuesto',()=>panes.forEach((p,i)=>p.hidden=i!==0)],
+      ['Presupuestos solicitados',()=>panes.forEach((p,i)=>p.hidden=i!==1)],
+      ['Presupuestos recibidos',()=>panes.forEach((p,i)=>p.hidden=i!==2)],
+      ['Presupuestos aceptados',()=>panes.forEach((p,i)=>p.hidden=i!==3)]
     ]);
     eventBody.append(tabs,...panes);
   };
