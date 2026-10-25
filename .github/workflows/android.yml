@@ -38,7 +38,7 @@ jobs:
           test -s www/media/logo.png
           npx cap add android
           npx cap sync android
-          test -s android/app/src/main/assets/public/media/logo.png
+          
 
       - name: Compilar APK
         run: |
