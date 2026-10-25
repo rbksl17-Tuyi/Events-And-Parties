@@ -1582,7 +1582,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   };
   const epOrgRoot=()=>{eventBody.replaceChildren();const h=epEl('div',undefined,'ep-org-row');h.append(epEl('h3','Organiza tu evento'));eventBody.append(h);return eventBody};
   const epOrgList=async()=>{
-    const root=epOrgRoot();root.append(epInfo('Solo los presupuestos aceptados permiten organizar un evento. Guarda cada apartado y envía la organización al DJ cuando esté lista.'));\n    const customCard=epCard('¿Tu celebración es diferente?');customCard.append(epInfo('Graduaciones, jubilaciones, aniversarios especiales y cualquier otro tipo de evento.'));customCard.append(epBtn('✦ Crea tu evento',epCreateCustomEvent,'primary'));root.append(customCard);
+    const root=epOrgRoot();root.append(epInfo('Solo los presupuestos aceptados permiten organizar un evento. Guarda cada apartado y envía la organización al DJ cuando esté lista.'));
+    const customCard=epCard('¿Tu celebración es diferente?');customCard.append(epInfo('Graduaciones, jubilaciones, aniversarios especiales y cualquier otro tipo de evento.'));customCard.append(epBtn('✦ Crea tu evento',epCreateCustomEvent,'primary'));root.append(customCard);
     try{
       const {data:{user}}=await client.auth.getUser();
       const [budgets,orgs]=await Promise.all([
@@ -1661,7 +1662,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       const completed=sections.filter(x=>content[x]?.completado).length;
       const editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
       const visuals=epEventVisuals[org.tipo]||epEventVisuals.OTRO;
-      const customName=String(content.__custom_event_name||'').trim();\n      const label=customName?'Organiza: '+customName:'Organiza tu '+epEventName(org.titulo,org.tipo).toLowerCase();
+      const customName=String(content.__custom_event_name||'').trim();
+      const label=customName?'Organiza: '+customName:'Organiza tu '+epEventName(org.titulo,org.tipo).toLowerCase();
       root.append(epWeddingHero(label,'Preparad cada momento a vuestro ritmo. Guardad vuestros cambios y añadid música o documentos en cada apartado.',visuals[sections[0]].image));
       const c=epCard(customName?'Tu evento · '+customName:epBudgetLabel(org.titulo,org.tipo));
       c.append(epInfo('Vuestro progreso · '+completed+' de '+sections.length+' momentos preparados'));
