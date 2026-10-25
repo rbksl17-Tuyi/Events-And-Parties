@@ -1089,6 +1089,19 @@ header.nav>#menu-principal.abierto{display:flex!important}
 .ep-client-request-box[hidden],.ep-client-budget-list[hidden]{display:none!important}
 @media(max-width:760px){.ep-calendar-layout{grid-template-columns:1fr}.ep-client-tabs button{flex:1}.ep-client-form .adm-form{grid-template-columns:1fr}}
 </style>
+<style>
+/* Panel administrador: seis tarjetas homogéneas en dos filas */
+#epClientHome.ep-is-admin .ep-home-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important;align-items:stretch!important}
+#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){grid-column:auto!important;grid-row:auto!important;width:100%!important;min-width:0!important;min-height:245px!important;max-height:none!important;margin:0!important;border-radius:18px!important;padding:23px!important;border:1px solid #cba15a!important;box-shadow:inset 0 -115px 85px #050403dc,0 12px 25px #0007!important}
+#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile .ep-home-copy{width:100%;max-width:100%;padding-right:38px}
+#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile .ep-home-copy strong{font-size:clamp(21px,2.1vw,29px)!important;overflow-wrap:anywhere}
+#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile .ep-home-copy small{font-size:13px;line-height:1.45}
+#epClientHome.ep-is-admin .ep-home-intro{min-height:220px!important}
+#epLuxurySidebar #epLuxLinks button:first-child{margin-bottom:14px!important;border:1px solid #9b743c!important;background:linear-gradient(110deg,#4a3216,#21170d)!important;color:#ffe4aa!important}
+#epLuxurySidebar #epLuxLinks button:first-child.active{background:linear-gradient(120deg,#d9b36b,#b98937)!important;color:#171009!important}
+@media(max-width:1150px){#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:680px){#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:1fr!important}#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){min-height:190px!important}}
+</style>
 </head>
   
 <body>
@@ -2913,10 +2926,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  const buttons=specs.map(([label,icon,dest])=>{const b=document.createElement('button');b.type='button';b.innerHTML='<span class="ep-lux-symbol">'+icon+'</span><span class="ep-lux-label">'+label+'</span>';b.title=label;b.dataset.dest=dest||'Inicio';b.onclick=()=>{if(!dest){document.getElementById('epBackHome').click();return}if(dest==='Mi perfil'&&home.classList.contains('ep-is-admin')){openProfiles();return}const t=home.querySelector('[data-home-destination="'+dest+'"]');if(t)t.click();else{const tab=[...inner.querySelectorAll('[data-private-tab]')].find(x=>x.dataset.privateTab===dest);if(tab){home.hidden=true;inner.hidden=false;tab.click()}}};links.append(b);return b});
  const motto=document.createElement('div');motto.id='epLuxuryMotto';motto.innerHTML='<img src="media/logo.png" alt="Logo Events and Parties"><strong>EVENTS AND PARTIES</strong><span>MÚSICA · EMOCIONES · PASIÓN</span>';home.append(motto);
  const grid=home.querySelector('.ep-home-grid');
- const sync=()=>{const admin=home.classList.contains('ep-is-admin');sidebar.hidden=dash.hidden;buttons.forEach((b,i)=>{b.hidden=admin?![2,3,5,6,7,8].includes(i):i>4});const current=home.hidden?(inner.querySelector('#privatePanelTitle')?.textContent||''):'Inicio';buttons.forEach(b=>b.classList.toggle('active',b.dataset.dest===current||(current==='Inicio'&&b.dataset.dest==='Inicio')));
+ const sync=()=>{const admin=home.classList.contains('ep-is-admin');sidebar.hidden=dash.hidden;buttons.forEach((b,i)=>{b.hidden=admin?![0,2,3,5,6,7,8].includes(i):i>4});const current=home.hidden?(inner.querySelector('#privatePanelTitle')?.textContent||''):'Inicio';buttons.forEach(b=>b.classList.toggle('active',b.dataset.dest===current||(current==='Inicio'&&b.dataset.dest==='Inicio')));
  const normal=grid.querySelector('.ep-home-budgets'),profile=grid.querySelector('.ep-home-profile'),manage=grid.querySelector('.ep-home-manage'),adminTile=grid.querySelector('.ep-home-admin'),org=grid.querySelector('.ep-home-organizers');
- if(admin){normal.hidden=true;manage.hidden=false;[adminTile,org,manage,profile].forEach(n=>grid.append(n));profile.hidden=false;profile.querySelector('strong').textContent='Perfiles de usuarios';profile.querySelector('small').textContent='Gestiona todos los usuarios de la plataforma';}else{manage.hidden=true;normal.hidden=false;profile.querySelector('strong').textContent='Mi perfil';profile.querySelector('small').textContent='Tu información y acceso personal';grid.insertBefore(normal,grid.firstElementChild);profile.hidden=false;}
- home.querySelector('.ep-home-intro>span').textContent=admin?'EVENTS AND PARTIES · ÁREA PRIVADA':'MI ESPACIO PERSONAL';};
+ if(admin){normal.hidden=true;manage.hidden=false;[adminTile,org,manage,profile].forEach(n=>grid.append(n));profile.hidden=false;manage.querySelector('strong').textContent='Gestión de presupuestos';org.querySelector('strong').textContent='Organizaciones recibidas';profile.querySelector('strong').textContent='Perfiles de usuarios';profile.querySelector('small').textContent='Gestiona todos los usuarios de la plataforma';}else{manage.hidden=true;normal.hidden=false;profile.querySelector('strong').textContent='Mi perfil';profile.querySelector('small').textContent='Tu información y acceso personal';grid.insertBefore(normal,grid.firstElementChild);profile.hidden=false;}
+ home.querySelector('.ep-home-intro h1').innerHTML=admin?'Panel de <span class="ep-gold-word">administración</span>':'¡Hola! Bienvenido a tu <span class="ep-gold-word">espacio de eventos</span>';home.querySelector('.ep-home-intro p').textContent=admin?'Controla tus eventos, presupuestos, organizaciones y clientes desde un único lugar.':'Todo lo que necesitas para preparar tu celebración, en un solo lugar.';home.querySelector('.ep-home-intro>span').textContent=admin?'EVENTS AND PARTIES · ÁREA PRIVADA':'MI ESPACIO PERSONAL';};
  async function openProfiles(){home.hidden=true;inner.hidden=false;const title=inner.querySelector('#privatePanelTitle'),body=inner.querySelector('#privatePanelBody');title.textContent='Perfiles de usuarios';body.replaceChildren();const p=document.createElement('p');p.textContent='Consultando usuarios registrados…';body.append(p);
  if(!window.supabase){p.textContent='No se ha podido conectar con Supabase.';return}
  try{const cl=window.supabase.createClient(PRIVATE_SUPABASE_URL,PRIVATE_SUPABASE_PUBLISHABLE_KEY);const {data:{user}}=await cl.auth.getUser();if(!user){p.textContent='Inicia sesión para consultar los perfiles.';return}
