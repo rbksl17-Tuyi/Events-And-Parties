@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="DJ para bodas y eventos en Santander, Cantabria y toda España. Música, sonido, iluminación y animación. Solicita presupuesto a Events and Parties.">
-<title>Events and Parties | App Android</title>
+<title>Events and Parties | App Android V5</title>
 <link rel="canonical" href="https://www.eventsandparties.es/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website">
@@ -1025,6 +1025,68 @@ html,body{background:var(--ink)!important;color:#fff!important}
 @media(max-width:850px){#epClientHome .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#epClientHome .ep-home-tile{height:clamp(190px,35vw,280px)!important}}
 @media(max-width:560px){#privateDashboard .private-top{min-height:60px!important;padding:9px 14px!important}#privateDashboard .private-top img{height:35px!important;width:35px!important}#privateDashboard .private-top strong{font-size:9px!important}#epClientHome{padding:10px 12px 112px!important}#epClientHome .ep-home-intro{min-height:285px!important;border-radius:17px!important;padding:25px!important;margin-bottom:12px!important}#epClientHome .ep-home-intro h1{font-size:31px!important}#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{gap:10px!important}#epClientHome .ep-home-tile{height:200px!important;padding:12px!important;border-radius:13px!important}#epClientHome .ep-home-icon{width:39px!important;height:39px!important;font-size:21px!important}#epClientHome .ep-home-copy strong{font-size:18px!important}#epClientHome .ep-home-copy small{font-size:10px!important}#epPrivateInner.private-layout{padding:15px 14px 120px!important}#epPrivateInner .ep-org-wedding-grid{grid-template-columns:1fr!important}#epPremiumNav{width:100%!important;border-radius:15px 15px 0 0!important}#epPremiumNav button{font-size:9px!important}}
 </style>
+
+<style id="ep-maqueta-v5">
+/* Reconstrucción visual V5: mantiene los IDs, formularios y controladores existentes. */
+:root{--ep-gold:#f5c96f;--ep-gold-light:#ffe4a1;--ep-surface:#101217;--ep-stroke:#8c6a34}
+html,body{width:100%;min-height:100%;overflow-x:hidden;background:#050505!important}
+#privateDashboard{width:100%!important;max-width:none!important;min-height:100dvh!important;background:radial-gradient(circle at 50% 0%,#281805 0%,#070707 45%,#030303 100%)!important}
+#privateDashboard .private-top{width:100%!important;max-width:none!important;min-height:72px!important;padding:10px clamp(16px,3vw,48px)!important;display:flex!important;justify-content:space-between!important;align-items:center!important;background:linear-gradient(90deg,#0a0a0b,#14100b,#070707)!important;border-bottom:1px solid #6d512d!important}
+#privateDashboard .private-top img{width:48px!important;height:48px!important}
+#privateDashboard .private-top strong{font-size:clamp(10px,1.2vw,15px)!important;color:#f9d995!important;letter-spacing:.1em!important}
+#privateDashboard #privateLogout{border:1px solid #b38b49!important;background:#0b0b0b!important;color:#ffe3a0!important;padding:9px 15px!important;border-radius:999px!important}
+#epClientHome{max-width:none!important;width:100%!important;min-height:calc(100dvh - 72px)!important;padding:clamp(15px,2.5vw,32px) clamp(14px,3.3vw,56px) 115px!important;background:transparent!important}
+#epClientHome .ep-home-intro{width:100%!important;max-width:none!important;min-height:clamp(215px,24vw,340px)!important;margin:0 0 clamp(14px,2vw,25px)!important;padding:clamp(28px,4vw,65px)!important;border:1px solid #8e6c36!important;border-radius:22px!important;justify-content:center!important;background:linear-gradient(90deg,#050507e8 0%,#050507bb 36%,#05050725 75%),url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1800&q=90') center 47%/cover!important;box-shadow:0 16px 40px #0008!important;text-align:left!important}
+#epClientHome .ep-home-intro:before{content:'EVENTS AND PARTIES  ·  MÚSICA  ·  EMOCIONES  ·  PASIÓN'!important;top:14px!important;left:clamp(28px,4vw,65px)!important;font-size:clamp(8px,1vw,11px)!important}
+#epClientHome .ep-home-intro h1{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(28px,4.3vw,64px)!important;line-height:1.04!important;max-width:780px!important;margin:15px 0!important;letter-spacing:-.04em!important;font-weight:900!important}
+#epClientHome .ep-home-intro .ep-gold-word{color:#f8d07d!important}
+#epClientHome .ep-home-intro p{max-width:480px!important;color:#fff4e1!important;font-size:clamp(12px,1.25vw,16px)!important}
+#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:clamp(10px,1.4vw,20px)!important}
+#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#epClientHome .ep-home-tile{position:relative!important;display:flex!important;min-height:0!important;height:clamp(215px,24vw,340px)!important;border-radius:18px!important;border:1px solid #a88041!important;padding:clamp(12px,1.7vw,23px)!important;background-size:cover!important;background-position:center!important;box-shadow:0 9px 22px #0009!important;transition:transform .2s,box-shadow .2s!important}
+#epClientHome .ep-home-tile[hidden]{display:none!important}
+#epClientHome .ep-home-tile:before{background:linear-gradient(180deg,#0004 0%,#0001 30%,#000a 65%,#000 100%)!important}
+#epClientHome .ep-home-tile:hover,#epClientHome .ep-home-tile:focus-visible{transform:translateY(-3px)!important;box-shadow:0 15px 30px #000b!important;outline:2px solid #f6d089!important}
+#epClientHome .ep-home-icon{width:44px!important;height:44px!important;background:#070708d9!important;border:1px solid #d9b168!important;border-radius:12px!important;font-size:23px!important;color:#fbd48b!important}
+#epClientHome .ep-home-copy{position:relative!important;gap:5px!important;width:100%!important;padding-right:10px!important}
+#epClientHome .ep-home-copy strong{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(17px,1.8vw,27px)!important;font-weight:850!important;color:#fff!important}
+#epClientHome .ep-home-copy small{font-size:clamp(10px,1vw,13px)!important;color:#f5eade!important}
+#epClientHome .ep-home-link{display:none!important}
+#epClientHome .ep-home-events{background-image:url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=85')!important}
+#epClientHome .ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1000&q=85')!important}
+#epClientHome .ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1000&q=85')!important}
+#epClientHome .ep-home-profile{background-image:url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=85')!important}
+#epClientHome .ep-home-admin{background-image:url('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1000&q=85')!important}
+#epClientHome .ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=85')!important}
+#epClientHome .ep-home-manage{background-image:url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=85')!important}
+#epPrivateInner.private-layout{width:100%!important;max-width:1450px!important;margin:auto!important;padding:clamp(18px,3vw,42px) clamp(14px,3vw,45px) 120px!important}
+#epPrivateInner .private-panel{background:transparent!important;border:0!important;box-shadow:none!important}
+#epPrivateInner #privatePanelTitle{font:850 clamp(27px,3.2vw,44px)/1.1 Arial,sans-serif!important;color:#f8d080!important;margin:10px 0 18px!important}
+#epPrivateInner #privatePanelBody{font-family:Arial,Helvetica,sans-serif!important}
+#epPrivateInner .ep-back-home{font-size:17px!important;color:#f9d27d!important}
+#epPrivateInner .ep-budget-card,#epPrivateInner .ep-org-card,#epPrivateInner .ep-adm-event-card,#epPrivateInner .ep-org-list-card,#epPrivateInner .ep-adm-progress{background:linear-gradient(135deg,#191b20,#0b0d10)!important;border:1px solid #665333!important;border-radius:17px!important;box-shadow:0 8px 25px #0005!important}
+#epPrivateInner .ep-v4-search{background:#131920!important;border:1px solid #625137!important;color:#fff!important;border-radius:15px!important;min-height:48px!important}
+#epPrivateInner .ep-v4-controls button{background:#12151a!important;border:1px solid #806746!important;color:#fff!important;border-radius:12px!important;min-height:42px!important}
+#epPrivateInner .ep-v4-controls button.selected{background:linear-gradient(110deg,#ffe2a0,#dba84e)!important;color:#15100a!important}
+#epPrivateInner .ep-org-btn.primary,#epPrivateInner .ep-budget-card button{background:linear-gradient(110deg,#ffe3a0,#d9a34b)!important;color:#181008!important;border-radius:999px!important}
+#epPremiumNav{position:fixed!important;bottom:0!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;max-width:740px!important;width:min(100%,740px)!important;z-index:200!important;border:1px solid #aa864c!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;background:#08090bef!important;backdrop-filter:blur(16px)!important;padding:10px 8px max(10px,env(safe-area-inset-bottom))!important;box-shadow:0 -9px 30px #000b!important}
+#epPremiumNav[hidden]{display:none!important}
+#epPremiumNav button{color:#e8e0d1!important;font-size:11px!important;min-width:0!important}
+#epPremiumNav button.ep-active{color:#ffdc90!important}
+/* Acceso inspirado en la primera pantalla de la maqueta */
+#privateOverlay.private-overlay{background:linear-gradient(180deg,#0003,#0008),url('https://www.eventsandparties.es/media/nuevo-fondo-dj.png') center/cover no-repeat!important;min-height:100dvh!important;padding:22px!important}
+#privateOverlay .private-modal{width:min(100%,460px)!important;max-height:calc(100dvh - 30px)!important;overflow-y:auto!important;background:linear-gradient(145deg,#141211e8,#030303f5)!important;border:1px solid #d2a85c!important;border-radius:25px!important;padding:clamp(22px,4vw,36px)!important;box-shadow:0 18px 60px #000c,0 0 32px #c88b3225!important;text-align:center!important}
+#privateOverlay .private-logo{max-width:115px!important;max-height:115px!important;object-fit:contain!important}
+#privateOverlay #privateTitle{font-size:clamp(21px,3vw,29px)!important;letter-spacing:.13em!important;color:#fff!important}
+#privateOverlay form{text-align:left!important}
+#privateOverlay form input{width:100%!important;min-height:48px!important;border-radius:12px!important;background:#181a20!important;border:1px solid #947348!important;color:white!important}
+#privateOverlay .private-submit{width:100%!important;min-height:50px!important;border-radius:999px!important;background:linear-gradient(110deg,#ffe5a6,#e5b45b)!important;color:#1a1004!important;font-weight:850!important}
+#privateOverlay .private-secondary{color:#f4d39b!important}
+@media(min-width:1000px){#epClientHome.ep-is-admin .ep-home-tile{height:clamp(200px,19vw,290px)!important}}
+@media(max-width:850px){#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#epClientHome .ep-home-tile{height:clamp(190px,32vw,270px)!important}}
+@media(max-width:560px){#privateDashboard .private-top{min-height:62px!important;padding:8px 12px!important}#privateDashboard .private-top img{width:36px!important;height:36px!important}#privateDashboard .private-top strong{font-size:9px!important}#epClientHome{padding:12px 11px 105px!important}#epClientHome .ep-home-intro{min-height:235px!important;padding:28px 20px!important;margin-bottom:12px!important;background-position:62% center!important}#epClientHome .ep-home-intro:before{left:20px!important;top:12px!important;font-size:7px!important}#epClientHome .ep-home-intro h1{font-size:clamp(27px,8vw,38px)!important}#epClientHome .ep-home-intro p{font-size:11px!important}#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{gap:9px!important}#epClientHome .ep-home-tile{height:195px!important;padding:12px!important;border-radius:13px!important}#epClientHome .ep-home-icon{width:36px!important;height:36px!important;font-size:20px!important}#epClientHome .ep-home-copy strong{font-size:17px!important}#epClientHome .ep-home-copy small{font-size:10px!important}#epPrivateInner.private-layout{padding:16px 12px 110px!important}#epPrivateInner .ep-org-wedding-grid{grid-template-columns:1fr!important}#epPremiumNav{width:100%!important;border-radius:14px 14px 0 0!important}#epPremiumNav button{font-size:9px!important}}
+</style>
+
 </head>
   
 <body>
