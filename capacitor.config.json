@@ -1,6 +1,6 @@
 {
   "appId": "com.eventsandparties.dj",
   "appName": "Events and Parties",
-  "webDir": "www",
+  "webDir": "app-movil",
   "bundledWebRuntime": false
 }
