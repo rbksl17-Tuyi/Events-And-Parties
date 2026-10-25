@@ -1510,6 +1510,25 @@ tarjeta.addEventListener("touchend", (e) => {
   </div>
 </div>
 
+<script>
+/* Arranque seguro Android: nunca dejar la pantalla completamente negra. */
+(function () {
+  const acceso = document.getElementById('privateOverlay');
+  const panel = document.getElementById('privateDashboard');
+  if (acceso && panel) {
+    acceso.hidden = false;
+    panel.hidden = true;
+  }
+  window.addEventListener('error', function (event) {
+    if (!panel || !acceso || !panel.hidden) return;
+    acceso.hidden = false;
+    const aviso = document.getElementById('privateMessage');
+    if (aviso && !aviso.textContent.trim()) {
+      aviso.textContent = 'No se ha podido iniciar completamente la aplicación. Comprueba la conexión a Internet y vuelve a abrirla.';
+    }
+  });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script>
