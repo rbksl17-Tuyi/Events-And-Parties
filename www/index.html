@@ -1451,7 +1451,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     const t=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
     if(/BODA|ENLACE MATRIMONIAL/.test(t))return 'BODA';
     if(/CUMPLE|ANIVERSARIO/.test(t))return 'CUMPLEANOS';
-    if(/COMUNION|CEREMONIA/.test(t))return 'COMUNION';
+    if(/COMUNION/.test(t))return 'COMUNION';
     if(/FIESTA|PRIVAD|VERBENA/.test(t))return 'FIESTA';
     return 'OTRO';
   };
@@ -1581,43 +1581,75 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     wrap.append(i);form.append(wrap);return i;
   };
   const epOrgRoot=()=>{eventBody.replaceChildren();const h=epEl('div',undefined,'ep-org-row');h.append(epEl('h3','Organiza tu evento'));eventBody.append(h);return eventBody};
-  // Mis eventos: solo celebraciones con presupuesto ACEPTADO.
-  // Un presupuesto da lugar a un único organizador; no se crean eventos independientes aquí.
   const epOrgList=async()=>{
-    const root=epOrgRoot();
+    const root=epOrgRoot();root.append(epInfo('Solo los presupuestos aceptados permiten organizar un evento. Guarda cada apartado y envía la organización al DJ cuando esté lista.'));
+    const customCard=epCard('¿Tu celebración es diferente?');customCard.append(epInfo('Graduaciones, jubilaciones, aniversarios especiales y cualquier otro tipo de evento.'));customCard.append(epBtn('✦ Crea tu evento',epCreateCustomEvent,'primary'));root.append(customCard);
     try{
       const {data:{user}}=await client.auth.getUser();
-      if(!user)throw Error('Inicia sesión para acceder a tus eventos.');
       const [budgets,orgs]=await Promise.all([
         epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado,creado_en').eq('cliente_id',user.id).eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
         epCall(client.from('ep_organizaciones').select('*').eq('cliente_id',user.id).order('actualizado_en',{ascending:false}))
       ]);
-      if(!budgets.length){
-        root.append(epInfo('Todavía no tienes eventos para organizar. Cuando se acepte un presupuesto, aparecerá aquí.'));
-        return;
-      }
+      if(!budgets.length)root.append(epInfo('Aún no tienes presupuestos aceptados. Cuando aceptes uno, aparecerá aquí para organizar tu evento.'));
       for(const b of budgets){
-        const o=orgs.find(x=>String(x.presupuesto_id)===String(b.id));
-        const eventType=epTypeOf(b.titulo+' '+(b.descripcion||''));
-        const customName=String(o?.contenido?.__custom_event_name||'').trim();
-        const eventName=customName||epEventName(b.titulo,eventType);
-        const card=epCard(eventName);
-        card.append(epInfo(o?.estado==='ENVIADA'?'Organización enviada al DJ':o?.estado==='CAMBIO_SOLICITADO'?'Cambios solicitados':o?'Continuar la organización':'Listo para organizar'));
-        card.append(epBtn(o?'Organizar mi evento':'Organizar mi evento',async()=>{
+        const o=orgs.find(x=>String(x.presupuesto_id)===String(b.id)),card=epCard(o?.contenido?.__custom_event_name?'Tu evento · '+o.contenido.__custom_event_name:epBudgetLabel(b.titulo,epTypeOf(b.titulo+' '+(b.descripcion||''))));
+        card.append(epInfo(o?'Estado: '+o.estado+' · Versión '+o.version:'Presupuesto aceptado · Pendiente de organizar'));
+        card.append(epBtn(o?'Abrir organizador':'Comenzar a organizar',async()=>{
           try{
             let org=o;
             if(!org){
-              org=await epCall(client.from('ep_organizaciones').insert({
-                presupuesto_id:b.id,cliente_id:user.id,tipo:eventType,
-                titulo:b.titulo,estado:'BORRADOR'
-              }).select('*').single());
+              org=await epCall(client.from('ep_organizaciones').insert({presupuesto_id:b.id,cliente_id:user.id,tipo:epTypeOf(b.titulo+' '+(b.descripcion||'')),titulo:b.titulo,estado:'BORRADOR'}).select('*').single());
             }
             await epOpenOrg(org.id);
           }catch(e){epShowError(e)}
-        },'primary'));
-        root.append(card);
+        },'primary'));root.append(card);
       }
-    }catch(e){root.append(epInfo('No se pudieron cargar tus eventos: '+e.message))}
+    }catch(e){root.append(epInfo('El organizador necesita las nuevas tablas de Supabase. '+e.message))}
+  };
+  const epCreateCustomEvent=async()=>{
+    const root=epOrgRoot();
+    root.append(epBtn('← Volver a mis eventos',epOrgList));
+    root.append(epWeddingHero('Crea tu evento','¿Tienes una celebración diferente? Ponle un nombre y organiza cada momento con fotografías, música y documentos.',epCommonVisuals['Actividades'].image));
+    const c=epCard('Diseña tu celebración');
+    c.append(epInfo('Para organizar y enviar tu evento al DJ necesitas un presupuesto aceptado. Esta opción no crea ni acepta presupuestos.'));
+    try{
+      const {data:{user}}=await client.auth.getUser();
+      const [budgets,orgs]=await Promise.all([
+        epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado').eq('cliente_id',user.id).eq('estado','ACEPTADO')),
+        epCall(client.from('ep_organizaciones').select('presupuesto_id').eq('cliente_id',user.id))
+      ]);
+      const used=new Set(orgs.map(o=>String(o.presupuesto_id)));
+      const available=budgets.filter(b=>!used.has(String(b.id))&&epTypeOf(b.titulo+' '+(b.descripcion||''))==='OTRO');
+      if(!available.length){
+        c.append(epInfo('No tienes un presupuesto aceptado de otro tipo sin organizador. Solicita un presupuesto para tu celebración y, cuando esté aceptado, podrás crearla aquí.'));
+      }else{
+        const form=epEl('form',undefined,'ep-org-form');
+        const label=epEl('label','Selecciona el presupuesto aceptado');
+        const sel=epEl('select');sel.required=true;sel.name='budget';
+        available.forEach(b=>{const o=epEl('option',b.titulo);o.value=b.id;sel.append(o)});
+        label.append(sel);form.append(label);
+        const name=epField(form,'¿Qué tipo de evento quieres organizar?','nombre','text','');
+        name.placeholder='Ej.: fiesta de graduación, jubilación, aniversario especial';
+        name.required=true;name.maxLength=100;
+        const btn=epEl('button','Crear mi evento','ep-org-btn primary');btn.type='submit';form.append(btn);
+        form.addEventListener('submit',async e=>{
+          e.preventDefault();btn.disabled=true;
+          try{
+            const b=available.find(x=>String(x.id)===String(sel.value));
+            const custom=name.value.trim();
+            if(!b||!custom)throw Error('Elige un presupuesto y escribe el nombre de tu evento.');
+            const org=await epCall(client.from('ep_organizaciones').insert({
+              presupuesto_id:b.id,cliente_id:user.id,tipo:'OTRO',
+              titulo:b.titulo,estado:'BORRADOR'
+            }).select('*').single());
+            await epCall(client.from('ep_organizaciones').update({contenido:{__custom_event_name:custom}}).eq('id',org.id));
+            await epOpenOrg(org.id);
+          }catch(err){epShowError(err);btn.disabled=false}
+        });
+        c.append(form);
+      }
+    }catch(err){c.append(epInfo('No se pudieron consultar los presupuestos: '+err.message))}
+    root.append(c);
   };
   const epGetOrg=async(id)=>epCall(client.from('ep_organizaciones').select('*').eq('id',id).single());
   const epOpenOrg=async(id)=>{
@@ -1625,17 +1657,15 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       const org=await epGetOrg(id);
       const root=epOrgRoot();
       root.append(epBtn('← Volver a mis eventos',epOrgList));
-      const effectiveType=epTypeOf(org.titulo);
-      const displayType=effectiveType==='OTRO'?org.tipo:effectiveType;
-      const sections=epTypes[displayType]||epTypes.OTRO;
+      const sections=epTypes[org.tipo]||epTypes.OTRO;
       const content=org.contenido||{};
       const completed=sections.filter(x=>content[x]?.completado).length;
       const editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
-      const visuals=epEventVisuals[displayType]||epEventVisuals.OTRO;
+      const visuals=epEventVisuals[org.tipo]||epEventVisuals.OTRO;
       const customName=String(content.__custom_event_name||'').trim();
-      const label=customName?'Organiza: '+customName:'Organiza tu '+epEventName(org.titulo,displayType).toLowerCase();
+      const label=customName?'Organiza: '+customName:'Organiza tu '+epEventName(org.titulo,org.tipo).toLowerCase();
       root.append(epWeddingHero(label,'Preparad cada momento a vuestro ritmo. Guardad vuestros cambios y añadid música o documentos en cada apartado.',visuals[sections[0]].image));
-      const c=epCard(customName||epEventName(org.titulo,displayType));
+      const c=epCard(customName?'Tu evento · '+customName:epBudgetLabel(org.titulo,org.tipo));
       c.append(epInfo('Vuestro progreso · '+completed+' de '+sections.length+' momentos preparados'));
       const track=epEl('div',undefined,'ep-org-track'),fill=epEl('span');fill.style.width=(completed/sections.length*100)+'%';track.append(fill);c.append(track);
       c.append(epEl('p','Seleccionad el momento que queréis preparar. Podéis volver y cambiarlo mientras la organización esté abierta.','ep-org-section-intro'));
