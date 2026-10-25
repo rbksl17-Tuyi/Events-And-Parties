@@ -1451,7 +1451,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     const t=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
     if(/BODA|ENLACE MATRIMONIAL/.test(t))return 'BODA';
     if(/CUMPLE|ANIVERSARIO/.test(t))return 'CUMPLEANOS';
-    if(/COMUNION/.test(t))return 'COMUNION';
+    if(/COMUNION|CEREMONIA/.test(t))return 'COMUNION';
     if(/FIESTA|PRIVAD|VERBENA/.test(t))return 'FIESTA';
     return 'OTRO';
   };
@@ -1536,6 +1536,17 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     @media(max-width:560px){.ep-org-wedding-grid{grid-template-columns:1fr}.ep-org-step{min-height:185px}.ep-org-hero{min-height:225px;padding:23px}.ep-org-card{padding:19px}.ep-org-actions{flex-direction:column}.ep-org-actions .ep-org-btn{width:100%}}
     @media(prefers-reduced-motion:reduce){.ep-org-step,.ep-org-step:before,.ep-org-btn{transition:none}}
   `;
+  epOrgStyle.textContent+=`
+    .ep-org-wedding-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .ep-org-wedding-grid .ep-org-step:first-child{grid-column:auto;min-height:260px}
+    .ep-org-wedding-grid .ep-org-step:last-child:nth-child(3n+1){grid-column:1/-1}
+    .ep-org-step{min-height:265px;border-radius:18px;padding:21px}
+    .ep-org-step-title{font-family:Georgia,serif;font-size:clamp(1.25rem,2.4vw,1.8rem)}
+    .ep-org-step:before{background:linear-gradient(0deg,#080706ed,#08070610 85%),var(--ep-photo);background-size:cover;background-position:center}
+    .ep-org-hero{min-height:250px}
+    @media(max-width:800px){.ep-org-wedding-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-org-wedding-grid .ep-org-step:first-child{grid-column:1/-1}.ep-org-wedding-grid .ep-org-step:last-child:nth-child(3n+1){grid-column:auto}}
+    @media(max-width:520px){.ep-org-wedding-grid{grid-template-columns:1fr}.ep-org-wedding-grid .ep-org-step:first-child,.ep-org-wedding-grid .ep-org-step:last-child:nth-child(3n+1){grid-column:auto}.ep-org-step{min-height:190px}}
+  `;
   const epWeddingVisuals={
     'Ceremonia':{subtitle:'Cada entrada merece su propia banda sonora',image:'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=85'},
     'Cóctel':{subtitle:'El ambiente perfecto para recibir a vuestros invitados',image:'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=85'},
@@ -1570,29 +1581,43 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     wrap.append(i);form.append(wrap);return i;
   };
   const epOrgRoot=()=>{eventBody.replaceChildren();const h=epEl('div',undefined,'ep-org-row');h.append(epEl('h3','Organiza tu evento'));eventBody.append(h);return eventBody};
+  // Mis eventos: solo celebraciones con presupuesto ACEPTADO.
+  // Un presupuesto da lugar a un único organizador; no se crean eventos independientes aquí.
   const epOrgList=async()=>{
-    const root=epOrgRoot();root.append(epInfo('Solo los presupuestos aceptados permiten organizar un evento. Guarda cada apartado y envía la organización al DJ cuando esté lista.'));
+    const root=epOrgRoot();
     try{
       const {data:{user}}=await client.auth.getUser();
+      if(!user)throw Error('Inicia sesión para acceder a tus eventos.');
       const [budgets,orgs]=await Promise.all([
         epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado,creado_en').eq('cliente_id',user.id).eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
         epCall(client.from('ep_organizaciones').select('*').eq('cliente_id',user.id).order('actualizado_en',{ascending:false}))
       ]);
-      if(!budgets.length)root.append(epInfo('Aún no tienes presupuestos aceptados. Cuando aceptes uno, aparecerá aquí para organizar tu evento.'));
+      if(!budgets.length){
+        root.append(epInfo('Todavía no tienes eventos para organizar. Cuando se acepte un presupuesto, aparecerá aquí.'));
+        return;
+      }
       for(const b of budgets){
-        const o=orgs.find(x=>String(x.presupuesto_id)===String(b.id)),card=epCard(epBudgetLabel(b.titulo,epTypeOf(b.titulo+' '+(b.descripcion||''))));
-        card.append(epInfo(o?'Estado: '+o.estado+' · Versión '+o.version:'Presupuesto aceptado · Pendiente de organizar'));
-        card.append(epBtn(o?'Abrir organizador':'Comenzar a organizar',async()=>{
+        const o=orgs.find(x=>String(x.presupuesto_id)===String(b.id));
+        const eventType=epTypeOf(b.titulo+' '+(b.descripcion||''));
+        const customName=String(o?.contenido?.__custom_event_name||'').trim();
+        const eventName=customName||epEventName(b.titulo,eventType);
+        const card=epCard(eventName);
+        card.append(epInfo(o?.estado==='ENVIADA'?'Organización enviada al DJ':o?.estado==='CAMBIO_SOLICITADO'?'Cambios solicitados':o?'Continuar la organización':'Listo para organizar'));
+        card.append(epBtn(o?'Organizar mi evento':'Organizar mi evento',async()=>{
           try{
             let org=o;
             if(!org){
-              org=await epCall(client.from('ep_organizaciones').insert({presupuesto_id:b.id,cliente_id:user.id,tipo:epTypeOf(b.titulo+' '+(b.descripcion||'')),titulo:b.titulo,estado:'BORRADOR'}).select('*').single());
+              org=await epCall(client.from('ep_organizaciones').insert({
+                presupuesto_id:b.id,cliente_id:user.id,tipo:eventType,
+                titulo:b.titulo,estado:'BORRADOR'
+              }).select('*').single());
             }
             await epOpenOrg(org.id);
           }catch(e){epShowError(e)}
-        },'primary'));root.append(card);
+        },'primary'));
+        root.append(card);
       }
-    }catch(e){root.append(epInfo('El organizador necesita las nuevas tablas de Supabase. '+e.message))}
+    }catch(e){root.append(epInfo('No se pudieron cargar tus eventos: '+e.message))}
   };
   const epGetOrg=async(id)=>epCall(client.from('ep_organizaciones').select('*').eq('id',id).single());
   const epOpenOrg=async(id)=>{
@@ -1600,14 +1625,17 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       const org=await epGetOrg(id);
       const root=epOrgRoot();
       root.append(epBtn('← Volver a mis eventos',epOrgList));
-      const sections=epTypes[org.tipo]||epTypes.OTRO;
+      const effectiveType=epTypeOf(org.titulo);
+      const displayType=effectiveType==='OTRO'?org.tipo:effectiveType;
+      const sections=epTypes[displayType]||epTypes.OTRO;
       const content=org.contenido||{};
       const completed=sections.filter(x=>content[x]?.completado).length;
       const editable=['BORRADOR','CAMBIOS_AUTORIZADOS'].includes(org.estado);
-      const visuals=epEventVisuals[org.tipo]||epEventVisuals.OTRO;
-      const label='Organiza tu '+epEventName(org.titulo,org.tipo).toLowerCase();
+      const visuals=epEventVisuals[displayType]||epEventVisuals.OTRO;
+      const customName=String(content.__custom_event_name||'').trim();
+      const label=customName?'Organiza: '+customName:'Organiza tu '+epEventName(org.titulo,displayType).toLowerCase();
       root.append(epWeddingHero(label,'Preparad cada momento a vuestro ritmo. Guardad vuestros cambios y añadid música o documentos en cada apartado.',visuals[sections[0]].image));
-      const c=epCard(epBudgetLabel(org.titulo,org.tipo));
+      const c=epCard(customName||epEventName(org.titulo,displayType));
       c.append(epInfo('Vuestro progreso · '+completed+' de '+sections.length+' momentos preparados'));
       const track=epEl('div',undefined,'ep-org-track'),fill=epEl('span');fill.style.width=(completed/sections.length*100)+'%';track.append(fill);c.append(track);
       c.append(epEl('p','Seleccionad el momento que queréis preparar. Podéis volver y cambiarlo mientras la organización esté abierta.','ep-org-section-intro'));
