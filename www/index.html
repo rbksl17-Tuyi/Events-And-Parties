@@ -877,6 +877,15 @@ background:
 #epLuxurySidebar button[hidden],
 #epLuxurySidebar [hidden]{display:none!important}
 #epClientHome:not(.ep-is-admin) .ep-admin-home-only{display:none!important}
+
+#epLuxurySidebar button[hidden],#epLuxurySidebar [hidden],
+.ep-client-budget-pane[hidden],.ep-client-request-box[hidden]{display:none!important}
+.ep-client-tabs button.active{background:linear-gradient(135deg,#fff2a8,#f5c640)!important;color:#1c1304!important;border:2px solid #fff0a3!important;box-shadow:0 0 0 2px #b88829,0 0 18px #edc54c55!important}
+.ep-client-tabs button:not(.active){background:#211a14!important;color:#ead5a8!important}
+.ep-cal-day.has-event{position:relative;background:#ffe15c!important;color:#241803!important;border:2px solid #fff1a3!important;box-shadow:0 0 12px #e8bc3580!important}
+.ep-cal-day.has-event::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:#8d5100;box-shadow:0 0 0 2px #fff5c0}
+.ep-phone-form{display:grid;gap:12px;max-width:500px;margin-top:18px}
+.ep-phone-form input{background:#181410;color:#fff;border:1px solid #c69b51;border-radius:9px;padding:13px}
 </style>
 
 <style>
@@ -2313,6 +2322,20 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     });
     box.append(form);eventBody.append(epClientTabs([['Eventos creados',epClientEvents],['Crear evento',epClientCreateEvent]],1),box);
   };
+  const normalizeEpEvent=(row)=>{
+    let extra=row.datos||{};
+    if(typeof extra==='string'){try{extra=JSON.parse(extra)}catch(_){extra={}}}
+    if(!extra||typeof extra!=='object'||Array.isArray(extra))extra={};
+    const ev=extra.evento&&typeof extra.evento==='object'?extra.evento:{};
+    const get=(...keys)=>{for(const k of keys){const v=row[k]??extra[k]??ev[k];if(v!==undefined&&v!==null&&v!=='')return String(v)}return ''};
+    const date=get('fecha_evento','fecha','fechaEvento','event_date').slice(0,10);
+    return {...row,fecha_evento:/^\\d{4}-\\d{2}-\\d{2}$/.test(date)?date:'',
+      nombrecliente:get('nombrecliente','nombre_cliente','nombre'),
+      tipo_evento:get('tipo_evento','tipo')||'Evento',
+      lugar_evento:get('lugar_evento','lugar'),
+      hora_inicio:get('hora_inicio','hora'),hora_fin:get('hora_fin'),
+      estado_evento:get('estado_evento','estado')||'Pendiente'};
+  };
   // Listado coherente con Calendario: lee la misma tabla y muestra errores reales.
   const epClientEvents=async()=>{
     eventBody.replaceChildren();
@@ -2322,16 +2345,14 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     try{
       const {data:{user},error:authError}=await client.auth.getUser();
       if(authError||!user){info.textContent='Inicia sesión para ver tus eventos.';return}
-      const {data,error}=await client.from('ep_eventos').select('*').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});
+      const {data,error}=await client.from('ep_eventos').select('*').eq('cliente_id',user.id);
       if(error){info.textContent='No se pudieron consultar tus eventos: '+error.message+' (revisa permisos de lectura en Supabase).';return}
       info.remove();
       if(!data?.length){eventBody.append(budgetNode('p','No aparecen eventos asociados a tu usuario. Si el evento existe en Supabase, comprueba que cliente_id corresponde al usuario con el que has iniciado sesión y que la política RLS permite leerlo.'));return}
       const group=document.createElement('section');group.className='ep-client-form';group.append(budgetNode('h3','Eventos registrados'));
-      for(const row of data){
-        let extra=row.datos||{};if(typeof extra==='string'){try{extra=JSON.parse(extra)}catch(_){extra={}}}
-        const ev=extra.evento&&typeof extra.evento==='object'?extra.evento:{};
-        const field=(...keys)=>{for(const k of keys){const v=row[k]??extra[k]??ev[k];if(v!==undefined&&v!==null&&v!=='')return String(v)}return ''};
-        const date=field('fecha_evento','fecha','fechaEvento').slice(0,10);
+      for(const row of data.map(normalizeEpEvent).sort((a,b)=>(b.fecha_evento||'').localeCompare(a.fecha_evento||''))){
+        const field=(...keys)=>{for(const k of keys){if(row[k])return String(row[k])}return ''};
+        const date=row.fecha_evento;
         const card=document.createElement('article');card.className='ep-budget-card';
         card.append(budgetNode('h3',field('nombrecliente','nombre_cliente','nombre')||field('tipo_evento','tipo')||'Evento'),budgetNode('p','Tipo: '+(field('tipo_evento','tipo')||'Por concretar')),budgetNode('p','Fecha: '+(date?formatDate(date):'Por concretar')),budgetNode('p','Lugar: '+(field('lugar_evento','lugar')||'Por concretar')),budgetNode('p','Estado: '+(field('estado_evento','estado')||'Pendiente')));
         if(date)card.append(budgetButton('Ver fecha en calendario',()=>{const link=[...document.querySelectorAll('#epLuxurySidebar button')].find(b=>b.textContent.trim()==='Calendario');if(link)link.click()}));
@@ -2340,7 +2361,40 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       eventBody.append(group);
     }catch(err){info.textContent='Error al cargar tus eventos: '+err.message}
   };
-  const epClientProfile=async()=>{eventBody.replaceChildren();const {data:{user},error}=await client.auth.getUser();if(error||!user){eventBody.textContent='Inicia sesión para consultar tu perfil.';return}const box=document.createElement('section');box.className='ep-client-form';const heading=document.createElement('h3');heading.textContent='Mis datos de registro';box.append(heading);addDetail(box,'Nombre y apellidos',user.user_metadata?.nombre||user.user_metadata?.full_name||'No indicado');addDetail(box,'Correo electrónico',user.email);addDetail(box,'Teléfono',user.phone||user.user_metadata?.telefono||'No indicado');eventBody.append(box);const history=document.createElement('section');history.className='ep-client-form';history.innerHTML='<h3>Mis eventos y celebraciones</h3>';eventBody.append(history);const {data:events,error:err}=await client.from('ep_eventos').select('tipo_evento,fecha_evento,lugar_evento,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});if(err){history.append(budgetNode('p','No se pudo consultar el historial: '+err.message));return}if(!events?.length)history.append(budgetNode('p','Todavía no tienes eventos registrados.'));(events||[]).forEach(ev=>{const item=document.createElement('article');item.className='ep-budget-card';item.append(budgetNode('h3',ev.tipo_evento||'Evento'),budgetNode('p','Fecha: '+formatDate(ev.fecha_evento)),budgetNode('p','Lugar: '+(ev.lugar_evento||'Por concretar')),budgetNode('p','Estado: '+(ev.estado_evento||'Pendiente')));history.append(item)})};
+  const epClientProfile=async()=>{
+    eventBody.replaceChildren();
+    const {data:{user},error}=await client.auth.getUser();
+    if(error||!user){eventBody.textContent='Inicia sesión para consultar tu perfil.';return}
+    const box=document.createElement('section');box.className='ep-client-form';
+    box.append(budgetNode('h3','Mis datos de registro'));
+    addDetail(box,'Nombre y apellidos',user.user_metadata?.nombre||user.user_metadata?.full_name||'No indicado');
+    addDetail(box,'Correo electrónico',user.email||'No indicado');
+    const phoneForm=document.createElement('form');phoneForm.className='ep-phone-form';
+    const phoneLabel=document.createElement('label');phoneLabel.textContent='Teléfono de contacto';
+    const phone=document.createElement('input');phone.type='tel';phone.autocomplete='tel';phone.placeholder='Añade tu teléfono (opcional)';
+    phone.value=user.user_metadata?.telefono||user.phone||'';phone.maxLength=25;
+    const save=budgetButton('Guardar teléfono',()=>{});save.type='submit';
+    const notice=budgetNode('p','');notice.setAttribute('role','status');
+    phoneForm.append(phoneLabel,phone,save,notice);
+    phoneForm.addEventListener('submit',async e=>{
+      e.preventDefault();save.disabled=true;notice.textContent='Guardando…';
+      const {error:saveError}=await client.auth.updateUser({data:{...user.user_metadata,telefono:phone.value.trim()}});
+      notice.textContent=saveError?'No se pudo guardar: '+saveError.message:'Teléfono guardado correctamente.';
+      save.disabled=false;
+    });
+    box.append(phoneForm);eventBody.append(box);
+    const history=document.createElement('section');history.className='ep-client-form';
+    history.append(budgetNode('h3','Mis eventos y celebraciones'));eventBody.append(history);
+    const {data:events,error:err}=await client.from('ep_eventos').select('*').eq('cliente_id',user.id);
+    if(err){history.append(budgetNode('p','No se pudo consultar el historial: '+err.message));return}
+    if(!events?.length){history.append(budgetNode('p','Todavía no tienes eventos registrados.'));return}
+    const normalized=events.map(normalizeEpEvent).sort((a,b)=>(b.fecha_evento||'').localeCompare(a.fecha_evento||''));
+    normalized.forEach(ev=>{
+      const item=document.createElement('article');item.className='ep-budget-card';
+      item.append(budgetNode('h3',ev.nombrecliente||ev.tipo_evento||'Celebración'),budgetNode('p','Fecha del evento: '+(ev.fecha_evento?formatDate(ev.fecha_evento):'Por concretar')));
+      history.append(item);
+    });
+  };
   const loadEvents=async()=>{
     if(!client)return;
     eventBody.textContent='Cargando tus eventos…';
@@ -2435,17 +2489,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
     if(error){eventBody.textContent='No se ha podido cargar el calendario: '+(error.message||'Error de acceso a eventos')+'.';console.error('Error al cargar calendario:',error);return}
-    const normalizeCalendarEvent=(row)=>{
-      let extra=row.datos||{};
-      if(typeof extra==='string'){try{extra=JSON.parse(extra)}catch(_){extra={}}}
-      if(!extra||typeof extra!=='object'||Array.isArray(extra))extra={};
-      const event=extra.evento&&typeof extra.evento==='object'?extra.evento:{};
-      const get=(...keys)=>{for(const k of keys){const v=row[k]??extra[k]??event[k];if(v!==undefined&&v!==null&&v!=='')return v}return ''};
-      const rawDate=get('fecha_evento','fecha','fechaEvento','event_date');
-      const date=typeof rawDate==='string'?rawDate.slice(0,10):'';
-      return {...row,fecha_evento:/^\d{4}-\d{2}-\d{2}$/.test(date)?date:'',nombrecliente:get('nombrecliente','nombre_cliente','nombre'),tipo_evento:get('tipo_evento','tipo','tipoEvento')||'Evento',lugar_evento:get('lugar_evento','lugar','ubicacion'),hora_inicio:get('hora_inicio','hora','horaInicio'),hora_fin:get('hora_fin','horaFin'),estado_evento:get('estado_evento','estado')||'Pendiente'};
-    };
-    calEvents=(data||[]).map(normalizeCalendarEvent).sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
+    calEvents=(data||[]).map(normalizeEpEvent).sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
     // Al abrir el calendario, mostrar el mes del próximo evento si existe.
     const today=dateKey(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
     const nextEvent=calEvents.find(ev=>ev.fecha_evento&&ev.fecha_evento>=today);
@@ -2577,7 +2621,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(budgetResult.error){received.append(budgetNode('p','No se pudieron consultar los presupuestos: '+budgetResult.error.message));accepted.append(budgetNode('p','No se pudieron consultar los presupuestos.'))}
     else {
       const budgets=budgetResult.data||[];
-      const incoming=budgets.filter(p=>p.estado!=='ACEPTADO');
+      const incoming=budgets;
       const approved=budgets.filter(p=>p.estado==='ACEPTADO');
       if(!incoming.length)received.append(budgetNode('p','No tienes presupuestos recibidos pendientes o rechazados.'));
       if(!approved.length)accepted.append(budgetNode('p','Todavía no tienes presupuestos aceptados.'));
@@ -2818,13 +2862,13 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  sidebar.innerHTML='<div class="ep-lux-brand"><img src="media/logo.png" alt="Events and Parties"><strong>EVENTS AND PARTIES</strong><small>ÁREA PRIVADA</small></div><div id="epLuxLinks"></div><div class="ep-lux-bottom">✧ &nbsp; Events and Parties</div>';
  dash.insertBefore(sidebar,dash.firstChild);
  const links=sidebar.querySelector('#epLuxLinks');
- const specs=[['Inicio','⌂',null],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],['Presupuestos','▤','Presupuestos'],['Mi perfil','♙','Mi perfil'],['Administración','⚙','Administración'],['Organizadores recibidos','♧','Organizadores recibidos'],['Perfiles de usuarios','♙','Mi perfil']];
+ const specs=[['Inicio','⌂',null],['Presupuestos','▤','Presupuestos'],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],['Mi perfil','♙','Mi perfil'],['Administración','⚙','Administración'],['Organizadores recibidos','♧','Organizadores recibidos'],['Perfiles de usuarios','♙','Mi perfil']];
  const buttons=specs.map(([label,icon,dest])=>{const b=document.createElement('button');b.type='button';b.innerHTML='<span class="ep-lux-symbol">'+icon+'</span><span class="ep-lux-label">'+label+'</span>';b.title=label;b.dataset.dest=dest||'Inicio';b.onclick=()=>{if(!dest){document.getElementById('epBackHome').click();return}if(dest==='Mi perfil'&&home.classList.contains('ep-is-admin')){openProfiles();return}const t=home.querySelector('[data-home-destination="'+dest+'"]');if(t)t.click();else{const tab=[...inner.querySelectorAll('[data-private-tab]')].find(x=>x.dataset.privateTab===dest);if(tab){home.hidden=true;inner.hidden=false;tab.click()}}};links.append(b);return b});
  const motto=document.createElement('div');motto.id='epLuxuryMotto';motto.innerHTML='<img src="media/logo.png" alt="Logo Events and Parties"><strong>EVENTS AND PARTIES</strong><span>MÚSICA · EMOCIONES · PASIÓN</span>';home.append(motto);
  const grid=home.querySelector('.ep-home-grid');
  const sync=()=>{const admin=home.classList.contains('ep-is-admin');sidebar.hidden=dash.hidden;buttons.forEach((b,i)=>{b.hidden=admin?[3,4].includes(i):i>4});const current=home.hidden?(inner.querySelector('#privatePanelTitle')?.textContent||''):'Inicio';buttons.forEach(b=>b.classList.toggle('active',b.dataset.dest===current||(current==='Inicio'&&b.dataset.dest==='Inicio')));
  const normal=grid.querySelector('.ep-home-budgets'),profile=grid.querySelector('.ep-home-profile'),manage=grid.querySelector('.ep-home-manage'),adminTile=grid.querySelector('.ep-home-admin'),org=grid.querySelector('.ep-home-organizers');
- if(admin){normal.hidden=true;manage.hidden=true;[adminTile,org,profile].forEach(n=>grid.append(n));profile.hidden=false;profile.querySelector('strong').textContent='Perfiles de usuarios';profile.querySelector('small').textContent='Gestiona todos los usuarios de la plataforma';}else{manage.hidden=true;normal.hidden=false;profile.querySelector('strong').textContent='Mi perfil';profile.querySelector('small').textContent='Tu información y acceso personal';grid.insertBefore(normal,profile);profile.hidden=false;}
+ if(admin){normal.hidden=true;manage.hidden=true;[adminTile,org,profile].forEach(n=>grid.append(n));profile.hidden=false;profile.querySelector('strong').textContent='Perfiles de usuarios';profile.querySelector('small').textContent='Gestiona todos los usuarios de la plataforma';}else{manage.hidden=true;normal.hidden=false;profile.querySelector('strong').textContent='Mi perfil';profile.querySelector('small').textContent='Tu información y acceso personal';grid.insertBefore(normal,grid.firstElementChild);profile.hidden=false;}
  home.querySelector('.ep-home-intro>span').textContent=admin?'EVENTS AND PARTIES · ÁREA PRIVADA':'MI ESPACIO PERSONAL';};
  async function openProfiles(){home.hidden=true;inner.hidden=false;const title=inner.querySelector('#privatePanelTitle'),body=inner.querySelector('#privatePanelBody');title.textContent='Perfiles de usuarios';body.replaceChildren();const p=document.createElement('p');p.textContent='Consultando usuarios registrados…';body.append(p);
  if(!window.supabase){p.textContent='No se ha podido conectar con Supabase.';return}
