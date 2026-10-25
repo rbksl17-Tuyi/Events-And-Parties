@@ -2355,9 +2355,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     try{await epCall(client.rpc('ep_resolver_cambios',{p_solicitud:requestId,p_autorizar:approve}));await epAdminDetail(id)}
     catch(e){epShowError(e)}
   };
-  // Vista administrativa: TODOS los presupuestos aceptados, tengan o no organizador.
+  // Clasificación automática: sin organización = pendiente; organización iniciada = en curso; enviada = finalizada.
   const epAdminAcceptedEvents=async()=>{
-    eventBody.replaceChildren(epEl('h3','Mis eventos'),epInfo('Consulta los eventos pendientes de organizar y las organizaciones finalizadas.'));
+    eventBody.replaceChildren(epEl('h3','Mis eventos'),epInfo('Los eventos cambian de pestaña automáticamente cuando el cliente comienza a organizarlos.'));
     if(!isAdmin)return;
     const area=epEl('div');eventBody.append(area);
     try{
@@ -2365,24 +2365,37 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         epCall(client.from('ep_presupuestos').select('*').eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
         epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}))
       ]);
-      const map=new Map(orgs.map(o=>[String(o.presupuesto_id),o]));
+      const map=new Map();
+      for(const o of orgs){const key=String(o.presupuesto_id);if(!map.has(key))map.set(key,o)}
       const tabs=epClientTabs([
         ['Pendientes de organizar',()=>show(false)],
         ['Eventos organizados y finalizados',()=>show(true)]
       ]);
       area.append(tabs);
       const content=epEl('div');area.append(content);
-      function show(finished){
+      function show(started){
         content.replaceChildren();
-        const items=budgets.filter(b=>{
-          const o=map.get(String(b.id));
-          return finished?!!o&&o.estado==='ENVIADA':!o||o.estado!=='ENVIADA';
-        });
-        if(!items.length){content.append(epInfo('No hay eventos en esta categoría.'));return}
+        const items=budgets.filter(b=>started?map.has(String(b.id)):!map.has(String(b.id)));
+        if(!items.length){content.append(epInfo(started?'Todavía no hay eventos cuya organización haya comenzado.':'No hay eventos pendientes de comenzar a organizar.'));return}
         items.forEach(b=>{
-          const o=map.get(String(b.id)),c=epCard(b.titulo||'Celebración');
-          c.append(epInfo('Presupuesto #'+b.id+' · '+(o?'Organización: '+o.estado:'Pendiente de organizar')));
-          if(o)c.append(epBtn('Ver organización',()=>epAdminDetail(o.id),'primary'));
+          const o=map.get(String(b.id));
+          const finished=o&&o.estado==='ENVIADA';
+          const c=epCard((o?.titulo||b.titulo||'Celebración'));
+          c.append(epInfo('Presupuesto #'+b.id));
+          if(!o){
+            c.append(epEl('span','● Sin empezar','ep-org-pill'));
+            c.append(epInfo('El cliente todavía no ha comenzado a organizar este evento.'));
+          }else{
+            c.append(epEl('span',finished?'✓ Finalizado':'◷ En organización','ep-org-pill'));
+            c.append(epInfo(finished?'El cliente ha terminado y enviado la organización.':'El cliente ya ha empezado a organizar el evento.'));
+            c.append(epBtn('Ver organización',()=>epAdminDetail(o.id),'primary'));
+            if(finished)c.append(epBtn('Descargar PDF para el DJ',async()=>{
+              try{
+                const songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',o.id).order('orden',{ascending:true}));
+                epExportPdf(o.contenido||{},songs,o.titulo||b.titulo||'Evento',o.version||1);
+              }catch(e){epShowError(e)}
+            },'primary'));
+          }
           content.append(c);
         });
       }
