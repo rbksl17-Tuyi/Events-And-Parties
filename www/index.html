@@ -2966,6 +2966,49 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   const epRefreshHomeRole=()=>{
     const home=document.getElementById('epClientHome');
     home.classList.toggle('ep-is-admin',isAdmin);
+    // Distribución real 3 + 2, aplicada al DOM del administrador.
+    // Los estilos antiguos usan !important; se fijan posiciones para evitar conflictos.
+    const epAdminGrid=home.querySelector('.ep-home-grid');
+    const epArrangeAdminTiles=()=>{
+      if(!epAdminGrid)return;
+      const names=['events','calendar','organizers','manage','profile'];
+      const tiles=names.map(name=>epAdminGrid.querySelector('.ep-home-'+name));
+      if(!isAdmin){
+        ['grid-template-columns','grid-template-rows','gap','width','max-width'].forEach(k=>epAdminGrid.style.removeProperty(k));
+        tiles.forEach(t=>{if(t){t.style.removeProperty('grid-area');t.style.removeProperty('grid-column');t.style.removeProperty('grid-row')}});
+        return;
+      }
+      const width=window.innerWidth;
+      const cols=width<=600?1:width<=850?2:6;
+      epAdminGrid.style.setProperty('display','grid','important');
+      epAdminGrid.style.setProperty('grid-template-columns',cols===6?'repeat(6,minmax(0,1fr))':cols===2?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)','important');
+      epAdminGrid.style.setProperty('grid-template-rows','auto','important');
+      epAdminGrid.style.setProperty('gap','18px','important');
+      epAdminGrid.style.setProperty('width','100%','important');
+      epAdminGrid.style.setProperty('max-width','none','important');
+      const areas=cols===6?['1 / 1 / 2 / 3','1 / 3 / 2 / 5','1 / 5 / 2 / 7','2 / 1 / 3 / 4','2 / 4 / 3 / 7']:
+        cols===2?['1 / 1 / 2 / 2','1 / 2 / 2 / 3','2 / 1 / 3 / 3','3 / 1 / 4 / 2','3 / 2 / 4 / 3']:
+        ['1 / 1 / 2 / 2','2 / 1 / 3 / 2','3 / 1 / 4 / 2','4 / 1 / 5 / 2','5 / 1 / 6 / 2'];
+      tiles.forEach((t,i)=>{if(!t)return;t.style.setProperty('grid-area',areas[i],'important');t.style.setProperty('width','100%','important');t.style.setProperty('min-width','0','important')});
+    };
+    epArrangeAdminTiles();
+    if(!home.dataset.epAdminGridResize){
+      home.dataset.epAdminGridResize='1';
+      window.addEventListener('resize',()=>{
+        // Reaplicar según el ancho, sin modificar las funciones de navegación.
+        const h=document.getElementById('epClientHome');
+        if(h.classList.contains('ep-is-admin')){
+          const g=h.querySelector('.ep-home-grid');
+          const cols=window.innerWidth<=600?1:window.innerWidth<=850?2:6;
+          g.style.setProperty('grid-template-columns',cols===6?'repeat(6,minmax(0,1fr))':cols===2?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)','important');
+          const areas=cols===6?['1 / 1 / 2 / 3','1 / 3 / 2 / 5','1 / 5 / 2 / 7','2 / 1 / 3 / 4','2 / 4 / 3 / 7']:
+            cols===2?['1 / 1 / 2 / 2','1 / 2 / 2 / 3','2 / 1 / 3 / 3','3 / 1 / 4 / 2','3 / 2 / 4 / 3']:
+            ['1 / 1 / 2 / 2','2 / 1 / 3 / 2','3 / 1 / 4 / 2','4 / 1 / 5 / 2','5 / 1 / 6 / 2'];
+          ['events','calendar','organizers','manage','profile'].forEach((name,i)=>g.querySelector('.ep-home-'+name)?.style.setProperty('grid-area',areas[i],'important'));
+        }
+      });
+    }
+
     home.querySelectorAll('.ep-admin-home-only').forEach(tile=>{tile.hidden=!isAdmin});
     const intro=home.querySelector('.ep-home-intro>span');
     if(intro)intro.textContent=isAdmin?'PANEL DE ADMINISTRACIÓN':'MI ESPACIO PERSONAL';
