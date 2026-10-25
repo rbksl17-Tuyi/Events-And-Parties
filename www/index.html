@@ -1951,7 +1951,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const epAdminDetail=async(id)=>{
     try{
       const o=await epGetOrg(id),songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',id).order('orden',{ascending:true}));
-      eventBody.replaceChildren(epBtn('← Volver a organizaciones',epAdminOrganizers));
+      eventBody.replaceChildren(epBtn('← Volver a mis eventos',epAdminAcceptedEvents));
       const c=epCard(o.titulo+' · '+o.estado);
       c.append(epInfo('Tipo: '+o.tipo+' · Versión '+o.version));
       for(const [name,fields] of Object.entries(o.contenido||{})){
@@ -2005,9 +2005,43 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     try{await epCall(client.rpc('ep_resolver_cambios',{p_solicitud:requestId,p_autorizar:approve}));await epAdminDetail(id)}
     catch(e){epShowError(e)}
   };
+  // Vista administrativa: TODOS los presupuestos aceptados, tengan o no organizador.
+  const epAdminAcceptedEvents=async()=>{
+    eventBody.replaceChildren(epEl('h3','Eventos con presupuesto aceptado'),epInfo('Consulta las celebraciones pendientes, en preparación y terminadas.'));
+    if(!isAdmin){eventBody.append(epInfo('Acceso exclusivo de administración.'));return}
+    try{
+      const [budgets,orgs]=await Promise.all([
+        epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado,cliente_id,creado_en').eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
+        epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}))
+      ]);
+      if(!budgets.length){eventBody.append(epInfo('Todavía no hay presupuestos aceptados.'));return}
+      const groups=[
+        {title:'Pendientes de organizar',filter:o=>!o},
+        {title:'En organización',filter:o=>!!o&&!['ENVIADA'].includes(o.estado)},
+        {title:'Organización terminada',filter:o=>!!o&&o.estado==='ENVIADA'}
+      ];
+      const orgByBudget=new Map();
+      for(const o of orgs)if(!orgByBudget.has(String(o.presupuesto_id)))orgByBudget.set(String(o.presupuesto_id),o);
+      for(const group of groups){
+        const entries=budgets.filter(b=>group.filter(orgByBudget.get(String(b.id))));
+        const section=epEl('section',undefined,'ep-admin-accepted-group');
+        section.append(epEl('h3',group.title+' · '+entries.length));
+        for(const b of entries){
+          const o=orgByBudget.get(String(b.id));
+          const card=epCard(String(b.titulo||'').trim()||'Evento aceptado');
+          card.append(epInfo(o?'Estado de organización: '+(o.estado==='ENVIADA'?'Enviada por el cliente':o.estado==='CAMBIO_SOLICITADO'?'Cambios solicitados':o.estado==='BORRADOR'?'En preparación':o.estado):'El cliente aún no ha comenzado a organizarlo'));
+          if(o)card.append(epBtn('Consultar organización',()=>epAdminDetail(o.id),'primary'));
+          section.append(card);
+        }
+        if(!entries.length)section.append(epInfo('No hay eventos en este estado.'));
+        eventBody.append(section);
+      }
+    }catch(e){eventBody.append(epInfo('No se pudieron cargar los eventos aceptados: '+e.message))}
+  };
   const loadEvents=async()=>{
     if(!client)return;
-    eventBody.textContent='Cargando el organizador de tus eventos…';
+    eventBody.textContent='Cargando tus eventos…';
+    if(isAdmin){await epAdminAcceptedEvents();return}
     await epOrgList();
   };
   // Calendario privado: utiliza la misma tabla y los mismos permisos que Mis eventos.
