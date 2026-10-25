@@ -2267,13 +2267,50 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     }catch(e){eventBody.append(epInfo('No se pudieron cargar los eventos aceptados: '+e.message))}
   };
   const epClientTabs=(items,activeIndex=0)=>{const nav=document.createElement('div');nav.className='ep-client-tabs';items.forEach(([label,handler],i)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=i===activeIndex?'active':'';b.addEventListener('click',()=>{nav.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));handler()});nav.append(b)});return nav};
+  // Un presupuesto aceptado por el cliente da derecho a crear exactamente un evento.
   const epClientCreateEvent=async()=>{
-    eventBody.replaceChildren();const box=document.createElement('section');box.className='ep-client-form';const h=document.createElement('h3');h.textContent='Crear un nuevo evento';box.append(h);
+    eventBody.replaceChildren();
+    const box=document.createElement('section');box.className='ep-client-form';
+    box.append(budgetNode('h3','Crear evento desde un presupuesto aceptado'));
+    const {data:{user},error:authError}=await client.auth.getUser();
+    if(authError||!user){box.append(budgetNode('p','Inicia sesión para continuar.'));eventBody.append(box);return}
+    const [br,er]=await Promise.all([
+      client.from('ep_presupuestos').select('id,titulo,descripcion,estado,cliente_id').eq('cliente_id',user.id).eq('estado','ACEPTADO'),
+      client.from('EVENTOS').select('presupuesto_id').eq('cliente_id',user.id)
+    ]);
+    if(br.error||er.error){box.append(budgetNode('p','No se puede verificar la disponibilidad de presupuestos. Instala primero la configuración SQL y comprueba los permisos. '+(br.error?.message||er.error?.message||'')));eventBody.append(box);return}
+    const used=new Set((er.data||[]).map(e=>String(e.presupuesto_id)).filter(Boolean));
+    const eligible=(br.data||[]).filter(b=>!used.has(String(b.id)));
+    if(!eligible.length){
+      box.append(budgetNode('p','No tienes presupuestos aceptados disponibles. Solicita uno nuevo en Presupuestos, espera la propuesta de administración y acéptala para poder crear tu evento.'));
+      box.append(budgetButton('Ir a presupuestos',()=>{const nav=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Presupuestos'&&b.offsetParent!==null);if(nav)nav.click()}));
+      eventBody.append(epClientTabs([['Eventos creados',epClientEvents],['Crear evento',epClientCreateEvent]],1),box);return;
+    }
     const form=document.createElement('form');form.className='adm-form';
+    const budgetLabel=document.createElement('label');budgetLabel.textContent='Presupuesto aceptado';
+    const select=document.createElement('select');select.name='presupuesto_id';select.required=true;
+    eligible.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=(b.titulo||'Presupuesto')+' · '+String(b.id).slice(0,8);select.append(o)});
+    budgetLabel.append(select);form.append(budgetLabel);
     const fields=[['tipo_evento','Tipo de evento','select'],['nombrecliente','Nombre de la celebración','text'],['fecha_evento','Fecha del evento','date'],['lugar_evento','Lugar del evento','text'],['hora_inicio','Hora de inicio','time'],['hora_fin','Hora de finalización','time']];
-    for(const [key,label,type] of fields){const wrap=document.createElement('label');wrap.textContent=label;const input=document.createElement(type==='select'?'select':'input');input.name=key;if(type==='select'){['BODA','CUMPLEANOS','FIESTA','COMUNION','OTRO'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;input.append(o)})}else input.type=type;input.required=['nombrecliente','fecha_evento','lugar_evento'].includes(key);wrap.append(input);form.append(wrap)}
-    const submit=document.createElement('button');submit.type='submit';submit.className='adm-btn primary';submit.textContent='Guardar evento';const status=document.createElement('p');status.setAttribute('role','status');form.append(submit,status);
-    form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;status.textContent='Guardando evento…';try{const {data:{user},error:authError}=await client.auth.getUser();if(authError||!user)throw Error('Debes iniciar sesión.');const payload=Object.fromEntries(new FormData(form).entries());payload.cliente_id=user.id;payload.estado_evento='PENDIENTE';const {error}=await client.from('EVENTOS').insert(payload);if(error)throw error;status.textContent='Evento creado correctamente.';setTimeout(()=>{if(eventTitle.textContent==='Mis eventos')loadEvents()},600)}catch(err){status.textContent='No se ha podido guardar: '+err.message+' Comprueba los permisos de creación de eventos.'}finally{submit.disabled=false}});
+    for(const [key,label,type] of fields){
+      const wrap=document.createElement('label');wrap.textContent=label;
+      const input=document.createElement(type==='select'?'select':'input');input.name=key;
+      if(type==='select'){['BODA','CUMPLEANOS','FIESTA','COMUNION','OTRO'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;input.append(o)})}else input.type=type;
+      input.required=['nombrecliente','fecha_evento','lugar_evento'].includes(key);wrap.append(input);form.append(wrap);
+    }
+    const submit=document.createElement('button');submit.type='submit';submit.className='adm-btn primary';submit.textContent='Registrar evento';
+    const status=document.createElement('p');status.setAttribute('role','status');form.append(submit,status);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();submit.disabled=true;status.textContent='Registrando evento…';
+      try{
+        const payload=Object.fromEntries(new FormData(form).entries());
+        const {error}=await client.rpc('ep_crear_evento_presupuesto',{p_presupuesto_id:String(payload.presupuesto_id),p_nombrecliente:payload.nombrecliente,p_fecha_evento:payload.fecha_evento,p_tipo_evento:payload.tipo_evento,p_lugar_evento:payload.lugar_evento,p_hora_inicio:payload.hora_inicio||null,p_hora_fin:payload.hora_fin||null});
+        if(error)throw error;
+        status.textContent='Evento creado. Su fecha ya aparece en Calendario y en Mi perfil.';
+        setTimeout(()=>{if(eventTitle.textContent==='Mis eventos')loadEvents()},500);
+      }catch(err){status.textContent='No se ha podido registrar: '+err.message}
+      finally{submit.disabled=false}
+    });
     box.append(form);eventBody.append(epClientTabs([['Eventos creados',epClientEvents],['Crear evento',epClientCreateEvent]],1),box);
   };
   const epClientEvents=async()=>{const holder=document.createElement('div');holder.className='ep-client-events-list';await epOrgList();holder.append(...eventBody.childNodes);const {data:{user}}=await client.auth.getUser();if(user){const {data,error}=await client.from('EVENTOS').select('id,tipo_evento,fecha_evento,lugar_evento,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});if(!error&&data?.length){const group=document.createElement('section');group.className='ep-client-form';group.append(budgetNode('h3','Eventos registrados'));data.forEach(ev=>{const card=document.createElement('article');card.className='ep-budget-card';card.append(budgetNode('h3',ev.tipo_evento||'Evento'),budgetNode('p','Fecha: '+formatDate(ev.fecha_evento)),budgetNode('p','Lugar: '+(ev.lugar_evento||'Por concretar')),budgetNode('p','Estado: '+(ev.estado_evento||'Pendiente')));
@@ -2350,7 +2387,18 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       matching.forEach(ev=>{const article=document.createElement('article');const h=document.createElement('h4');h.textContent=ev.tipo_evento||'Mi evento';article.appendChild(h);addDetail(article,'Cliente',ev.nombrecliente);addDetail(article,'Lugar',ev.lugar_evento);addDetail(article,'Inicio',ev.hora_inicio);addDetail(article,'Fin',ev.hora_fin);addDetail(article,'Estado',ev.estado_evento);detail.appendChild(article)});
       eventBody.appendChild(detail);
     }
-    if(!isAdmin){const actions=document.createElement('div');actions.className='ep-calendar-actions';const add=adminBtn('＋ Añadir evento',epClientCreateEvent,true);const change=adminBtn('✎ Modificar fecha',async()=>{const chosen=calEvents.filter(ev=>ev.fecha_evento===calSelected);if(!chosen.length){alert('Selecciona primero un día con un evento.');return}if(chosen.length>1){alert('Hay varios eventos en esa fecha. Consulta con administración para indicar cuál deseas modificar.');return}const date=prompt('Nueva fecha del evento (AAAA-MM-DD)',calSelected);if(!date)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(new Date(date+'T12:00:00').getTime())){alert('Introduce una fecha válida.');return}if(!confirm('¿Confirmas el cambio de fecha a '+formatDate(date)+'?'))return;const {error}=await client.from('EVENTOS').update({fecha_evento:date}).eq('id',chosen[0].id);if(error)alert('No se pudo modificar la fecha: '+error.message+'. Contacta con administración si necesitas autorización.');else loadCalendar()});actions.append(change,add);eventBody.append(actions)}
+    if(!isAdmin){const actions=document.createElement('div');actions.className='ep-calendar-actions';const add=adminBtn('＋ Añadir evento con presupuesto aceptado',epClientCreateEvent,true);const change=adminBtn('✎ Solicitar cambio de fecha',async()=>{
+      const chosen=calEvents.filter(ev=>ev.fecha_evento===calSelected);
+      if(!chosen.length){alert('Selecciona un día con un evento.');return}
+      if(chosen.length>1){alert('Hay varios eventos ese día; contacta con administración.');return}
+      const date=prompt('Fecha solicitada (AAAA-MM-DD)',calSelected);
+      if(!date)return;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(new Date(date+'T12:00:00').getTime())){alert('Introduce una fecha válida.');return}
+      const motivo=prompt('Motivo del cambio de fecha (opcional)','')||'';
+      const {error}=await client.rpc('ep_solicitar_cambio_fecha',{p_evento_id:String(chosen[0].id),p_fecha_nueva:date,p_motivo:motivo});
+      if(error)alert('No se pudo enviar la solicitud: '+error.message);
+      else alert('Solicitud enviada a administración. La fecha original se mantiene hasta su aprobación.');
+    });actions.append(change,add);eventBody.append(actions)}
   };
   const loadCalendar=async()=>{
     const request=++calRequest;
@@ -2369,7 +2417,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const firstEvent=nextEvent||calEvents.find(ev=>ev.fecha_evento);
     if(firstEvent){const parts=firstEvent.fecha_evento.split('-');calYear=Number(parts[0]);calMonth=Number(parts[1])-1}
     else{calYear=new Date().getFullYear();calMonth=new Date().getMonth()}
-    calSelected='';renderCalendar();
+    calSelected=firstEvent?.fecha_evento||'';renderCalendar();
   };
   // ADMINISTRACIÓN: el botón es solo interfaz; Supabase RLS autoriza cada operación.
   const adminCSS=document.createElement('style');adminCSS.textContent=`
