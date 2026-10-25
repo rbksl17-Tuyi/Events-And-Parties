@@ -937,7 +937,12 @@ html,body{overflow-x:hidden!important}
 #privateOverlay[hidden],#privateDashboard[hidden]{display:none!important}
 </style>
 <style id="android-private-app">
-body{background:#080706!important}body> :not(#privateOverlay):not(#privateDashboard):not(script):not(style){display:none!important}
+body{background:#080706!important}
+/* CORRECCIÓN: el acceso y el panel están dentro de <main>, no directamente en <body>.
+   Ocultar <main> producía la pantalla negra aunque el acceso estuviese visible. */
+body > :not(main):not(script):not(style){display:none!important}
+body > main{display:block!important;min-height:100dvh!important;padding:0!important;margin:0!important}
+body > main > :not(#privateOverlay):not(#privateDashboard):not(script):not(style){display:none!important}
 #privateOverlay:not([hidden]){position:fixed!important;inset:0!important;z-index:100000!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow-y:auto!important;padding:16px!important;background:linear-gradient(155deg,#050404ed,#201609e8),url('https://www.eventsandparties.es/media/fondo-bienvenida-movil.png') center/cover!important}
 #privateOverlay .private-modal{width:min(100%,450px)!important;max-height:94dvh!important;overflow-y:auto!important;border-radius:22px!important}
 #closePrivate{display:none!important}#privateDashboard:not([hidden]){display:block!important;min-height:100dvh!important}
@@ -1443,7 +1448,7 @@ tarjeta.addEventListener("touchend", (e) => {
 
 
 <!-- Área privada: la autenticación real requiere configurar Supabase -->
-<div class="private-overlay" id="privateOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="privateTitle">
+<div class="private-overlay" id="privateOverlay" role="dialog" aria-modal="true" aria-labelledby="privateTitle">
   <div class="private-modal">
     <button class="private-close" type="button" id="closePrivate" aria-label="Cerrar">×</button>
     <img class="private-logo" src="https://www.eventsandparties.es/media/logo.png" alt="Logo Events and Parties">
