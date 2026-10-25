@@ -1428,48 +1428,25 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   // música, adjuntos, envío, solicitud y autorización de cambios, PDF e historial.
   const epTypes={
     BODA:['Ceremonia','Cóctel','Banquete','Baile','Fiesta'],
-    CUMPLEANOS:['Bienvenida','Música ambiente','Tarta','Juegos y animación','Baile y fiesta','Final de fiesta'],
-    FIESTA:['Bienvenida','Ambiente musical','Actividades y sorpresas','Baile y fiesta','Final de fiesta'],
-    COMUNION:['Recepción','Banquete','Animación y juegos','Momentos especiales','Baile y fiesta','Despedida'],
-    OTRO:['Recepción','Programa del evento','Música ambiente','Actividades','Momentos especiales','Cierre']
+    CUMPLEANOS:['Recepción','Programa y horarios','Música ambiente','Actividades','Momentos especiales','Fiesta y baile','Detalles finales'],
+    FIESTA:['Recepción','Programa y horarios','Música ambiente','Actividades','Momentos especiales','Fiesta y baile','Detalles finales'],
+    COMUNION:['Recepción','Programa y horarios','Música ambiente','Actividades','Momentos especiales','Fiesta y baile','Detalles finales'],
+    OTRO:['Recepción','Programa y horarios','Música ambiente','Actividades','Momentos especiales','Fiesta y baile','Detalles finales']
   };
   const epEventLabels={
     BODA:'Vuestra boda',CUMPLEANOS:'Vuestro cumpleaños',FIESTA:'Vuestra fiesta',
     COMUNION:'Vuestra comunión',OTRO:'Vuestro evento'
   };
-  const epEventVisuals={
-    CUMPLEANOS:{
-      'Bienvenida':{subtitle:'Hora de llegada y canción de bienvenida',image:'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=85'},
-      'Música ambiente':{subtitle:'Elegid el estilo y vuestras canciones favoritas',image:'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=85'},
-      'Tarta':{subtitle:'La canción para soplar las velas',image:'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&q=85'},
-      'Juegos y animación':{subtitle:'Concursos, juegos y momentos divertidos',image:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=85'},
-      'Baile y fiesta':{subtitle:'Música para bailar y celebrar',image:'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1200&q=85'},
-      'Final de fiesta':{subtitle:'Hora de cierre y canción de despedida',image:'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=1200&q=85'}
-    },
-    FIESTA:{
-      'Bienvenida':{subtitle:'Recibid a vuestros invitados con música',image:'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=85'},
-      'Ambiente musical':{subtitle:'Estilos, artistas y canciones preferidas',image:'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=85'},
-      'Actividades y sorpresas':{subtitle:'Juegos, actuaciones y dedicatorias',image:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=85'},
-      'Baile y fiesta':{subtitle:'La banda sonora de vuestra fiesta',image:'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1200&q=85'},
-      'Final de fiesta':{subtitle:'Horario final y canción de cierre',image:'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=1200&q=85'}
-    },
-    COMUNION:{
-      'Recepción':{subtitle:'Bienvenida y música para los invitados',image:'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=85'},
-      'Banquete':{subtitle:'Horarios, entradas y música de fondo',image:'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=85'},
-      'Animación y juegos':{subtitle:'Actividades, concursos y canciones',image:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=85'},
-      'Momentos especiales':{subtitle:'Dedicatorias y canciones importantes',image:'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&q=85'},
-      'Baile y fiesta':{subtitle:'Música y diversión para todas las edades',image:'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1200&q=85'},
-      'Despedida':{subtitle:'Hora de finalización y canción de cierre',image:'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=1200&q=85'}
-    },
-    OTRO:{
-      'Recepción':{subtitle:'Horario y bienvenida de los asistentes',image:'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=85'},
-      'Programa del evento':{subtitle:'Orden y horarios de cada momento',image:'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=85'},
-      'Música ambiente':{subtitle:'Elegid el sonido del evento',image:'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=85'},
-      'Actividades':{subtitle:'Presentaciones, juegos y actuaciones',image:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=85'},
-      'Momentos especiales':{subtitle:'Canciones y dedicatorias',image:'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&q=85'},
-      'Cierre':{subtitle:'Horario final y música de despedida',image:'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=1200&q=85'}
-    }
+  const epCommonVisuals={
+    'Recepción':{subtitle:'Hora de llegada, bienvenida y música de entrada',image:'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200&q=85'},
+    'Programa y horarios':{subtitle:'Organizad el evento paso a paso, a vuestro ritmo',image:'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=85'},
+    'Música ambiente':{subtitle:'Elegid estilos, canciones y listas musicales',image:'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=85'},
+    'Actividades':{subtitle:'Juegos, animación, actuaciones y sorpresas',image:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=85'},
+    'Momentos especiales':{subtitle:'Dedicatorias y canciones para recordar',image:'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&q=85'},
+    'Fiesta y baile':{subtitle:'El momento de bailar y disfrutar',image:'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1200&q=85'},
+    'Detalles finales':{subtitle:'Últimas indicaciones y canción de cierre',image:'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=1200&q=85'}
   };
+  const epEventVisuals={CUMPLEANOS:epCommonVisuals,FIESTA:epCommonVisuals,COMUNION:epCommonVisuals,OTRO:epCommonVisuals};
   const epTypeOf=(value)=>{
     const t=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
     if(t.includes('BODA'))return 'BODA';
@@ -1553,40 +1530,17 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     'Fiesta':{subtitle:'Elegid el ritmo de una noche inolvidable',image:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=85'}
   };
   epEventVisuals.BODA=epWeddingVisuals;
-  const epEventFields={
-    CUMPLEANOS:{
-      'Bienvenida':[['Hora de llegada','inicio','time'],['Canción de bienvenida','cancion','text']],
-      'Música ambiente':[['Horario','horario','time'],['Estilo musical','estilo','text'],['Canciones favoritas','canciones','textarea']],
-      'Tarta':[['Hora de la tarta','horario','time'],['Canción para la tarta','cancion','text'],['Nombre del homenajeado/a','homenajeado','text']],
-      'Juegos y animación':[['Hora de inicio','inicio','time'],['Juegos o actividades','actividades','textarea'],['Canciones para los juegos','canciones','textarea']],
-      'Baile y fiesta':[['Hora de inicio','inicio','time'],['Hora de finalización','fin','time'],['Estilos musicales','estilo','textarea'],['Canciones preferidas','canciones','textarea']],
-      'Final de fiesta':[['Hora de cierre','fin','time'],['Canción de despedida','cierre','text']]
-    },
-    FIESTA:{
-      'Bienvenida':[['Hora de inicio','inicio','time'],['Canción de bienvenida','cancion','text']],
-      'Ambiente musical':[['Horario','horario','time'],['Estilos musicales','estilo','textarea'],['Canciones y artistas favoritos','canciones','textarea']],
-      'Actividades y sorpresas':[['Horario','horario','time'],['Actividades, actuaciones o sorpresas','actividades','textarea'],['Canciones para momentos especiales','canciones','textarea']],
-      'Baile y fiesta':[['Hora de inicio','inicio','time'],['Hora de finalización','fin','time'],['Estilos musicales','estilo','textarea'],['Canciones preferidas','canciones','textarea']],
-      'Final de fiesta':[['Hora de cierre','fin','time'],['Canción de despedida','cierre','text']]
-    },
-    COMUNION:{
-      'Recepción':[['Hora de recepción','inicio','time'],['Música de bienvenida','cancion','text']],
-      'Banquete':[['Hora de inicio','inicio','time'],['Música de entrada','entrada','text'],['Música ambiente','estilo','textarea']],
-      'Animación y juegos':[['Hora de inicio','inicio','time'],['Juegos y actividades','actividades','textarea'],['Canciones para la animación','canciones','textarea']],
-      'Momentos especiales':[['Horario','horario','time'],['Momentos y dedicatorias','momentos','textarea'],['Canciones elegidas','canciones','textarea']],
-      'Baile y fiesta':[['Hora de inicio','inicio','time'],['Hora final','fin','time'],['Tipo de música','estilo','textarea'],['Canciones preferidas','canciones','textarea']],
-      'Despedida':[['Hora de finalización','fin','time'],['Canción de despedida','cierre','text']]
-    },
-    OTRO:{
-      'Recepción':[['Hora de llegada','inicio','time'],['Música de bienvenida','cancion','text']],
-      'Programa del evento':[['Hora de inicio','inicio','time'],['Hora de finalización','fin','time'],['Programa y horarios','programa','textarea']],
-      'Música ambiente':[['Horario','horario','time'],['Tipo de música','estilo','textarea'],['Canciones favoritas','canciones','textarea']],
-      'Actividades':[['Horario','horario','time'],['Actividades y presentaciones','actividades','textarea'],['Canciones asociadas','canciones','textarea']],
-      'Momentos especiales':[['Horario','horario','time'],['Dedicatorias o intervenciones','momentos','textarea'],['Canciones','canciones','textarea']],
-      'Cierre':[['Hora de finalización','fin','time'],['Canción de despedida','cierre','text']]
-    }
+  const epCommonFields={
+    'Recepción':[['Hora de inicio de la recepción','inicio','time'],['Hora final de la recepción','fin','time'],['Canción o música de bienvenida','bienvenida','text'],['Tipo de música de recepción','estilo','textarea']],
+    'Programa y horarios':[['Hora de inicio del evento','inicio','time'],['Hora prevista de finalización','fin','time'],['Orden de la fiesta y horarios de cada parte','programa','textarea'],['Canciones o música para cada momento','canciones','textarea']],
+    'Música ambiente':[['Horario de música ambiente','horario','time'],['Estilos musicales preferidos','estilo','textarea'],['Canciones y artistas favoritos','canciones','textarea'],['Música que preferís evitar','excluidas','textarea']],
+    'Actividades':[['Horario de las actividades','horario','time'],['Juegos, concursos o actuaciones','actividades','textarea'],['Canciones para cada actividad','canciones','textarea'],['Participantes o responsables','participantes','textarea']],
+    'Momentos especiales':[['Horario de los momentos especiales','horario','time'],['Qué momentos queréis preparar','momentos','textarea'],['A quién van dedicados','dedicatorias','textarea'],['Canciones elegidas','canciones','textarea']],
+    'Fiesta y baile':[['Hora de inicio del baile','inicio','time'],['Hora final de la fiesta','fin','time'],['Estilos musicales','estilo','textarea'],['Canciones imprescindibles','canciones','textarea'],['Canciones que no queréis','excluidas','textarea']],
+    'Detalles finales':[['Hora prevista de cierre','fin','time'],['Canción final o de despedida','cierre','text'],['Últimos detalles para el DJ','detalles','textarea']]
   };
-  Object.values(epEventFields).forEach(sections=>Object.values(sections).forEach(fields=>fields.push(['Indicaciones al DJ o aportaciones','dj','textarea'])));
+  Object.values(epCommonFields).forEach(fields=>fields.push(['Indicaciones al DJ o aportaciones','dj','textarea']));
+  const epEventFields={CUMPLEANOS:epCommonFields,FIESTA:epCommonFields,COMUNION:epCommonFields,OTRO:epCommonFields};
   const epWeddingHero=(title,subtitle,photo)=>{
     const hero=epEl('div',undefined,'ep-org-hero');
     hero.style.setProperty('--ep-photo',`url("${photo}")`);
@@ -1713,9 +1667,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       if(visual)root.append(epWeddingHero(name,visual.subtitle,visual.image));
       const c=epCard('Preparad vuestro momento'),form=epEl('form',undefined,'ep-org-form'),old=org.contenido?.[name]||{};
       c.append(epEl('p','Rellenad lo que ya sepáis. Podéis guardar y continuar más adelante.','ep-org-helper'));
-      const fields=org.tipo==='BODA'&&epWeddingFields[name]
-        ?epWeddingFields[name]
-        :[['Horario previsto','horario','text'],['Lugar o zona','lugar','text'],['Personas que participan','personas','text'],['Canciones o preferencias','canciones','textarea'],['Guion, actividades y detalles','detalles','textarea'],['Indicaciones al DJ o aportaciones','dj','textarea']];
+      const fields=(org.tipo==='BODA'?epWeddingFields[name]:epEventFields[org.tipo]?.[name])||
+        [['Horario previsto','horario','time'],['Indicaciones al DJ o aportaciones','dj','textarea']];
       fields.forEach(([label,key,type])=>epField(form,label,key,type,old[key]||''));
       const check=epEl('label','Apartado completado'),checkbox=epEl('input');checkbox.type='checkbox';checkbox.name='completado';checkbox.checked=Boolean(old.completado);check.append(checkbox);form.append(check);
       [...form.elements].forEach(e=>{if(e.name)e.disabled=!editable});
