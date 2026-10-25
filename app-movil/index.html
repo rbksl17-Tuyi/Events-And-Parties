@@ -955,54 +955,68 @@ body > main > :not(#privateOverlay):not(#privateDashboard):not(script):not(style
 @media(min-width:760px){#epClientHome .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style>
 
-<style id="ep-premium-redesign-2026">
-:root{--ep-gold:#f1c878;--ep-soft:#bba47e;--ep-surface:#12161b;--ep-line:#8e704b80}
-#privateDashboard{background:radial-gradient(ellipse 75% 40% at 85% 0%,#3a291844,transparent),#06080b!important;font-family:Inter,Montserrat,Arial,sans-serif!important}
-#privateDashboard .private-top{position:sticky;top:0;z-index:40;background:#090b0eea!important;backdrop-filter:blur(18px);border-bottom:1px solid #e8b96632!important;padding:12px clamp(16px,4vw,44px)!important}
-#privateDashboard .private-top strong{font-size:12px!important;letter-spacing:.13em;color:#f6d58e}
-#privateDashboard .private-top button{border-radius:999px!important;background:#17191d!important;padding:10px 16px!important}
-#epClientHome{max-width:1280px;margin:0 auto!important;padding:0 clamp(16px,4vw,48px) 110px!important}
-#epClientHome .ep-home-intro{max-width:none!important;text-align:left!important;position:relative;overflow:hidden;border-radius:0 0 28px 28px;padding:clamp(42px,6vw,80px) clamp(24px,5vw,64px) 42px;margin:0 0 24px!important;background:linear-gradient(90deg,#07090cf2 2%,#07090cbb 45%,#090a0b30),url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=85') center/cover;min-height:255px;display:flex;flex-direction:column;justify-content:center;border:1px solid #ba8e4a35;border-top:0}
-#epClientHome .ep-home-intro>span{color:var(--ep-gold);font-size:11px!important;letter-spacing:.28em}
-#epClientHome .ep-home-intro h1{max-width:700px;font-size:clamp(28px,4.2vw,56px)!important;line-height:1.12!important;letter-spacing:.025em!important;margin:15px 0!important;font-weight:800!important}
-#epClientHome .ep-home-intro p{color:#f3e8d4!important;max-width:440px;font-size:14px!important}
-#epClientHome .ep-home-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
-#epClientHome .ep-home-tile{min-height:230px!important;padding:20px!important;border:1px solid #e8ba6e72!important;border-radius:20px!important;background-color:#14171a!important;box-shadow:0 12px 32px #0007!important;transition:transform .18s,box-shadow .18s!important}
-#epClientHome .ep-home-tile:active{transform:scale(.98)!important}
-#epClientHome .ep-home-tile::before{background:linear-gradient(180deg,#0002 0%,#050607a0 40%,#050607f5 100%)!important}
-#epClientHome .ep-home-copy strong{font-family:Inter,Montserrat,Arial,sans-serif!important;font-size:clamp(19px,2.2vw,27px)!important;font-weight:800!important;letter-spacing:-.02em}
-#epClientHome .ep-home-copy small{font-size:12px!important;color:#e4d9c6!important}
-#epClientHome .ep-home-icon{width:43px!important;height:43px!important;border-radius:13px!important;background:#080a0bbd!important;border:1px solid #d8af69b0!important;font-size:23px!important}
-#epClientHome .ep-home-link{padding:9px 18px!important;background:linear-gradient(120deg,#ffe3a0,#c88e37)!important;border:0!important;border-radius:999px!important;color:#1c150b!important;font-weight:800!important}
-#epClientHome .ep-home-events{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=85')!important}
-#epClientHome .ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1000&q=85')!important}
-#epClientHome .ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1000&q=85')!important}
-#epClientHome .ep-home-profile{background-image:url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=85')!important}
-#epClientHome .ep-home-admin{background-image:url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1000&q=85')!important}
-#epClientHome .ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=85')!important}
-#epClientHome .ep-home-manage{background-image:url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=85')!important}
-#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-#epPrivateInner{max-width:1180px!important;display:block!important;margin:20px auto 95px!important;padding:0 clamp(16px,4vw,48px)!important}
-#epPrivateInner[hidden]{display:none!important}
-#epPrivateInner .private-sidebar{display:none!important}
-#epPrivateInner .private-panel{background:linear-gradient(145deg,#12161c,#090b0e)!important;border:1px solid #b78c514f!important;border-radius:22px!important;padding:clamp(18px,3vw,34px)!important;box-shadow:0 18px 50px #0008!important;min-height:60vh}
-#epPrivateInner .private-panel h2{font-family:Inter,Montserrat,Arial,sans-serif!important;font-size:clamp(23px,3vw,34px)!important;color:#f2c979!important;letter-spacing:-.02em}
-#epPrivateInner .private-panel button{border-radius:11px!important}
-#epPrivateInner .private-empty{background:#14191f!important;border:1px solid #ad8b5d60!important;border-radius:17px!important;color:#f3eadb!important}
-#privateOverlay:not([hidden]){background:linear-gradient(90deg,#050607ed,#0506078c),url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=85') center/cover!important}
-#privateOverlay .private-modal{background:linear-gradient(150deg,#161a1feb,#060709f5)!important;border:1px solid #e0b8759c!important;box-shadow:0 24px 100px #000c!important;border-radius:25px!important}
-#privateOverlay .private-submit{background:linear-gradient(120deg,#ffe5a4,#c48a38)!important;border-radius:999px!important;padding:16px!important}
-#privateOverlay input{background:#1b2026!important;border:1px solid #90744985!important;border-radius:12px!important}
-#epPremiumNav{position:fixed;z-index:10035;bottom:0;left:0;right:0;display:flex;align-items:stretch;justify-content:space-around;gap:2px;padding:9px max(8px,env(safe-area-inset-left)) calc(9px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:#090c10f5;backdrop-filter:blur(16px);border-top:1px solid #bd965b55;box-shadow:0 -10px 40px #0009}
-#epPremiumNav[hidden]{display:none!important}
-#epPremiumNav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:none;color:#c7c0b6;padding:5px 1px;font:600 10px Inter,Arial,sans-serif;cursor:pointer}
-#epPremiumNav button span{font-size:21px;line-height:1.2}
-#epPremiumNav button.ep-active{color:#f8d58b}
-#epPremiumNav button.ep-active span{filter:drop-shadow(0 0 8px #ffcf6a70)}
-@media(min-width:850px){#epPremiumNav{max-width:680px;left:50%;transform:translateX(-50%);border:1px solid #bd965b55;border-bottom:0;border-radius:18px 18px 0 0}#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
-@media(max-width:580px){#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}#epClientHome .ep-home-tile{min-height:190px!important;padding:13px!important}#epClientHome .ep-home-copy strong{font-size:18px!important}#epClientHome .ep-home-copy small{font-size:11px!important}#epClientHome .ep-home-intro{min-height:245px;padding:34px 22px!important}#epPremiumNav button{font-size:9px}}
-@media(max-width:355px){#epClientHome .ep-home-grid{grid-template-columns:1fr!important}}
+
+<style id="ep-visual-rebuild-oct2026">
+/* EVENTS AND PARTIES · interfaz app, diseñada para móvil y tablet.
+   Mantiene íntegros los controles, identificadores y llamadas Supabase. */
+:root{--epp-gold:#f8cd78;--epp-border:#bd965a55;--epp-black:#06080b}
+html,body{background:#050608!important}
+#privateDashboard{background:#050608!important;color:#f6f2e9!important}
+#privateDashboard .private-top{max-width:540px;margin:auto;background:#080a0e!important;border:0!important;min-height:74px;padding:14px 20px!important;position:relative!important}
+#privateDashboard .private-top>div{gap:8px!important}
+#privateDashboard .private-top img{width:45px!important;height:45px!important;filter:drop-shadow(0 0 6px #d9a74d50)}
+#privateDashboard .private-top strong{font-size:11px!important;letter-spacing:.12em!important;color:#f4d18d!important;line-height:1.45}
+#privateDashboard .private-top #privateLogout{font-size:10px!important;border:1px solid #b991564a!important;padding:8px 10px!important}
+#epClientHome{max-width:540px!important;width:100%!important;padding:0 18px 112px!important;background:#050608!important;min-height:calc(100dvh - 74px)!important}
+#epClientHome .ep-home-intro{border:1px solid #a9854d4f!important;border-radius:20px!important;min-height:300px!important;margin:0 0 18px!important;padding:36px 24px 28px!important;justify-content:flex-end!important;align-items:flex-start!important;text-align:left!important;background:linear-gradient(180deg,#07090c13 0%,#06080b40 28%,#06080bee 83%,#050608 100%),url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1100&q=90') center 43%/cover!important;box-shadow:0 14px 35px #000b!important}
+#epClientHome .ep-home-intro:before{content:"EVENTS AND PARTIES";position:absolute;top:22px;left:24px;letter-spacing:.24em;color:#ffe1a0;font-size:10px;font-weight:800;text-shadow:0 1px 6px #000}
+#epClientHome .ep-home-intro>span{color:#ffd68b!important;font-size:10px!important;letter-spacing:.23em!important;position:relative;z-index:1}
+#epClientHome .ep-home-intro h1{font-size:clamp(26px,5.8vw,36px)!important;line-height:1.09!important;margin:11px 0 10px!important;max-width:380px!important;letter-spacing:-.035em!important;text-transform:none!important;text-shadow:0 2px 12px #000!important}
+#epClientHome .ep-home-intro h1 .ep-gold-word{display:block;color:#f6c773!important}
+#epClientHome .ep-home-intro p{font-size:12px!important;line-height:1.55!important;max-width:290px!important;color:#f2ede7!important;margin:0!important}
+#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+#epClientHome .ep-home-tile{height:220px!important;min-height:220px!important;border-radius:16px!important;border:1px solid #bb945c78!important;padding:14px!important;box-shadow:inset 0 0 0 1px #fff1,0 12px 20px #000a!important;background-size:cover!important;background-position:center!important;overflow:hidden!important}
+#epClientHome .ep-home-tile::before{background:linear-gradient(180deg,#0004 0%,#0001 28%,#050608a8 59%,#050608f8 100%)!important}
+#epClientHome .ep-home-icon{position:absolute!important;top:12px!important;left:12px!important;font-size:23px!important;width:43px!important;height:43px!important;border-radius:12px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#0b0e13ce!important;border:1px solid #d2aa6870!important;color:#ffd07a!important}
+#epClientHome .ep-home-copy{position:relative!important;z-index:2!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;margin-top:auto!important}
+#epClientHome .ep-home-copy strong{font-size:20px!important;line-height:1.05!important;font-weight:800!important;color:#fff!important}
+#epClientHome .ep-home-copy small{font-size:11px!important;line-height:1.35!important;color:#f2e9da!important;min-height:28px!important}
+#epClientHome .ep-home-link{display:none!important}
+#epClientHome .ep-home-events{background-image:url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=850&q=85')!important}
+#epClientHome .ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=850&q=85')!important}
+#epClientHome .ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=850&q=85')!important}
+#epClientHome .ep-home-profile{background-image:url('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=850&q=85')!important}
+#epClientHome .ep-home-admin{background-image:url('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=850&q=85')!important}
+#epClientHome .ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1507504031003-b417219a0fde?auto=format&fit=crop&w=850&q=85')!important}
+#epClientHome .ep-home-manage{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=850&q=85')!important}
+#epClientHome .ep-home-tile[hidden]{display:none!important}
+#epPrivateInner{max-width:540px!important;width:100%!important;margin:0 auto!important;padding:8px 18px 112px!important}
+#epPrivateInner .private-panel{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:8px 0 20px!important;min-height:calc(100dvh - 150px)!important}
+#epPrivateInner .private-panel>h2{font-size:27px!important;line-height:1.2!important;color:#f7d083!important;margin:12px 0 20px!important}
+#epPrivateInner .ep-back-home{color:#ffd18b!important;border:0!important;background:transparent!important;padding:9px 0!important;font-weight:700!important}
+#epPrivateInner .private-empty{background:transparent!important;border:0!important;padding:0!important}
+#epPrivateInner .ep-budget-card,#epPrivateInner .ep-org-card,#epPrivateInner .ep-adm-progress,#epPrivateInner .ep-cal-detail,#epPrivateInner .ep-cal-grid,#epPrivateInner .ep-cal-header,#epPrivateInner .ep-org-soft{background:#10141a!important;border:1px solid #bd965a55!important;border-radius:17px!important;box-shadow:0 8px 24px #0008!important;margin:12px 0!important}
+#epPrivateInner .ep-budget-card{padding:18px!important}
+#epPrivateInner .ep-budget-card h3{color:#f6d089!important;font-size:18px!important}
+#epPrivateInner .ep-budget-card p{font-size:13px!important;color:#e1d8c9!important}
+#epPrivateInner button:not(.ep-cal-day){border-radius:12px!important}
+#epPrivateInner button.ep-org-btn.primary,#epPrivateInner .ep-budget-card button{background:linear-gradient(135deg,#ffe1a0,#d29a47)!important;color:#211506!important;border:0!important;font-weight:800!important}
+#epPrivateInner .ep-org-hero{min-height:190px!important;border-radius:18px!important}
+#epPrivateInner .ep-org-wedding-grid{grid-template-columns:1fr!important;gap:10px!important}
+#epPrivateInner .ep-org-step,#epPrivateInner .ep-org-wedding-grid .ep-org-step:first-child{min-height:96px!important;padding:16px 18px!important;border-radius:14px!important;justify-content:center!important;background:#12171d!important}
+#epPrivateInner .ep-org-step:before{opacity:.35!important}
+#epPrivateInner .ep-org-step-title{font:700 17px Inter,Arial,sans-serif!important;margin:4px 0!important}
+#epPrivateInner .ep-org-step-desc{font-size:11px!important}
+#epPrivateInner .ep-org-step-state{font-size:10px!important;margin-top:4px!important}
+#epPremiumNav{max-width:540px!important;left:50%!important;right:auto!important;width:100%!important;transform:translateX(-50%)!important;border:1px solid #b58c4e55!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;padding:11px 8px calc(12px + env(safe-area-inset-bottom))!important;background:#080a0ef7!important}
+#epPremiumNav button{font-size:10px!important;gap:6px!important}
+#epPremiumNav button span{font-size:23px!important}
+#epPremiumNav button.ep-active{color:#ffd581!important}
+#privateOverlay .private-modal{max-width:420px!important}
+@media(max-width:390px){#epClientHome .ep-home-tile{min-height:184px!important;height:184px!important;padding:11px!important}#epClientHome .ep-home-copy strong{font-size:17px!important}#epClientHome .ep-home-intro{min-height:265px!important}}
+@media(min-width:800px){#epClientHome,#epPrivateInner{box-shadow:0 0 0 1px #d2a66317,0 0 75px #000!important}#epClientHome .ep-home-tile{height:230px!important}}
 </style>
+
 </head>
   
 <body>
@@ -2638,7 +2652,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  const home=document.getElementById('epClientHome');
  if(!panel||!home)return;
  const nav=document.createElement('nav');nav.id='epPremiumNav';nav.hidden=true;nav.setAttribute('aria-label','Navegación de Events and Parties');
- const items=[['Inicio','⌂','Inicio'],['Mis eventos','▣','Eventos'],['Calendario','▦','Calendario'],['Presupuestos','▤','Presupuestos'],['Mi perfil','♙','Perfil']];
+ const items=[['Inicio','⌂','Inicio'],['Mis eventos','♧','Eventos'],['Calendario','▦','Calendario'],['Presupuestos','▤','Presupuestos'],['Mi perfil','♙','Perfil']];
  items.forEach(function(item){const b=document.createElement('button');b.type='button';b.dataset.destination=item[0];const i=document.createElement('span');i.setAttribute('aria-hidden','true');i.textContent=item[1];b.append(i,document.createTextNode(item[2]));b.addEventListener('click',function(){if(item[0]==='Inicio'){const back=document.getElementById('epBackHome');if(back)back.click();else {const first=home.querySelector('[data-home-destination]');if(first)first.click();}return;}const tile=Array.from(home.querySelectorAll('[data-home-destination]')).find(x=>x.dataset.homeDestination===item[0]&&!x.hidden);if(tile){tile.click();return;}const menu=Array.from(document.querySelectorAll('[data-private-tab]')).find(x=>x.dataset.privateTab===item[0]);if(menu)menu.click();});nav.appendChild(b)});
  panel.appendChild(nav);
  function update(){nav.hidden=panel.hidden;const title=document.getElementById('privatePanelTitle');const current=home.hidden?(title?title.textContent.trim():''):'Inicio';nav.querySelectorAll('button').forEach(b=>{const active=b.dataset.destination===current;b.classList.toggle('ep-active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
