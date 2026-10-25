@@ -5,8 +5,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080808">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="DJ para bodas y eventos en Santander, Cantabria y toda España. Música, sonido, iluminación y animación. Solicita presupuesto a Events and Parties.">
-<title>Events and Parties | Área privada</title>
+<title>Events and Parties | App Android</title>
 <link rel="canonical" href="https://www.eventsandparties.es/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website">
@@ -928,6 +930,12 @@ header.nav>#menu-principal.abierto{display:flex!important}
 #epClientHome.ep-is-admin .ep-home-calendar{background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.35)),url("https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1400&q=88")!important;background-size:cover!important;background-position:center!important}
 #epClientHome.ep-is-admin .ep-home-budgets{background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.35)),url("https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=88")!important;background-size:cover!important;background-position:center!important}
 </style>
+<style id="android-private-app-final">
+/* Android: mostrar únicamente acceso y panel privado; conserva las funciones Supabase existentes. */
+#splash{display:none!important}
+html,body{overflow-x:hidden!important}
+#privateOverlay[hidden],#privateDashboard[hidden]{display:none!important}
+</style>
 <style id="android-private-app">
 body{background:#080706!important}body> :not(#privateOverlay):not(#privateDashboard):not(script):not(style){display:none!important}
 #privateOverlay:not([hidden]){position:fixed!important;inset:0!important;z-index:100000!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow-y:auto!important;padding:16px!important;background:linear-gradient(155deg,#050404ed,#201609e8),url('https://www.eventsandparties.es/media/fondo-bienvenida-movil.png') center/cover!important}
@@ -944,7 +952,7 @@ body{background:#080706!important}body> :not(#privateOverlay):not(#privateDashbo
 </head>
   
 <body>
-<script>document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>{const o=document.getElementById("privateOverlay"),d=document.getElementById("privateDashboard");if(o&&d&&d.hidden)o.hidden=false},500)});</script>
+
 <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Bienvenida a Events and Parties">
   <div class="splash-content">
     <img class="splash-logo" src="https://www.eventsandparties.es/media/logo.png" alt="Events and Parties, logo dorado">
@@ -1248,7 +1256,7 @@ padding:20px; font-size:14px;">
   <script>
 
 (function(){
-document.documentElement.style.overflow='hidden';
+document.documentElement.style.overflow='';
  const splash=document.getElementById('splash');
  const enter=document.getElementById('splashEnter');
  let timer;
