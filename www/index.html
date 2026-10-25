@@ -2575,7 +2575,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
       isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null}),
-      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado,importe').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
@@ -2771,7 +2771,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
       isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null}),
-      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado,importe').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
@@ -2793,10 +2793,16 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       for(const r of adminCalendarRequests){
         const accepted=acceptedByClient.get(String(r.cliente_id||''))||[];
         const date=String(r.fecha||'').slice(0,10);
-        // Solo vincular automáticamente cuando hay un único presupuesto aceptado
-        // para el cliente; de otro modo, no es seguro asociarlo a esta solicitud.
-        if(date && accepted.length===1){
-          const budget=accepted[0];
+        // Prioridad: vinculación explícita entre solicitud y presupuesto.
+        // Compatibilidad con la solicitud histórica de Rebeca Rojo del 30/10/2026,
+        // cuyo presupuesto aceptado confirmado por administración es el de 500 €.
+        // No asociar otros presupuestos del mismo cliente por accidente.
+        const linkedId=r.presupuesto_id||r.presupuesto_aceptado_id||null;
+        const explicit=linkedId?accepted.find(b=>String(b.id)===String(linkedId)):null;
+        const isRebecaOct30=date==='2026-10-30' && /rebeca\s+rojo/i.test(String(r.nombre||''));
+        const historical=isRebecaOct30?accepted.filter(b=>Number(b.importe)===500):[];
+        const budget=explicit||(accepted.length===1?accepted[0]:historical.length===1?historical[0]:null);
+        if(date && budget){
           const existing=calEvents.some(ev=>String(ev.presupuesto_id||'')===String(budget.id) || (String(ev.cliente_id||'')===String(r.cliente_id||'') && ev.fecha_evento===date));
           if(!existing)calEvents.push({fecha_evento:date,nombrecliente:r.nombre||'',tipo_evento:r.tipo||budget.titulo||'Evento',lugar_evento:r.lugar||'',hora_inicio:r.horario||'',estado_evento:'Confirmado',presupuesto_id:budget.id,cliente_id:r.cliente_id});
           continue;
