@@ -1054,6 +1054,27 @@ header.nav>#menu-principal.abierto{display:flex!important}
 @media(max-width:850px){#epLuxurySidebar{width:68px;padding:12px 6px}#epLuxurySidebar .ep-lux-brand img{width:46px;height:46px}#privateDashboard .private-top,#epClientHome,#epPrivateInner.private-layout{margin-left:68px!important;width:calc(100% - 68px)}#epClientHome .ep-home-intro{min-height:245px}}
 @media(max-width:600px){#epClientHome{padding:0 10px 15px!important}#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:1fr!important}#epClientHome .ep-home-grid .ep-home-tile{grid-column:1/-1!important;min-height:188px!important}#epClientHome .ep-home-intro{min-height:235px;padding:22px!important;background-position:60% center!important}#epClientHome .ep-home-intro h1{font-size:clamp(25px,6vw,35px)!important}#epClientHome .ep-home-intro p{font-size:12px}#epLuxuryMotto{height:145px}#epLuxuryMotto img{height:67px}#epLuxuryMotto strong{font-size:17px}#epLuxuryMotto span{font-size:8px;letter-spacing:.12em}#privateDashboard .private-top strong{font-size:9px}}
 </style>
+<style>
+/* REDISEÑO DEL ÁREA PRIVADA DEL CLIENTE - 25/10/2026 */
+#privateDashboard .private-panel{background:radial-gradient(circle at 85% 0%,#3d2c1740,transparent 50%),#0e0c0b;color:#f9f0df;border:1px solid #70552e;border-radius:18px;min-height:65vh}
+#privateDashboard .private-panel h2{font-family:Georgia,serif;font-size:clamp(30px,4vw,46px);color:#fff3d9;margin:12px 0 20px}
+#privateDashboard .private-panel .private-empty{background:transparent!important;border:0!important;padding:0!important}
+.ep-client-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0 24px;padding:8px;background:#19140f;border:1px solid #654b2b;border-radius:14px}
+.ep-client-tabs button{border:1px solid #725936;background:#241b13;color:#e9d4ac;padding:12px 18px;border-radius:9px;cursor:pointer;font-weight:700}
+.ep-client-tabs button.active{background:linear-gradient(135deg,#ffe6a0,#c58d36);color:#1b1209;border-color:#e5bd69}
+.ep-client-form{background:linear-gradient(145deg,#211910,#121110);border:1px solid #8b6837;border-radius:18px;padding:clamp(16px,3vw,28px);margin:14px 0 22px}
+.ep-client-form h3,.ep-calendar-aside h3{font-family:Georgia,serif;color:#f5d18d;font-size:24px;margin:0 0 20px}
+.ep-client-form input,.ep-client-form select{display:block;width:100%;margin:7px 0 0;background:#121110;color:#fff2dc;border:1px solid #9b7947;border-radius:10px;padding:12px;font:inherit}
+.ep-client-form .adm-form label{color:#f2d5a0;font-weight:600}
+.ep-client-events-list>*,.ep-client-budget-list>*{max-width:100%}
+.ep-calendar-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(230px,1fr);gap:22px;align-items:start}
+.ep-calendar-main,.ep-calendar-aside{background:linear-gradient(150deg,#241b13,#12100f);border:1px solid #765a35;border-radius:16px;padding:clamp(12px,2vw,22px)}
+.ep-calendar-aside{min-height:240px}.ep-date-event{display:block;width:100%;text-align:left;margin:10px 0;padding:14px;background:#322310;color:#f9e0a5;border:1px solid #c59a54;border-radius:9px;cursor:pointer}
+.ep-cal-day{background:#161412!important;border-color:#59472f!important}.ep-cal-day.has-event{background:linear-gradient(145deg,#bd8b36,#70501f)!important;color:#fff!important;border-color:#e3bb68!important}
+.ep-calendar-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.ep-client-request-box[hidden],.ep-client-budget-list[hidden]{display:none!important}
+@media(max-width:760px){.ep-calendar-layout{grid-template-columns:1fr}.ep-client-tabs button{flex:1}.ep-client-form .adm-form{grid-template-columns:1fr}}
+</style>
 </head>
   
 <body>
@@ -2240,11 +2261,23 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       }
     }catch(e){eventBody.append(epInfo('No se pudieron cargar los eventos aceptados: '+e.message))}
   };
+  const epClientTabs=(items)=>{const nav=document.createElement('div');nav.className='ep-client-tabs';items.forEach(([label,handler],i)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=i===0?'active':'';b.addEventListener('click',()=>{nav.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));handler()});nav.append(b)});return nav};
+  const epClientCreateEvent=async()=>{
+    eventBody.replaceChildren();const box=document.createElement('section');box.className='ep-client-form';const h=document.createElement('h3');h.textContent='Crear un nuevo evento';box.append(h);
+    const form=document.createElement('form');form.className='adm-form';
+    const fields=[['tipo_evento','Tipo de evento','select'],['nombrecliente','Nombre de la celebración','text'],['fecha_evento','Fecha del evento','date'],['lugar_evento','Lugar del evento','text'],['hora_inicio','Hora de inicio','time'],['hora_fin','Hora de finalización','time']];
+    for(const [key,label,type] of fields){const wrap=document.createElement('label');wrap.textContent=label;const input=document.createElement(type==='select'?'select':'input');input.name=key;if(type==='select'){['BODA','CUMPLEANOS','FIESTA','COMUNION','OTRO'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;input.append(o)})}else input.type=type;input.required=['nombrecliente','fecha_evento','lugar_evento'].includes(key);wrap.append(input);form.append(wrap)}
+    const submit=document.createElement('button');submit.type='submit';submit.className='adm-btn primary';submit.textContent='Guardar evento';const status=document.createElement('p');status.setAttribute('role','status');form.append(submit,status);
+    form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;status.textContent='Guardando evento…';try{const {data:{user},error:authError}=await client.auth.getUser();if(authError||!user)throw Error('Debes iniciar sesión.');const payload=Object.fromEntries(new FormData(form).entries());payload.cliente_id=user.id;payload.estado_evento='PENDIENTE';const {error}=await client.from('EVENTOS').insert(payload);if(error)throw error;status.textContent='Evento creado correctamente.';setTimeout(()=>{if(eventTitle.textContent==='Mis eventos')loadEvents()},600)}catch(err){status.textContent='No se ha podido guardar: '+err.message+' Comprueba los permisos de creación de eventos.'}finally{submit.disabled=false}});
+    box.append(form);eventBody.append(epClientTabs([['Eventos creados',epClientEvents],['Crear evento',()=>{}]]),box);
+  };
+  const epClientEvents=async()=>{const holder=document.createElement('div');holder.className='ep-client-events-list';await epOrgList();holder.append(...eventBody.childNodes);const {data:{user}}=await client.auth.getUser();if(user){const {data,error}=await client.from('EVENTOS').select('id,tipo_evento,fecha_evento,lugar_evento,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});if(!error&&data?.length){const group=document.createElement('section');group.className='ep-client-form';group.append(budgetNode('h3','Eventos solicitados y creados'));data.forEach(ev=>{const card=document.createElement('article');card.className='ep-budget-card';card.append(budgetNode('h3',ev.tipo_evento||'Evento'),budgetNode('p','Fecha: '+formatDate(ev.fecha_evento)),budgetNode('p','Lugar: '+(ev.lugar_evento||'Por concretar')),budgetNode('p','Estado: '+(ev.estado_evento||'Pendiente')));group.append(card)});holder.prepend(group)}}const tabs=epClientTabs([['Eventos creados',()=>epClientEvents()],['Crear evento',epClientCreateEvent]]);eventBody.append(tabs,holder)};
+  const epClientProfile=async()=>{eventBody.replaceChildren();const {data:{user},error}=await client.auth.getUser();if(error||!user){eventBody.textContent='Inicia sesión para consultar tu perfil.';return}const box=document.createElement('section');box.className='ep-client-form';const heading=document.createElement('h3');heading.textContent='Mis datos de registro';box.append(heading);addDetail(box,'Nombre y apellidos',user.user_metadata?.nombre||user.user_metadata?.full_name||'No indicado');addDetail(box,'Correo electrónico',user.email);addDetail(box,'Teléfono',user.phone||user.user_metadata?.telefono||'No indicado');eventBody.append(box);const history=document.createElement('section');history.className='ep-client-form';history.innerHTML='<h3>Mis eventos y celebraciones</h3>';eventBody.append(history);const {data:events,error:err}=await client.from('EVENTOS').select('tipo_evento,fecha_evento,lugar_evento,estado_evento').eq('cliente_id',user.id).order('fecha_evento',{ascending:false});if(err){history.append(budgetNode('p','No se pudo consultar el historial: '+err.message));return}if(!events?.length)history.append(budgetNode('p','Todavía no tienes eventos registrados.'));(events||[]).forEach(ev=>{const item=document.createElement('article');item.className='ep-budget-card';item.append(budgetNode('h3',ev.tipo_evento||'Evento'),budgetNode('p','Fecha: '+formatDate(ev.fecha_evento)),budgetNode('p','Lugar: '+(ev.lugar_evento||'Por concretar')),budgetNode('p','Estado: '+(ev.estado_evento||'Pendiente')));history.append(item)})};
   const loadEvents=async()=>{
     if(!client)return;
     eventBody.textContent='Cargando tus eventos…';
     if(isAdmin){await epAdminAcceptedEvents();return}
-    await epOrgList();
+    await epClientEvents();
   };
   // Calendario privado: utiliza la misma tabla y los mismos permisos que Mis eventos.
   const calendarStyle=document.createElement('style');
@@ -2299,7 +2332,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(count){const dot=document.createElement('span');dot.className='ep-cal-dot';dot.setAttribute('aria-hidden','true');btn.appendChild(dot)}
       btn.addEventListener('click',()=>{calSelected=key;renderCalendar()});grid.appendChild(btn);
     }
-    eventBody.appendChild(grid);
+    if(!isAdmin){const layout=document.createElement('div');layout.className='ep-calendar-layout';const left=document.createElement('div');left.className='ep-calendar-main';left.append(head,grid);const right=document.createElement('aside');right.className='ep-calendar-aside';right.innerHTML='<h3>Fechas de tus eventos</h3>';const monthEvents=calEvents.filter(ev=>ev.fecha_evento?.startsWith(dateKey(calYear,calMonth,1).slice(0,7)));if(!monthEvents.length)right.append(budgetNode('p','No tienes eventos registrados en este mes.'));monthEvents.forEach(ev=>{const b=document.createElement('button');b.type='button';b.className='ep-date-event';b.textContent=formatDate(ev.fecha_evento)+' · '+(ev.tipo_evento||'Evento');b.addEventListener('click',()=>{calSelected=ev.fecha_evento;renderCalendar()});right.append(b)});layout.append(left,right);eventBody.append(layout)}else eventBody.appendChild(grid);
     const hint=document.createElement('p');hint.className='ep-cal-help';hint.textContent='Los días marcados en dorado tienen eventos. Selecciona una fecha para consultar sus detalles.';eventBody.appendChild(hint);
     if(calSelected){
       const detail=document.createElement('section');detail.className='ep-cal-detail';
@@ -2309,6 +2342,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       matching.forEach(ev=>{const article=document.createElement('article');const h=document.createElement('h4');h.textContent=ev.tipo_evento||'Mi evento';article.appendChild(h);addDetail(article,'Cliente',ev.nombrecliente);addDetail(article,'Lugar',ev.lugar_evento);addDetail(article,'Inicio',ev.hora_inicio);addDetail(article,'Fin',ev.hora_fin);addDetail(article,'Estado',ev.estado_evento);detail.appendChild(article)});
       eventBody.appendChild(detail);
     }
+    if(!isAdmin){const actions=document.createElement('div');actions.className='ep-calendar-actions';const add=adminBtn('＋ Añadir evento',epClientCreateEvent,true);const change=adminBtn('✎ Modificar fecha',async()=>{const chosen=calEvents.filter(ev=>ev.fecha_evento===calSelected);if(!chosen.length){alert('Selecciona primero un día con un evento.');return}if(chosen.length>1){alert('Hay varios eventos en esa fecha. Consulta con administración para indicar cuál deseas modificar.');return}const date=prompt('Nueva fecha del evento (AAAA-MM-DD)',calSelected);if(!date)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(new Date(date+'T12:00:00').getTime())){alert('Introduce una fecha válida.');return}if(!confirm('¿Confirmas el cambio de fecha a '+formatDate(date)+'?'))return;const {error}=await client.from('EVENTOS').update({fecha_evento:date}).eq('id',chosen[0].id);if(error)alert('No se pudo modificar la fecha: '+error.message+'. Contacta con administración si necesitas autorización.');else loadCalendar()});actions.append(change,add);eventBody.append(actions)}
   };
   const loadCalendar=async()=>{
     const request=++calRequest;
@@ -2455,7 +2489,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         }));card.append(actions);
       }eventBody.append(card);
     });
-    eventBody.append(epRequestForm());
+    const requestForm=epRequestForm();const list=document.createElement('div');list.className='ep-client-budget-list';list.append(...eventBody.childNodes);const requestBox=document.createElement('div');requestBox.className='ep-client-request-box';requestBox.append(requestForm);requestBox.hidden=true;
+    const tabs=epClientTabs([['Presupuestos solicitados',()=>{list.hidden=false;requestBox.hidden=true}],['Solicitar presupuesto',()=>{list.hidden=true;requestBox.hidden=false}]]);
+    eventBody.append(tabs,list,requestBox);
   };
   const loadClientProfiles=async()=>{
     const {data,error}=await client.from('ep_clientes_perfiles').select('id,nombre,email').order('nombre',{ascending:true});
@@ -2648,7 +2684,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(title==='Administración'){++calRequest;if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}adminView='lista';loadAdmin();return}
     if(title==='Presupuestos'){loadBudgets();return}
     if(title==='Gestionar presupuestos'){if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}loadAdminBudgets();return}
-    ++calRequest;eventBody.textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
+    ++calRequest;if(title==='Mi perfil'&&!isAdmin){epClientProfile();return}eventBody.textContent='Esta sección estará disponible cuando conectemos los datos y permisos de Supabase.';
   }));
   if(client){
     client.auth.onAuthStateChange((event)=>{
@@ -2672,11 +2708,11 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  sidebar.innerHTML='<div class="ep-lux-brand"><img src="media/logo.png" alt="Events and Parties"><strong>EVENTS AND PARTIES</strong><small>ÁREA PRIVADA</small></div><div id="epLuxLinks"></div><div class="ep-lux-bottom">✧ &nbsp; Events and Parties</div>';
  dash.insertBefore(sidebar,dash.firstChild);
  const links=sidebar.querySelector('#epLuxLinks');
- const specs=[['Inicio','⌂',null],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],['Administración','⚙','Administración'],['Organizadores recibidos','♧','Organizadores recibidos'],['Perfiles de usuarios','♙','Mi perfil']];
+ const specs=[['Inicio','⌂',null],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],['Presupuestos','▤','Presupuestos'],['Mi perfil','♙','Mi perfil'],['Administración','⚙','Administración'],['Organizadores recibidos','♧','Organizadores recibidos'],['Perfiles de usuarios','♙','Mi perfil']];
  const buttons=specs.map(([label,icon,dest])=>{const b=document.createElement('button');b.type='button';b.innerHTML='<span class="ep-lux-symbol">'+icon+'</span><span class="ep-lux-label">'+label+'</span>';b.title=label;b.dataset.dest=dest||'Inicio';b.onclick=()=>{if(!dest){document.getElementById('epBackHome').click();return}if(dest==='Mi perfil'&&home.classList.contains('ep-is-admin')){openProfiles();return}const t=home.querySelector('[data-home-destination="'+dest+'"]');if(t)t.click();else{const tab=[...inner.querySelectorAll('[data-private-tab]')].find(x=>x.dataset.privateTab===dest);if(tab){home.hidden=true;inner.hidden=false;tab.click()}}};links.append(b);return b});
  const motto=document.createElement('div');motto.id='epLuxuryMotto';motto.innerHTML='<img src="media/logo.png" alt="Logo Events and Parties"><strong>EVENTS AND PARTIES</strong><span>MÚSICA · EMOCIONES · PASIÓN</span>';home.append(motto);
  const grid=home.querySelector('.ep-home-grid');
- const sync=()=>{const admin=home.classList.contains('ep-is-admin');sidebar.hidden=dash.hidden;buttons.forEach((b,i)=>{b.hidden=admin?false:[3,4,5].includes(i)});const current=home.hidden?(inner.querySelector('#privatePanelTitle')?.textContent||''):'Inicio';buttons.forEach(b=>b.classList.toggle('active',b.dataset.dest===current||(current==='Inicio'&&b.dataset.dest==='Inicio')));
+ const sync=()=>{const admin=home.classList.contains('ep-is-admin');sidebar.hidden=dash.hidden;buttons.forEach((b,i)=>{b.hidden=admin?[3,4].includes(i):i>4});const current=home.hidden?(inner.querySelector('#privatePanelTitle')?.textContent||''):'Inicio';buttons.forEach(b=>b.classList.toggle('active',b.dataset.dest===current||(current==='Inicio'&&b.dataset.dest==='Inicio')));
  const normal=grid.querySelector('.ep-home-budgets'),profile=grid.querySelector('.ep-home-profile'),manage=grid.querySelector('.ep-home-manage'),adminTile=grid.querySelector('.ep-home-admin'),org=grid.querySelector('.ep-home-organizers');
  if(admin){normal.hidden=true;manage.hidden=true;[adminTile,org,profile].forEach(n=>grid.append(n));profile.hidden=false;profile.querySelector('strong').textContent='Perfiles de usuarios';profile.querySelector('small').textContent='Gestiona todos los usuarios de la plataforma';}else{manage.hidden=true;normal.hidden=false;profile.querySelector('strong').textContent='Mi perfil';profile.querySelector('small').textContent='Tu información y acceso personal';grid.insertBefore(normal,profile);profile.hidden=false;}
  home.querySelector('.ep-home-intro>span').textContent=admin?'EVENTS AND PARTIES · ÁREA PRIVADA':'MI ESPACIO PERSONAL';};
