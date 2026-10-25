@@ -760,6 +760,17 @@ background:
 .ep-home-link{margin-top:10px;border:1px solid #d6af6e;background:#d6af6e;color:#1a130a;padding:9px 18px;border-radius:999px;font-weight:800;font-size:13px}
 .private-sidebar .ep-back-home{border:1px solid #b28a50;background:#2c2114;color:#f3cd89;text-align:center;margin-bottom:14px;font-weight:700}
 @media(max-width:680px){.ep-home-grid{grid-template-columns:1fr;gap:14px}.ep-home-tile{min-height:225px}.ep-client-home{padding:25px 5% 55px}.ep-home-intro{margin-bottom:25px}.ep-home-copy strong{font-size:28px}}
+
+/* Portada exclusiva para administradores: siete accesos independientes. */
+.ep-admin-home-only[hidden]{display:none!important}
+.ep-home-admin{background-image:linear-gradient(135deg,#3d2b1644,#0b0a0a55),url('media/fondo-bienvenida-pc.png')}
+.ep-home-organizers{background-image:linear-gradient(135deg,#3d2b1644,#0b0a0a55),url('media/boda-espana-dorada.jpg')}
+.ep-home-manage{background-image:linear-gradient(135deg,#3d2b1644,#0b0a0a55),url('media/nuevo-fondo-dj.png')}
+.ep-is-admin .ep-home-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ep-is-admin .ep-home-tile{min-height:245px}
+.ep-is-admin .ep-home-copy strong{font-family:Montserrat,Inter,Arial,sans-serif;font-size:clamp(20px,2.2vw,27px);font-weight:700}
+@media(max-width:850px){.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.ep-is-admin .ep-home-grid{grid-template-columns:1fr}}
 </style>
 
 <style>
@@ -1381,6 +1392,9 @@ tarjeta.addEventListener("touchend", (e) => {
       <button type="button" class="ep-home-tile ep-home-calendar" data-home-destination="Calendario"><span class="ep-home-icon">▦</span><span class="ep-home-copy"><strong>Calendario</strong><small>Consulta las fechas de tus eventos</small><span class="ep-home-link">Entrar <span aria-hidden="true">→</span></span></span></button>
       <button type="button" class="ep-home-tile ep-home-budgets" data-home-destination="Presupuestos"><span class="ep-home-icon">▤</span><span class="ep-home-copy"><strong>Presupuestos</strong><small>Revisa tus propuestas y confirmaciones</small><span class="ep-home-link">Entrar <span aria-hidden="true">→</span></span></span></button>
       <button type="button" class="ep-home-tile ep-home-profile" data-home-destination="Mi perfil"><span class="ep-home-icon">♙</span><span class="ep-home-copy"><strong>Mi perfil</strong><small>Tu información y acceso personal</small><span class="ep-home-link">Entrar <span aria-hidden="true">→</span></span></span></button>
+      <button type="button" class="ep-home-tile ep-home-admin ep-admin-home-only" data-home-destination="Administración" hidden><span class="ep-home-icon">✧</span><span class="ep-home-copy"><strong>Administración</strong><small>Gestiona tus eventos y clientes</small><span class="ep-home-link">Entrar →</span></span></button>
+      <button type="button" class="ep-home-tile ep-home-organizers ep-admin-home-only" data-home-destination="Organizadores recibidos" hidden><span class="ep-home-icon">♫</span><span class="ep-home-copy"><strong>Organizadores recibidos</strong><small>Consulta la planificación enviada por tus clientes</small><span class="ep-home-link">Entrar →</span></span></button>
+      <button type="button" class="ep-home-tile ep-home-manage ep-admin-home-only" data-home-destination="Gestionar presupuestos" hidden><span class="ep-home-icon">▤</span><span class="ep-home-copy"><strong>Gestionar presupuestos</strong><small>Crea, revisa y administra propuestas</small><span class="ep-home-link">Entrar →</span></span></button>
     </div>
   </main>
   <div class="private-layout" id="epPrivateInner" hidden>
@@ -2081,7 +2095,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(error){console.info('Administración pendiente de configurar:',error.message);return}
     const {data:session}=await client.auth.getUser();
     if(session?.user?.id!==user.id)return;
-    isAdmin=Boolean(data);adminNav.hidden=!isAdmin;document.getElementById('epOrgAdminNav').hidden=!isAdmin;
+    isAdmin=Boolean(data);adminNav.hidden=!isAdmin;document.getElementById('epOrgAdminNav').hidden=!isAdmin;epRefreshHomeRole();
   };
   const adminForm=(ev)=>{
     if(!isAdmin)return;
@@ -2310,13 +2324,20 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   const budgetNavObserver=new MutationObserver(()=>{adminBudgetsNav.hidden=adminNav.hidden});
   budgetNavObserver.observe(adminNav,{attributes:true,attributeFilter:['hidden']});
   adminBudgetsNav.hidden=adminNav.hidden;
+  const epRefreshHomeRole=()=>{
+    const home=document.getElementById('epClientHome');
+    home.classList.toggle('ep-is-admin',isAdmin);
+    home.querySelectorAll('.ep-admin-home-only').forEach(tile=>{tile.hidden=!isAdmin});
+    const intro=home.querySelector('.ep-home-intro>span');
+    if(intro)intro.textContent=isAdmin?'PANEL DE ADMINISTRACIÓN':'MI ESPACIO PERSONAL';
+  };
   const epClientHome=document.getElementById('epClientHome');
   const epPrivateInner=document.getElementById('epPrivateInner');
   const epShowHome=()=>{epClientHome.hidden=false;epPrivateInner.hidden=true;++eventsRequest;++calRequest};
   const epOpenSection=(title)=>{epClientHome.hidden=true;epPrivateInner.hidden=false;const button=[...document.querySelectorAll('[data-private-tab]')].find(b=>b.dataset.privateTab===title);if(button)button.click()};
   document.querySelectorAll('[data-home-destination]').forEach(b=>b.addEventListener('click',()=>epOpenSection(b.dataset.homeDestination)));
   document.getElementById('epBackHome').addEventListener('click',epShowHome);
-  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;checkAdmin(user);document.getElementById('privateWelcome').textContent='';epShowHome()};
+  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;isAdmin=false;epRefreshHomeRole();checkAdmin(user);document.getElementById('privateWelcome').textContent='';epShowHome()};
   document.getElementById('openPrivate').addEventListener('click',e=>{e.preventDefault();showLogin()});
   document.getElementById('closePrivate').addEventListener('click',()=>overlay.hidden=true);
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.hidden=true});
@@ -2359,7 +2380,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   });
   document.getElementById('privateLogout').addEventListener('click',async()=>{
     if(client)await client.auth.signOut();
-    isAdmin=false;adminNav.hidden=true;document.getElementById('epOrgAdminNav').hidden=true;++adminRequest;dashboard.hidden=true;epClientHome.hidden=true;epPrivateInner.hidden=true;showLogin();
+    isAdmin=false;epRefreshHomeRole();adminNav.hidden=true;document.getElementById('epOrgAdminNav').hidden=true;++adminRequest;dashboard.hidden=true;epClientHome.hidden=true;epPrivateInner.hidden=true;showLogin();
   });
   document.querySelectorAll('[data-private-tab]').forEach(button=>button.addEventListener('click',()=>{
     if(['Administración','Organizadores recibidos'].includes(button.dataset.privateTab)&&!isAdmin)return;
