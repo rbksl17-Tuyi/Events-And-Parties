@@ -1102,7 +1102,20 @@ header.nav>#menu-principal.abierto{display:flex!important}
 @media(max-width:1150px){#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:680px){#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:1fr!important}#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){min-height:190px!important}}
 </style>
-</head>
+<style>
+#epClientHome .ep-home-manage{background-image:linear-gradient(90deg,rgba(6,6,8,.82),rgba(6,6,8,.1)),url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1100&q=85')!important;background-position:center!important;background-size:cover!important}
+.ep-client-tabs button.active{background:#f0cf69!important;color:#241600!important;border-color:#ffe4a0!important}
+.ep-client-tabs button:not(.active){background:#211b14;color:#ead8b2}
+section[hidden]{display:none!important}
+.ep-admin-cal-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:20px;align-items:start}
+.ep-admin-cal-aside{border:1px solid #a98445;border-radius:14px;padding:17px;background:#15120f}
+.ep-admin-cal-aside h3{color:#f2d68d;margin:8px 0}
+.ep-admin-cal-event{padding:10px;margin:8px 0;border-left:4px solid #e9c34d;background:#241c11;border-radius:8px}
+.ep-admin-cal-event.pending{border-left-color:#76aaf3}
+.ep-cal-day.has-request{background:#3972af!important;color:#fff!important;border-color:#8fc4ff!important}
+.ep-cal-day.has-event.has-request{background:linear-gradient(135deg,#f5ce55 50%,#3972af 50%)!important;color:#111!important}
+@media(max-width:780px){.ep-admin-cal-layout{grid-template-columns:1fr}}
+</style></head>
   
 <body>
 <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Bienvenida a Events and Parties">
@@ -2174,8 +2187,8 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     try{
       const orgs=await epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}).limit(200));
       const profiles=await epCall(client.from('ep_clientes_perfiles').select('id,nombre,email'));
-      if(!orgs.length)eventBody.append(epInfo('No hay organizaciones todavía.'));
-      for(const o of orgs){
+      if(!orgs.some(o=>o.estado==='ENVIADA'))eventBody.append(epInfo('Todavía no hay organizaciones terminadas y enviadas por los clientes.'));
+      for(const o of orgs.filter(x=>x.estado==='ENVIADA')){
         const p=profiles.find(x=>x.id===o.cliente_id),c=epCard(o.titulo||'Evento');
         c.append(epInfo('Cliente: '+(p?.nombre||p?.email||'Cliente')+' · Estado: '+o.estado+' · Versión '+o.version));
         if(['ENVIADA','CAMBIO_SOLICITADO'].includes(o.estado))c.append(epEl('span',o.estado==='ENVIADA'?'● Organización recibida':'● Solicitud de modificación pendiente','ep-org-pill'));
@@ -2257,36 +2270,37 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   };
   // Vista administrativa: TODOS los presupuestos aceptados, tengan o no organizador.
   const epAdminAcceptedEvents=async()=>{
-    eventBody.replaceChildren(epEl('h3','Eventos con presupuesto aceptado'),epInfo('Consulta las celebraciones pendientes, en preparación y terminadas.'));
-    if(!isAdmin){eventBody.append(epInfo('Acceso exclusivo de administración.'));return}
+    eventBody.replaceChildren(epEl('h3','Mis eventos'),epInfo('Consulta los eventos pendientes de organizar y las organizaciones finalizadas.'));
+    if(!isAdmin)return;
+    const area=epEl('div');eventBody.append(area);
     try{
       const [budgets,orgs]=await Promise.all([
-        epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado,cliente_id,creado_en').eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
+        epCall(client.from('ep_presupuestos').select('*').eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
         epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}))
       ]);
-      if(!budgets.length){eventBody.append(epInfo('Todavía no hay presupuestos aceptados.'));return}
-      const groups=[
-        {title:'Pendientes de organizar',filter:o=>!o},
-        {title:'En organización',filter:o=>!!o&&!['ENVIADA'].includes(o.estado)},
-        {title:'Organización terminada',filter:o=>!!o&&o.estado==='ENVIADA'}
-      ];
-      const orgByBudget=new Map();
-      for(const o of orgs)if(!orgByBudget.has(String(o.presupuesto_id)))orgByBudget.set(String(o.presupuesto_id),o);
-      for(const group of groups){
-        const entries=budgets.filter(b=>group.filter(orgByBudget.get(String(b.id))));
-        const section=epEl('section',undefined,'ep-admin-accepted-group');
-        section.append(epEl('h3',group.title+' · '+entries.length));
-        for(const b of entries){
-          const o=orgByBudget.get(String(b.id));
-          const card=epCard(String(b.titulo||'').trim()||'Evento aceptado');
-          card.append(epInfo(o?'Estado de organización: '+(o.estado==='ENVIADA'?'Enviada por el cliente':o.estado==='CAMBIO_SOLICITADO'?'Cambios solicitados':o.estado==='BORRADOR'?'En preparación':o.estado):'El cliente aún no ha comenzado a organizarlo'));
-          if(o)card.append(epBtn('Consultar organización',()=>epAdminDetail(o.id),'primary'));
-          section.append(card);
-        }
-        if(!entries.length)section.append(epInfo('No hay eventos en este estado.'));
-        eventBody.append(section);
+      const map=new Map(orgs.map(o=>[String(o.presupuesto_id),o]));
+      const tabs=epClientTabs([
+        ['Pendientes de organizar',()=>show(false)],
+        ['Eventos organizados y finalizados',()=>show(true)]
+      ]);
+      area.append(tabs);
+      const content=epEl('div');area.append(content);
+      function show(finished){
+        content.replaceChildren();
+        const items=budgets.filter(b=>{
+          const o=map.get(String(b.id));
+          return finished?!!o&&o.estado==='ENVIADA':!o||o.estado!=='ENVIADA';
+        });
+        if(!items.length){content.append(epInfo('No hay eventos en esta categoría.'));return}
+        items.forEach(b=>{
+          const o=map.get(String(b.id)),c=epCard(b.titulo||'Celebración');
+          c.append(epInfo('Presupuesto #'+b.id+' · '+(o?'Organización: '+o.estado:'Pendiente de organizar')));
+          if(o)c.append(epBtn('Ver organización',()=>epAdminDetail(o.id),'primary'));
+          content.append(c);
+        });
       }
-    }catch(e){eventBody.append(epInfo('No se pudieron cargar los eventos aceptados: '+e.message))}
+      show(false);
+    }catch(e){area.append(epInfo('No se pudieron cargar los eventos: '+e.message))}
   };
   const epClientTabs=(items,activeIndex=0)=>{const nav=document.createElement('div');nav.className='ep-client-tabs';items.forEach(([label,handler],i)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=i===activeIndex?'active':'';b.addEventListener('click',()=>{nav.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));handler()});nav.append(b)});return nav};
   // Un presupuesto aceptado por el cliente da derecho a crear exactamente un evento.
@@ -2384,7 +2398,13 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     try{
       const {data:{user},error:authError}=await client.auth.getUser();
       if(authError||!user){info.textContent='Inicia sesión para ver tus eventos.';return}
-      const {data,error}=await client.from('ep_eventos').select('*').eq('cliente_id',user.id);
+      const [eventResult,requestResult]=await Promise.all([
+      isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
+      isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null})
+    ]);
+    const {data,error}=eventResult;
+    adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
+    if(isAdmin&&requestResult.error)console.warn('No se pudieron consultar las solicitudes del calendario:',requestResult.error.message);
       if(error){info.textContent='No se pudieron consultar tus eventos: '+error.message+' (revisa permisos de lectura en Supabase).';return}
       info.remove();
       if(!data?.length){eventBody.append(budgetNode('p','No aparecen eventos asociados a tu usuario. Si el evento existe en Supabase, comprueba que cliente_id corresponde al usuario con el que has iniciado sesión y que la política RLS permite leerlo.'));return}
@@ -2485,6 +2505,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   let calMonth=new Date().getMonth();
   let calSelected='';
   let calEvents=[];
+  let adminCalendarRequests=[];
   let calRequest=0;
   const dateKey=(year,month,day)=>`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   const renderCalendar=()=>{
@@ -2506,14 +2527,29 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     for(let day=1;day<=total;day++){
       const key=dateKey(calYear,calMonth,day);
       const count=calEvents.filter(ev=>ev.fecha_evento===key).length;
-      const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-day'+(count?' has-event':'')+(calSelected===key?' selected':'');
+      const requestCount=isAdmin?adminCalendarRequests.filter(r=>String(r.fecha||'').slice(0,10)===key).length:0;
+      const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-day'+(count?' has-event':'')+(requestCount?' has-request':'')+(calSelected===key?' selected':'');
       btn.setAttribute('aria-label',`${day} de ${monthTitle.textContent}${count?', '+count+' evento(s)':''}`);
       btn.setAttribute('aria-pressed',String(calSelected===key));
       const number=document.createElement('span');number.textContent=String(day);btn.appendChild(number);
-      if(count){const dot=document.createElement('span');dot.className='ep-cal-dot';dot.setAttribute('aria-hidden','true');btn.appendChild(dot)}
+      if(count||requestCount){const dot=document.createElement('span');dot.className='ep-cal-dot';dot.setAttribute('aria-hidden','true');btn.appendChild(dot)}
       btn.addEventListener('click',()=>{calSelected=key;renderCalendar()});grid.appendChild(btn);
     }
-    if(!isAdmin){const layout=document.createElement('div');layout.className='ep-calendar-layout';const left=document.createElement('div');left.className='ep-calendar-main';left.append(head,grid);const right=document.createElement('aside');right.className='ep-calendar-aside';right.innerHTML='<h3>Fechas de tus eventos</h3>';const monthEvents=calEvents.filter(ev=>ev.fecha_evento?.startsWith(dateKey(calYear,calMonth,1).slice(0,7)));if(!monthEvents.length)right.append(budgetNode('p','No tienes eventos registrados en este mes.'));monthEvents.forEach(ev=>{const b=document.createElement('button');b.type='button';b.className='ep-date-event';b.textContent=formatDate(ev.fecha_evento)+' · '+(ev.tipo_evento||'Evento')+' · '+(ev.lugar_evento||'Lugar por concretar')+' · '+(ev.hora_inicio||'Hora por concretar')+' · '+(ev.estado_evento||'Pendiente');b.addEventListener('click',()=>{calSelected=ev.fecha_evento;renderCalendar()});right.append(b)});layout.append(left,right);eventBody.append(layout)}else eventBody.appendChild(grid);
+    if(!isAdmin){const layout=document.createElement('div');layout.className='ep-calendar-layout';const left=document.createElement('div');left.className='ep-calendar-main';left.append(head,grid);const right=document.createElement('aside');right.className='ep-calendar-aside';right.innerHTML='<h3>Fechas de tus eventos</h3>';const monthEvents=calEvents.filter(ev=>ev.fecha_evento?.startsWith(dateKey(calYear,calMonth,1).slice(0,7)));if(!monthEvents.length)right.append(budgetNode('p','No tienes eventos registrados en este mes.'));monthEvents.forEach(ev=>{const b=document.createElement('button');b.type='button';b.className='ep-date-event';b.textContent=formatDate(ev.fecha_evento)+' · '+(ev.tipo_evento||'Evento')+' · '+(ev.lugar_evento||'Lugar por concretar')+' · '+(ev.hora_inicio||'Hora por concretar')+' · '+(ev.estado_evento||'Pendiente');b.addEventListener('click',()=>{calSelected=ev.fecha_evento;renderCalendar()});right.append(b)});layout.append(left,right);eventBody.append(layout)}else{
+      const layout=epEl('div',undefined,'ep-admin-cal-layout');
+      const left=epEl('div');left.append(grid);
+      const right=epEl('aside',undefined,'ep-admin-cal-aside');
+      const month=dateKey(calYear,calMonth,1).slice(0,7);
+      const accepted=calEvents.filter(ev=>ev.fecha_evento?.startsWith(month));
+      const pending=adminCalendarRequests.filter(r=>String(r.fecha||'').startsWith(month));
+      right.append(epEl('h3','Eventos registrados · '+accepted.length));
+      if(!accepted.length)right.append(epInfo('Sin eventos registrados este mes.'));
+      accepted.forEach(ev=>right.append(epEl('div',(ev.fecha_evento||'Sin fecha')+' · '+(ev.nombrecliente||ev.tipo_evento||'Evento'),'ep-admin-cal-event')));
+      right.append(epEl('h3','Solicitudes pendientes · '+pending.length));
+      if(!pending.length)right.append(epInfo('Sin solicitudes pendientes este mes.'));
+      pending.forEach(r=>right.append(epEl('div',(r.fecha||'Sin fecha')+' · '+(r.nombre||r.tipo||'Solicitud'),'ep-admin-cal-event pending')));
+      layout.append(left,right);eventBody.append(layout);
+    }
     const hint=document.createElement('p');hint.className='ep-cal-help';hint.textContent='Los días marcados en dorado tienen eventos. Selecciona una fecha para consultar sus detalles.';eventBody.appendChild(hint);
     if(calSelected){
       const detail=document.createElement('section');detail.className='ep-cal-detail';
@@ -2553,9 +2589,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const today=dateKey(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
     const nextEvent=calEvents.find(ev=>ev.fecha_evento&&ev.fecha_evento>=today);
     const firstEvent=nextEvent||calEvents.find(ev=>ev.fecha_evento);
-    if(firstEvent){const parts=firstEvent.fecha_evento.split('-');calYear=Number(parts[0]);calMonth=Number(parts[1])-1}
+    if(firstEvent&&!isAdmin){const parts=firstEvent.fecha_evento.split('-');calYear=Number(parts[0]);calMonth=Number(parts[1])-1}
     else{calYear=new Date().getFullYear();calMonth=new Date().getMonth()}
-    calSelected=firstEvent?.fecha_evento||'';renderCalendar();
+    calSelected=isAdmin?'':(firstEvent?.fecha_evento||'');renderCalendar();
   };
   // ADMINISTRACIÓN: el botón es solo interfaz; Supabase RLS autoriza cada operación.
   const adminCSS=document.createElement('style');adminCSS.textContent=`
@@ -2726,11 +2762,22 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     ]);
     if(eventTitle.textContent!=='Gestionar presupuestos')return;
     eventBody.replaceChildren(budgetButton('+ Crear presupuesto',()=>createBudget()));
+    const tabNav=epEl('div',undefined,'ep-client-tabs');
+    const requestsPane=epEl('section'),acceptedPane=epEl('section'),rejectedPane=epEl('section');
+    const allPanes=[requestsPane,acceptedPane,rejectedPane];
+    [['Solicitudes de presupuestos',0],['Presupuestos aceptados',1],['Presupuestos rechazados',2]].forEach(([label,index])=>{
+      const button=epBtn(label,()=>{
+        [...tabNav.children].forEach((b,i)=>b.classList.toggle('active',i===index));
+        allPanes.forEach((p,i)=>p.hidden=i!==index);
+      });if(index===0)button.classList.add('active');tabNav.append(button);
+    });
+    acceptedPane.hidden=true;rejectedPane.hidden=true;
+    eventBody.append(tabNav,...allPanes);
     const profiles=profileResult.data||[];
-    if(profileResult.error)eventBody.append(budgetNode('p',profileResult.error.message));
-    eventBody.append(budgetNode('h3','Solicitudes recibidas'));
-    if(requestResult.error)eventBody.append(budgetNode('p','No se pudieron cargar las solicitudes: '+requestResult.error.message));
-    else if(!requestResult.data?.length)eventBody.append(budgetNode('p','Todavía no hay solicitudes.'));
+    if(profileResult.error)requestsPane.append(budgetNode('p',profileResult.error.message));
+    requestsPane.append(budgetNode('h3','Solicitudes recibidas'));
+    if(requestResult.error)requestsPane.append(budgetNode('p','No se pudieron cargar las solicitudes: '+requestResult.error.message));
+    else if(!requestResult.data?.length)requestsPane.append(budgetNode('p','Todavía no hay solicitudes.'));
     else requestResult.data.forEach(r=>{
       const box=budgetNode('article');box.className='ep-budget-card';
       box.append(budgetNode('h3',(r.tipo||'Evento')+' · '+r.nombre),
@@ -2753,20 +2800,24 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       });
       box.append(saveStatus);
       box.append(budgetButton('Crear presupuesto para este cliente',()=>createBudget(r.cliente_id)));
-      eventBody.append(box);
+      requestsPane.append(box);
     });
-    eventBody.append(budgetNode('h3','Presupuestos enviados'));
-    if(budgetResult.error)eventBody.append(budgetNode('p','Error: '+budgetResult.error.message));
-    else if(!budgetResult.data?.length)eventBody.append(budgetNode('p','No hay presupuestos todavía.'));
-    else budgetResult.data.forEach(p=>{
+    acceptedPane.append(budgetNode('h3','Aceptados'));rejectedPane.append(budgetNode('h3','Rechazados'));
+    if(budgetResult.error){acceptedPane.append(budgetNode('p','Error: '+budgetResult.error.message));rejectedPane.append(budgetNode('p','Error: '+budgetResult.error.message));}
+    else if(!budgetResult.data?.length){acceptedPane.append(budgetNode('p','No hay presupuestos todavía.'));rejectedPane.append(budgetNode('p','No hay presupuestos todavía.'));}
+    else {
+      if(!budgetResult.data.some(p=>p.estado==='ACEPTADO'))acceptedPane.append(budgetNode('p','No hay presupuestos aceptados.'));
+      if(!budgetResult.data.some(p=>p.estado==='RECHAZADO'))rejectedPane.append(budgetNode('p','No hay presupuestos rechazados.'));
+      budgetResult.data.forEach(p=>{
       const card=budgetCard(p);card.append(budgetNode('p','Cliente: '+clientLabel(p.cliente_id,profiles)));
       card.append(budgetButton('Eliminar',async()=>{
         if(!confirm('¿Eliminar este presupuesto?'))return;
         const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
         if(error)alert(error.message);
         else{if(p.pdf_path)await client.storage.from('ep-presupuestos').remove([p.pdf_path]);loadAdminBudgets()}
-      }));eventBody.append(card);
-    });
+      }));if(p.estado==='ACEPTADO')acceptedPane.append(card);else if(p.estado==='RECHAZADO')rejectedPane.append(card);
+      });
+    }
   };
   const createBudget=async(presetUid='')=>{
     eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'),budgetNode('p','Cargando clientes registrados…'));
