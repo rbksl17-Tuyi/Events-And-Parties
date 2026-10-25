@@ -771,6 +771,21 @@ background:
 .ep-is-admin .ep-home-copy strong{font-family:Montserrat,Inter,Arial,sans-serif;font-size:clamp(20px,2.2vw,27px);font-weight:700}
 @media(max-width:850px){.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.ep-is-admin .ep-home-grid{grid-template-columns:1fr}}
+
+/* Portada con siete fotografías distintas y navegación limpia por sección. */
+.ep-home-events{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1100&q=82'),linear-gradient(140deg,#624326,#15100b)}
+.ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1100&q=82'),linear-gradient(140deg,#624326,#15100b)}
+.ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1100&q=82'),linear-gradient(140deg,#624326,#15100b)}
+.ep-home-profile{background-image:url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1100&q=82'),linear-gradient(140deg,#624326,#15100b)}
+.ep-home-admin{background-image:url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1100&q=82'),linear-gradient(140deg,#624326,#15100b)}
+.ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1100&q=82'),linear-gradient(140deg,#624326,#15100b)}
+.ep-home-manage{background-image:url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1100&q=82'),linear-gradient(140deg,#624326,#15100b)}
+/* Al abrir un apartado, ocultar todo el menú lateral y ampliar su contenido. */
+#epPrivateInner.private-layout{grid-template-columns:minmax(0,1fr);max-width:1180px}
+#epPrivateInner .private-sidebar{display:none!important}
+#epPrivateInner .private-panel{min-width:0;padding:clamp(16px,3vw,32px)}
+#epPrivateInner .ep-back-home{display:inline-flex;align-items:center;justify-content:center;margin:0 0 22px;border:1px solid #b28a50;background:#2c2114;color:#f3cd89;border-radius:9px;padding:11px 18px;cursor:pointer;font-weight:700}
+@media(max-width:700px){#epPrivateInner.private-layout{display:block;margin:14px auto}}
 </style>
 
 <style>
@@ -2333,6 +2348,8 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   };
   const epClientHome=document.getElementById('epClientHome');
   const epPrivateInner=document.getElementById('epPrivateInner');
+  // El botón de regreso queda dentro de la sección; el menú lateral no se muestra.
+  document.querySelector('#epPrivateInner .private-panel').prepend(document.getElementById('epBackHome'));
   const epShowHome=()=>{epClientHome.hidden=false;epPrivateInner.hidden=true;++eventsRequest;++calRequest};
   const epOpenSection=(title)=>{epClientHome.hidden=true;epPrivateInner.hidden=false;const button=[...document.querySelectorAll('[data-private-tab]')].find(b=>b.dataset.privateTab===title);if(button)button.click()};
   document.querySelectorAll('[data-home-destination]').forEach(b=>b.addEventListener('click',()=>epOpenSection(b.dataset.homeDestination)));
