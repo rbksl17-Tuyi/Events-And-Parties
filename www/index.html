@@ -2509,14 +2509,15 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const rows=budgets.map(b=>{
         const o=orgMap.get(String(b.id)),r=b.solicitud_id!=null?requestMap.get(String(b.solicitud_id)):null,e=eventMap.get(String(b.id));
         const date=safeDate(r?.fecha)||safeDate(e?.datos?.fecha_evento)||safeDate(o?.contenido?.datos?.fecha_evento)||null;
-        const status=date&&date<todayISO?'archivados':!o?'pendientes':o.estado==='ENVIADA'?'finalizados':'activos';
+        const status=b.eliminado_en?'papelera':date&&date<todayISO?'archivados':!o?'pendientes':o.estado==='ENVIADA'?'finalizados':'activos';
         return {b,o,r,e,date,status};
       });
       const labels=[
         ['pendientes','Pendientes de organizar'],
         ['activos','Activos en organización'],
         ['finalizados','Organizados y finalizados'],
-        ['archivados','Archivados']
+        ['archivados','Archivados'],
+        ['papelera','Papelera de seguridad']
       ];
       const tabs=epClientTabs(labels.map(([key,label])=>[label,()=>show(key)]));
       area.append(tabs);
@@ -2555,7 +2556,18 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
             }));
             c.append(epBtn('Historial de versiones',()=>epVersionsAdmin(o.id)));
           }else c.append(epInfo('El cliente todavía no ha comenzado a organizar este evento. La organización estará disponible cuando la inicie.'));
-          if(status==='archivados')c.append(epInfo('Conservado para consulta. La eliminación no está habilitada.'));
+          if(status==='papelera'){
+            c.append(epInfo('Retirado el '+new Date(b.eliminado_en).toLocaleDateString('es-ES')+' · No visible en el área del cliente.'));
+            c.append(epBtn('↩ Restaurar evento',async()=>{
+              if(!confirm('¿Restaurar este evento para el administrador y el cliente?'))return;
+              try{await epCall(client.from('ep_presupuestos').update({eliminado_en:null}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
+            },'primary'));
+          }else{
+            c.append(epBtn('Enviar a la papelera',async()=>{
+              if(!confirm('¿Enviar este evento a la papelera? Dejará de aparecer al cliente y se podrá restaurar.'))return;
+              try{await epCall(client.from('ep_presupuestos').update({eliminado_en:new Date().toISOString()}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
+            }));
+          }
           content.append(c);
         }
       }
@@ -2661,11 +2673,11 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
       isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null}),
-      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado,importe').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado,importe,eliminado_en').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
-    adminCalendarBudgets=isAdmin?(acceptedBudgetResult.data||[]):[];
+    adminCalendarBudgets=isAdmin?(acceptedBudgetResult.data||[]).filter(b=>!b.eliminado_en):[];
     if(isAdmin&&requestResult.error)console.warn('No se pudieron consultar las solicitudes del calendario:',requestResult.error.message);
       if(error){info.textContent='No se pudieron consultar tus eventos: '+error.message+' (revisa permisos de lectura en Supabase).';return}
       info.remove();
@@ -2914,7 +2926,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
-    adminCalendarBudgets=isAdmin?(acceptedBudgetResult.data||[]):[];
+    adminCalendarBudgets=isAdmin?(acceptedBudgetResult.data||[]).filter(b=>!b.eliminado_en):[];
     if(isAdmin&&requestResult.error)console.warn('Solicitudes no disponibles en calendario:',requestResult.error.message);
 
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
