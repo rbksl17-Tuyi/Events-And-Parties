@@ -2842,6 +2842,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     .ep-cal-help{color:#d6bd90;font-size:.9rem;margin:12px 0}
     @media(max-width:480px){.ep-cal-day{min-height:43px;font-size:.85rem}.ep-cal-grid{gap:3px}}
   `;
+  calendarStyle.textContent+=`
+    .ep-cal-week-range{font:500 .8rem/1.5 system-ui,sans-serif;color:#e8c988;margin-top:5px;text-transform:none;letter-spacing:0}
+    .ep-cal-day-month{display:block;font-size:.65rem;color:#eac77e;line-height:1.2;margin-top:3px;text-transform:capitalize}
+  `;
   document.head.appendChild(calendarStyle);
   let calYear=new Date().getFullYear();
   let calMonth=new Date().getMonth();
@@ -2856,12 +2860,35 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     eventBody.replaceChildren();
     const head=document.createElement('div');head.className='ep-cal-head';
     const monthTitle=document.createElement('h3');
-    monthTitle.textContent=new Intl.DateTimeFormat('es-ES',{month:'long',year:'numeric'}).format(new Date(calYear,calMonth,1));
+    const weekAnchorTitle=new Date((calSelected||dateKey(calYear,calMonth,1))+'T12:00:00');
+    const weekStartTitle=new Date(weekAnchorTitle);weekStartTitle.setDate(weekStartTitle.getDate()-(weekStartTitle.getDay()+6)%7);
+    const weekEndTitle=new Date(weekStartTitle);weekEndTitle.setDate(weekEndTitle.getDate()+6);
+    const monthName=d=>new Intl.DateTimeFormat('es-ES',{month:'long'}).format(d);
+    const weekCrossesMonth=weekStartTitle.getMonth()!==weekEndTitle.getMonth()||weekStartTitle.getFullYear()!==weekEndTitle.getFullYear();
+    monthTitle.textContent=isAdmin&&calView==='semana'
+      ?(weekCrossesMonth?`${monthName(weekStartTitle)} ${weekStartTitle.getFullYear()} – ${monthName(weekEndTitle)} ${weekEndTitle.getFullYear()}`:`${monthName(weekStartTitle)} ${weekStartTitle.getFullYear()}`)
+      :new Intl.DateTimeFormat('es-ES',{month:'long',year:'numeric'}).format(new Date(calYear,calMonth,1));
+    if(isAdmin&&calView==='semana'){
+      const subtitle=document.createElement('div');subtitle.className='ep-cal-week-range';
+      subtitle.textContent=`Semana del ${weekStartTitle.getDate()} de ${monthName(weekStartTitle)} al ${weekEndTitle.getDate()} de ${monthName(weekEndTitle)}`;
+      monthTitle.appendChild(subtitle);
+    }
     const nav=document.createElement('div');nav.className='ep-cal-nav';
     const prev=document.createElement('button');prev.type='button';prev.textContent='‹ Anterior';prev.setAttribute('aria-label','Mes anterior');
     const next=document.createElement('button');next.type='button';next.textContent='Siguiente ›';next.setAttribute('aria-label','Mes siguiente');
-    prev.addEventListener('click',()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--}calSelected='';renderCalendar()});
-    next.addEventListener('click',()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++}calSelected='';renderCalendar()});
+    const moveCalendar=(n)=>{
+      if(isAdmin&&calView==='semana'){
+        const d=new Date((calSelected||dateKey(calYear,calMonth,1))+'T12:00:00');
+        d.setDate(d.getDate()+n*7);calYear=d.getFullYear();calMonth=d.getMonth();calSelected=dateKey(calYear,calMonth,d.getDate());
+      }else{calMonth+=n;if(calMonth<0){calMonth=11;calYear--}if(calMonth>11){calMonth=0;calYear++}calSelected=''}
+      renderCalendar();
+    };
+    prev.addEventListener('click',()=>moveCalendar(-1));
+    next.addEventListener('click',()=>moveCalendar(1));
+    if(isAdmin&&calView==='semana'){
+      prev.textContent='‹ Semana';next.textContent='Semana ›';
+      prev.setAttribute('aria-label','Semana anterior');next.setAttribute('aria-label','Semana siguiente');
+    }
     const todayBtn=document.createElement('button');todayBtn.type='button';todayBtn.textContent='Hoy';todayBtn.className='ep-cal-today';todayBtn.addEventListener('click',()=>{const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();calSelected=dateKey(calYear,calMonth,now.getDate());renderCalendar()});
     nav.append(prev,todayBtn,next);head.append(monthTitle,nav);eventBody.appendChild(head);
     if(isAdmin){
@@ -2871,12 +2898,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         b.addEventListener('click',()=>{calView=key;if(key==='semana'&&!calSelected)calSelected=dateKey(calYear,calMonth,1);renderCalendar()});controls.append(b);
       }
       if(calView==='semana'){
-        const d=new Date((calSelected||dateKey(calYear,calMonth,1))+'T12:00:00');
-        const prevWeek=document.createElement('button');prevWeek.type='button';prevWeek.textContent='‹ Semana';
-        const nextWeek=document.createElement('button');nextWeek.type='button';nextWeek.textContent='Semana ›';
-        const moveWeek=(n)=>{d.setDate(d.getDate()+n*7);calYear=d.getFullYear();calMonth=d.getMonth();calSelected=dateKey(calYear,calMonth,d.getDate());renderCalendar()};
-        prevWeek.addEventListener('click',()=>moveWeek(-1));nextWeek.addEventListener('click',()=>moveWeek(1));
-        controls.append(prevWeek,nextWeek);
+        // La navegación semanal está en la cabecera, junto al mes y al año.
       }
       eventBody.append(controls);
     }
@@ -2888,20 +2910,28 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const weekStart=new Date(weekAnchor);weekStart.setDate(weekStart.getDate()-(weekStart.getDay()+6)%7);
     const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
     if(!(isAdmin&&calView==='semana'))for(let i=0;i<first;i++){const blank=document.createElement('div');grid.appendChild(blank)}
-    for(let day=1;day<=total;day++){
-      const key=dateKey(calYear,calMonth,day);
-      if(isAdmin&&calView==='semana'){
-        const current=new Date(key+'T12:00:00');
-        if(current<weekStart||current>weekEnd)continue;
-      }
+    const datesToShow=[];
+    if(isAdmin&&calView==='semana'){
+      for(let i=0;i<7;i++){const d=new Date(weekStart);d.setDate(d.getDate()+i);datesToShow.push(d)}
+    }else{
+      for(let day=1;day<=total;day++)datesToShow.push(new Date(calYear,calMonth,day,12));
+    }
+    for(const current of datesToShow){
+      const day=current.getDate();
+      const key=dateKey(current.getFullYear(),current.getMonth(),day);
       const count=calEvents.filter(ev=>ev.fecha_evento===key).length;
       const requestCount=isAdmin?adminCalendarRequests.filter(r=>String(r.fecha||'').slice(0,10)===key).length:0;
       const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-day'+(count?' has-event':'')+(requestCount?' has-request':'')+(calSelected===key?' selected':'');
       const now=new Date();if(key===dateKey(now.getFullYear(),now.getMonth(),now.getDate()))btn.classList.add('is-today');
       if(isAdmin&&count>1)btn.classList.add('has-conflict');
-      btn.setAttribute('aria-label',`${day} de ${monthTitle.textContent}${count?', '+count+' evento(s)':''}${count>1?', varios eventos':''}`);
+      btn.setAttribute('aria-label',`${day} de ${monthName(current)} de ${current.getFullYear()}${count?', '+count+' evento(s)':''}${count>1?', varios eventos':''}`);
       btn.setAttribute('aria-pressed',String(calSelected===key));
       const number=document.createElement('span');number.textContent=String(day);btn.appendChild(number);
+      if(isAdmin&&calView==='semana'){
+        const monthShort=document.createElement('small');monthShort.className='ep-cal-day-month';
+        monthShort.textContent=new Intl.DateTimeFormat('es-ES',{month:'short'}).format(current);
+        btn.appendChild(monthShort);
+      }
       if(count||requestCount){const dot=document.createElement('span');dot.className='ep-cal-dot';dot.setAttribute('aria-hidden','true');btn.appendChild(dot)}
       btn.addEventListener('click',()=>{calSelected=key;renderCalendar()});grid.appendChild(btn);
     }
