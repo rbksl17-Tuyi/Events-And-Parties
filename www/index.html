@@ -2843,6 +2843,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     @media(max-width:480px){.ep-cal-day{min-height:43px;font-size:.85rem}.ep-cal-grid{gap:3px}}
   `;
   calendarStyle.textContent+=`
+    .ep-cal-visible-month{margin:0 0 14px;color:#f0c87a;font-size:clamp(1.15rem,3vw,1.55rem);font-weight:750;text-transform:capitalize;letter-spacing:.02em}
     .ep-cal-week-range{font:500 .8rem/1.5 system-ui,sans-serif;color:#e8c988;margin-top:5px;text-transform:none;letter-spacing:0}
     .ep-cal-day-month{display:block;font-size:.65rem;color:#eac77e;line-height:1.2;margin-top:3px;text-transform:capitalize}
   `;
@@ -2938,7 +2939,15 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(!isAdmin){const layout=document.createElement('div');layout.className='ep-calendar-layout';const left=document.createElement('div');left.className='ep-calendar-main';left.append(head,grid);const right=document.createElement('aside');right.className='ep-calendar-aside';right.innerHTML='<h3>Fechas de tus eventos</h3>';const monthEvents=calEvents.filter(ev=>ev.fecha_evento?.startsWith(dateKey(calYear,calMonth,1).slice(0,7)));if(!monthEvents.length)right.append(budgetNode('p','No tienes eventos registrados en este mes.'));monthEvents.forEach(ev=>{const b=document.createElement('button');b.type='button';b.className='ep-date-event';b.textContent=formatDate(ev.fecha_evento)+' · '+(ev.tipo_evento||'Evento')+' · '+(ev.lugar_evento||'Lugar por concretar')+' · '+(ev.hora_inicio||'Hora por concretar')+' · '+(ev.estado_evento||'Pendiente');b.addEventListener('click',()=>{calSelected=ev.fecha_evento;renderCalendar()});right.append(b)});layout.append(left,right);eventBody.append(layout)}else{
       // Diseño 2: calendario a la izquierda, agenda interactiva a la derecha.
       const layout=epEl('div',undefined,'ep-admin-cal-layout ep-cal-design-two');
-      const left=epEl('section',undefined,'ep-admin-cal-main');left.append(grid);
+      const left=epEl('section',undefined,'ep-admin-cal-main');
+      if(calView==='mes'){
+        const visibleMonth=document.createElement('h3');
+        visibleMonth.className='ep-cal-visible-month';
+        visibleMonth.textContent=new Intl.DateTimeFormat('es-ES',{month:'long',year:'numeric'}).format(new Date(calYear,calMonth,1));
+        visibleMonth.setAttribute('aria-label','Mes mostrado: '+visibleMonth.textContent);
+        left.appendChild(visibleMonth);
+      }
+      left.append(grid);
       const legend=epEl('div',undefined,'ep-cal-legend');
       legend.append(epEl('span','● Eventos confirmados','ep-cal-legend-gold'),epEl('span','● Solicitudes pendientes','ep-cal-legend-blue'));
       left.append(legend);
