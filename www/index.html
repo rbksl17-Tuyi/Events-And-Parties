@@ -2487,51 +2487,79 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     try{await epCall(client.rpc('ep_resolver_cambios',{p_solicitud:requestId,p_autorizar:approve}));await epAdminDetail(id)}
     catch(e){epShowError(e)}
   };
-  // Clasificación automática: sin organización = pendiente; organización iniciada = en curso; enviada = finalizada.
+  // Mis eventos: estado de la organización y archivado por fecha de celebración.
   const epAdminAcceptedEvents=async()=>{
-    eventBody.replaceChildren(epEl('h3','Mis eventos'),epInfo('Los eventos cambian de pestaña automáticamente cuando el cliente comienza a organizarlos.'));
+    eventBody.replaceChildren(epEl('h3','Mis eventos'),epInfo('Seguimiento automático de eventos aceptados. El administrador puede consultar y editar la organización en cualquier etapa.'));
     if(!isAdmin)return;
     const area=epEl('div');eventBody.append(area);
     try{
-      const [budgets,orgs]=await Promise.all([
+      const [budgets,orgs,requests,events]=await Promise.all([
         epCall(client.from('ep_presupuestos').select('*').eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
-        epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}))
+        epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false})),
+        epCall(client.from('ep_solicitudes_presupuesto').select('id,fecha,nombre,tipo,lugar,horario')),
+        epCall(client.from('ep_eventos').select('id,presupuesto_id,nombre,datos'))
       ]);
-      const map=new Map();
-      for(const o of orgs){const key=String(o.presupuesto_id);if(!map.has(key))map.set(key,o)}
-      const tabs=epClientTabs([
-        ['Pendientes de organizar',()=>show(false)],
-        ['Eventos organizados y finalizados',()=>show(true)]
-      ]);
+      const orgMap=new Map(),requestMap=new Map(),eventMap=new Map();
+      for(const o of orgs){const k=String(o.presupuesto_id);if(o.presupuesto_id!=null&&!orgMap.has(k))orgMap.set(k,o)}
+      for(const r of requests)requestMap.set(String(r.id),r);
+      for(const e of events){const k=String(e.presupuesto_id);if(e.presupuesto_id!=null&&!eventMap.has(k))eventMap.set(k,e)}
+      const today=new Date();
+      const todayISO=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+      const safeDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v.slice(0,10))?v.slice(0,10):null;
+      const rows=budgets.map(b=>{
+        const o=orgMap.get(String(b.id)),r=b.solicitud_id!=null?requestMap.get(String(b.solicitud_id)):null,e=eventMap.get(String(b.id));
+        const date=safeDate(r?.fecha)||safeDate(e?.datos?.fecha_evento)||safeDate(o?.contenido?.datos?.fecha_evento)||null;
+        const status=date&&date<todayISO?'archivados':!o?'pendientes':o.estado==='ENVIADA'?'finalizados':'activos';
+        return {b,o,r,e,date,status};
+      });
+      const labels=[
+        ['pendientes','Pendientes de organizar'],
+        ['activos','Activos en organización'],
+        ['finalizados','Organizados y finalizados'],
+        ['archivados','Archivados']
+      ];
+      const tabs=epClientTabs(labels.map(([key,label])=>[label,()=>show(key)]));
       area.append(tabs);
+      const search=document.createElement('input');
+      search.type='search';search.placeholder='Buscar cliente, celebración, fecha o presupuesto…';
+      search.setAttribute('aria-label','Buscar eventos');
+      search.style.cssText='display:block;width:100%;max-width:650px;margin:18px 0;padding:13px 16px;background:#171410;border:1px solid #a78145;border-radius:10px;color:#fff6e5;font:inherit';
+      area.append(search);
       const content=epEl('div');area.append(content);
-      function show(started){
-        content.replaceChildren();
-        const items=budgets.filter(b=>started?map.has(String(b.id)):!map.has(String(b.id)));
-        if(!items.length){content.append(epInfo(started?'Todavía no hay eventos cuya organización haya comenzado.':'No hay eventos pendientes de comenzar a organizar.'));return}
-        items.forEach(b=>{
-          const o=map.get(String(b.id));
-          const finished=o&&o.estado==='ENVIADA';
-          const c=epCard((o?.titulo||b.titulo||'Celebración'));
-          c.append(epInfo('Presupuesto #'+b.id));
-          if(!o){
-            c.append(epEl('span','● Sin empezar','ep-org-pill'));
-            c.append(epInfo('El cliente todavía no ha comenzado a organizar este evento.'));
-          }else{
-            c.append(epEl('span',finished?'✓ Finalizado':'◷ En organización','ep-org-pill'));
-            c.append(epInfo(finished?'El cliente ha terminado y enviado la organización.':'El cliente ya ha empezado a organizar el evento.'));
-            c.append(epBtn('Ver organización',()=>epAdminDetail(o.id),'primary'));
-            if(finished)c.append(epBtn('Descargar PDF para el DJ',async()=>{
+      let current='pendientes';
+      search.addEventListener('input',()=>show(current));
+      function show(key){
+        current=key;content.replaceChildren();
+        const term=search.value.trim().toLocaleLowerCase('es');
+        const items=rows.filter(x=>x.status===key&&(!term||[
+          x.b.titulo,x.b.descripcion,x.b.id,x.r?.nombre,x.r?.tipo,x.r?.lugar,x.date,x.o?.titulo,x.e?.nombre
+        ].some(v=>String(v??'').toLocaleLowerCase('es').includes(term))));
+        const summary=epInfo(items.length+' evento(s) · '+labels.find(x=>x[0]===key)[1]);
+        content.append(summary);
+        if(!items.length){content.append(epInfo('No hay eventos en esta pestaña'+(term?' que coincidan con la búsqueda.':'.')));return}
+        items.sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
+        for(const {b,o,r,e,date,status} of items){
+          const c=epCard(o?.titulo||r?.nombre||e?.nombre||b.titulo||'Celebración');
+          c.append(epInfo('Presupuesto #'+b.id+(date?' · Fecha: '+date.split('-').reverse().join('/'):' · Fecha no indicada')));
+          if(r?.lugar)c.append(epInfo('Lugar: '+r.lugar));
+          const pill=status==='archivados'?'▣ Archivado · fecha celebrada':status==='finalizados'?'✓ Organización finalizada':status==='activos'?'◷ En organización':'● Sin empezar';
+          c.append(epEl('span',pill,'ep-org-pill'));
+          if(!date)c.append(epInfo('Sin fecha vinculada: no se archivará automáticamente hasta indicar una fecha.'));
+          if(o){
+            c.append(epBtn('Ver y editar organización',()=>epAdminDetail(o.id),'primary'));
+            c.append(epBtn('Descargar PDF para el DJ',async()=>{
               try{
                 const songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',o.id).order('orden',{ascending:true}));
                 epExportPdf(o.contenido||{},songs,o.titulo||b.titulo||'Evento',o.version||1);
-              }catch(e){epShowError(e)}
-            },'primary'));
-          }
+              }catch(err){epShowError(err)}
+            }));
+            c.append(epBtn('Historial de versiones',()=>epVersionsAdmin(o.id)));
+          }else c.append(epInfo('El cliente todavía no ha comenzado a organizar este evento. La organización estará disponible cuando la inicie.'));
+          if(status==='archivados')c.append(epInfo('Conservado para consulta. La eliminación no está habilitada.'));
           content.append(c);
-        });
+        }
       }
-      show(false);
+      show('pendientes');
     }catch(e){area.append(epInfo('No se pudieron cargar los eventos: '+e.message))}
   };
   const epClientTabs=(items,activeIndex=0)=>{const nav=document.createElement('div');nav.className='ep-client-tabs';items.forEach(([label,handler],i)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=i===activeIndex?'active':'';b.addEventListener('click',()=>{nav.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));handler()});nav.append(b)});return nav};
