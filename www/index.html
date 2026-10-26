@@ -912,6 +912,35 @@ background:
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-client-tabs{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-client-tabs button{flex:1 1 175px;white-space:normal}
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-budget-card[hidden]{display:none!important}
+
+/* Gestión de presupuestos · fase 2: tarjetas compactas, acciones separadas y meses */
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2{max-width:100%;}
+.ep-b2-top{display:flex;justify-content:flex-end;margin-bottom:12px}
+.ep-b2-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:10px 0 12px}
+.ep-b2-tabs button{min-width:0;padding:12px 8px!important}
+.ep-b2 .ep-budget-simple-search{margin:4px 0 15px}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-item{padding:13px 16px!important;margin:9px 0!important;background:linear-gradient(120deg,#251b13,#17130f)!important}
+.ep-b2-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ep-b2-info{min-width:0;flex:1}
+.ep-b2-info h3{font-size:1rem;margin:0 0 3px!important;line-height:1.35}
+.ep-b2-info p{margin:2px 0!important;font-size:.85rem;color:#d5c5ae}
+.ep-b2-info .ep-b2-sub{color:#b6a994}
+.ep-b2-state{white-space:nowrap;border-radius:20px;padding:4px 9px;font-size:.75rem;border:1px solid #94754b;color:#f3d18d}
+.ep-b2-state.ok{border-color:#5d9c70;color:#a8e1b3}.ep-b2-state.no{border-color:#a36d6d;color:#e9b0ad}
+.ep-b2-actions{display:flex;gap:16px!important;margin:10px 0 0!important;align-items:center;flex-wrap:wrap}
+.ep-b2-actions button{padding:8px 15px!important;font-size:.84rem}
+.ep-b2-details{margin-top:8px;border-top:1px solid #6c5439;padding-top:6px}
+.ep-b2-details summary{cursor:pointer;color:#e5c07c;font-size:.84rem;font-weight:600}
+.ep-b2-details p{margin:6px 0;font-size:.85rem}
+.ep-b2-status{display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin:12px 0 4px}
+.ep-b2-status label{display:grid;gap:5px;font-size:.83rem;color:#dfcba8}
+.ep-b2-status select{background:#17130d;color:#fff;border:1px solid #9e7a46;border-radius:7px;padding:9px}
+.ep-b2-status button{padding:9px 14px!important}
+.ep-b2-delete{margin-top:12px;opacity:.8;border-color:#916c61!important;background:#2d1a18!important;color:#f2c9c0!important}
+.ep-b2-month{margin:18px 0}.ep-b2-month[hidden],.ep-b2-item[hidden]{display:none!important}
+.ep-b2-month-title{color:#f1cd82;font-size:1.05rem;margin:14px 0 8px;border-bottom:1px solid #685032;padding-bottom:6px}
+@media(max-width:650px){.ep-b2-tabs{gap:6px}.ep-b2-tabs button{font-size:.72rem!important;padding:9px 4px!important}.ep-b2-head{align-items:flex-start}.ep-b2-state{font-size:.68rem}.ep-b2-actions{gap:12px!important}}
+
 </style>
 
 <style>
@@ -3295,102 +3324,114 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       loadClientProfiles().then(data=>({data})).catch(error=>({error}))
     ]);
     if(eventTitle.textContent!=='Gestionar presupuestos')return;
-    eventBody.replaceChildren(budgetButton('+ Crear presupuesto',()=>createBudget()));
-    // Fase 1: tres vistas claras, sin duplicar listas ni indicadores financieros.
-    const allBudgets=budgetResult.data||[], allRequests=requestResult.data||[];
-    const tabNav=epEl('div',undefined,'ep-client-tabs');
-    const requestsPane=epEl('section'),waitingPane=epEl('section'),finishedPane=epEl('section');
-    const acceptedPane=epEl('div'),rejectedPane=epEl('div');
-    const allPanes=[requestsPane,waitingPane,finishedPane];
-    const preparedRequestIds=new Set(allBudgets.map(p=>String(p.solicitud_id||'')).filter(Boolean));
-    const pendingRequests=allRequests.filter(r=>!preparedRequestIds.has(String(r.id)));
-    const awaitingBudgets=allBudgets.filter(p=>p.estado==='PENDIENTE');
-    const acceptedBudgets=allBudgets.filter(p=>p.estado==='ACEPTADO');
-    const rejectedBudgets=allBudgets.filter(p=>p.estado==='RECHAZADO');
-    const tabs=[
-      ['Solicitudes por preparar',pendingRequests.length],
-      ['Esperando respuesta',awaitingBudgets.length],
-      ['Finalizados',acceptedBudgets.length+rejectedBudgets.length]
-    ];
-    tabs.forEach(([label,n],index)=>{
-      const button=epBtn(label+' ('+n+')',()=>{
-        [...tabNav.children].forEach((b,i)=>b.classList.toggle('active',i===index));
-        allPanes.forEach((pane,i)=>pane.hidden=i!==index);
-      });
-      if(index===0)button.classList.add('active');tabNav.append(button);
-    });
-    waitingPane.hidden=true;finishedPane.hidden=true;
-    const intro=epEl('p','Selecciona un apartado para consultar los eventos y actuar sobre ellos.');
-    intro.className='ep-budget-simple-intro';
-    const search=epEl('input');search.type='search';search.placeholder='Buscar por cliente, evento o fecha…';
-    search.className='ep-budget-simple-search';search.setAttribute('aria-label','Buscar en el apartado actual');
-    const searchNote=epEl('p','');searchNote.className='ep-budget-search-note';
-    const filterCards=()=>{
-      const q=search.value.trim().toLocaleLowerCase('es');
-      const pane=allPanes.find(p=>!p.hidden);
-      let visible=0;
-      allPanes.forEach(p=>p.querySelectorAll('.ep-budget-card').forEach(card=>{
-        card.hidden=!!q&&!card.textContent.toLocaleLowerCase('es').includes(q);
-        if(p===pane&&!card.hidden)visible++;
+    const allBudgets=budgetResult.data||[],allRequests=requestResult.data||[],profiles=profileResult.data||[];
+    const requestById=new Map(allRequests.map(r=>[String(r.id),r]));
+    const preparedIds=new Set(allBudgets.map(p=>String(p.solicitud_id||'')).filter(Boolean));
+    const pending=allRequests.filter(r=>!preparedIds.has(String(r.id)));
+    const waiting=allBudgets.filter(p=>p.estado==='PENDIENTE');
+    const final=allBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
+    const root=epEl('div');root.className='ep-b2';
+    const top=epEl('div');top.className='ep-b2-top';
+    top.append(budgetButton('+ Crear presupuesto',()=>createBudget()));root.append(top);
+    const nav=epEl('div');nav.className='ep-client-tabs ep-b2-tabs';
+    const panes=[epEl('section'),epEl('section'),epEl('section')];
+    const labels=[['Solicitudes por preparar',pending.length],['Esperando respuesta',waiting.length],['Finalizados',final.length]];
+    let selected=0;
+    const search=epEl('input');search.type='search';search.className='ep-budget-simple-search';search.placeholder='Buscar cliente, evento o fecha…';search.setAttribute('aria-label','Buscar presupuestos');
+    const empty=epEl('p');empty.className='ep-budget-search-note';
+    const filter=()=>{
+      const q=search.value.trim().toLocaleLowerCase('es');let visible=0;
+      panes.forEach((pane,i)=>pane.querySelectorAll('.ep-b2-item').forEach(card=>{
+        const match=!q||card.textContent.toLocaleLowerCase('es').includes(q);
+        card.hidden=!match;if(i===selected&&match)visible++;
       }));
-      searchNote.textContent=q?visible+' resultado(s) en este apartado':'';
-    };
-    search.addEventListener('input',filterCards);
-    [...tabNav.children].forEach(btn=>btn.addEventListener('click',filterCards));
-    eventBody.append(intro,tabNav,search,searchNote,...allPanes);
-    finishedPane.append(acceptedPane,rejectedPane);
-    waitingPane.append(budgetNode('h3','Presupuestos enviados · esperando respuesta del cliente'));
-    if(budgetResult.error)waitingPane.append(budgetNode('p','No se pudieron cargar los presupuestos: '+budgetResult.error.message));
-    else if(!awaitingBudgets.length)waitingPane.append(budgetNode('p','No hay presupuestos pendientes de respuesta.'));
-    else awaitingBudgets.forEach(p=>{
-      const card=budgetCard(p);card.append(budgetNode('p','Cliente: '+clientLabel(p.cliente_id,profileResult.data||[])));
-      waitingPane.append(card);
-    });
-    const profiles=profileResult.data||[];
-    if(profileResult.error)requestsPane.append(budgetNode('p',profileResult.error.message));
-    requestsPane.append(budgetNode('h3','Solicitudes recibidas'));
-    if(requestResult.error)requestsPane.append(budgetNode('p','No se pudieron cargar las solicitudes: '+requestResult.error.message));
-    else if(!pendingRequests.length)requestsPane.append(budgetNode('p','No hay solicitudes pendientes de preparar.'));
-    else pendingRequests.forEach(r=>{
-      const box=budgetNode('article');box.className='ep-budget-card';
-      box.append(budgetNode('h3',(r.tipo||'Evento')+' · '+r.nombre),
-        budgetNode('p','Cuenta: '+clientLabel(r.cliente_id,profiles)),
-        budgetNode('p','Fecha: '+(r.fecha||'Por concretar')+' · Lugar: '+(r.lugar||'Por concretar')),
-        budgetNode('p','Servicios: '+(r.servicios||[]).join(', ')),
-        budgetNode('p','Invitados: '+(r.invitados||'Por concretar')+' · Horario: '+(r.horario||'Por concretar')),
-        budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));
-      const statusWrap=budgetNode('label','Estado de la solicitud');
-      const statusSelect=budgetNode('select');
-      const statuses=[['PENDIENTE','Pendiente de revisar'],['EN_PREPARACION','En preparación'],['PRESUPUESTO_ENVIADO','Presupuesto enviado']];
-      statuses.forEach(([value,label])=>{const opt=budgetNode('option',label);opt.value=value;statusSelect.append(opt)});
-      statusSelect.value=r.estado||'PENDIENTE';
-      statusWrap.append(statusSelect);box.append(statusWrap);
-      const saveStatus=budgetButton('Guardar estado',async()=>{
-        saveStatus.disabled=true;
-        const {error}=await client.from('ep_solicitudes_presupuesto').update({estado:statusSelect.value}).eq('id',r.id);
-        if(error){alert('No se pudo actualizar: '+error.message);saveStatus.disabled=false}
-        else{alert('Estado actualizado');loadAdminBudgets()}
+      empty.textContent=q&&!visible?'No hay resultados en este apartado.':'';
+      panes[selected].querySelectorAll('.ep-b2-month').forEach(group=>{
+        const items=[...group.querySelectorAll('.ep-b2-item')];group.hidden=!!items.length&&items.every(item=>item.hidden);
       });
-      box.append(saveStatus);
-      box.append(budgetButton('Crear presupuesto para esta solicitud',()=>createBudget(r.cliente_id,r.id)));
-      requestsPane.append(box);
+    };
+    labels.forEach(([label,count],i)=>{
+      const button=epBtn(label+' ('+count+')',()=>{
+        selected=i;[...nav.children].forEach((el,j)=>el.classList.toggle('active',j===i));
+        panes.forEach((pane,j)=>pane.hidden=j!==i);search.value='';filter();
+      });button.classList.toggle('active',i===0);nav.append(button);
     });
-    acceptedPane.append(budgetNode('h3','Aceptados'));rejectedPane.append(budgetNode('h3','Rechazados'));
-    if(budgetResult.error){acceptedPane.append(budgetNode('p','Error: '+budgetResult.error.message));rejectedPane.append(budgetNode('p','Error: '+budgetResult.error.message));}
-    else if(!budgetResult.data?.length){acceptedPane.append(budgetNode('p','No hay presupuestos todavía.'));rejectedPane.append(budgetNode('p','No hay presupuestos todavía.'));}
-    else {
-      if(!budgetResult.data.some(p=>p.estado==='ACEPTADO'))acceptedPane.append(budgetNode('p','No hay presupuestos aceptados.'));
-      if(!budgetResult.data.some(p=>p.estado==='RECHAZADO'))rejectedPane.append(budgetNode('p','No hay presupuestos rechazados.'));
-      budgetResult.data.forEach(p=>{
-      const card=budgetCard(p);card.append(budgetNode('p','Cliente: '+clientLabel(p.cliente_id,profiles)));
-      card.append(budgetButton('Eliminar',async()=>{
-        if(!confirm('¿Eliminar este presupuesto?'))return;
-        const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
-        if(error)alert(error.message);
-        else{if(p.pdf_path)await client.storage.from('ep-presupuestos').remove([p.pdf_path]);loadAdminBudgets()}
-      }));if(p.estado==='ACEPTADO')acceptedPane.append(card);else if(p.estado==='RECHAZADO')rejectedPane.append(card);
+    panes[1].hidden=true;panes[2].hidden=true;search.addEventListener('input',filter);
+    root.append(nav,search,empty,...panes);eventBody.replaceChildren(root);
+    const addText=(parent,tag,txt,cls)=>{const el=budgetNode(tag,String(txt));if(cls)el.className=cls;parent.append(el);return el};
+    const safeDate=value=>{if(!value)return null;const d=new Date(String(value).slice(0,10)+'T12:00:00');return Number.isNaN(d.getTime())?null:d};
+    const showDate=value=>{const d=safeDate(value);return d?d.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}):'Sin fecha indicada'};
+    const card=(title,meta,subtitle)=>{
+      const item=epEl('article');item.className='ep-budget-card ep-b2-item';
+      const head=epEl('div');head.className='ep-b2-head';
+      const info=epEl('div');info.className='ep-b2-info';addText(info,'h3',title);addText(info,'p',meta,'ep-b2-meta');
+      if(subtitle)addText(info,'p',subtitle,'ep-b2-sub');head.append(info);item.append(head);return item;
+    };
+    const actions=item=>{const el=epEl('div');el.className='ep-budget-actions ep-b2-actions';item.append(el);return el};
+    const openPdf=p=>async()=>{
+      try{const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}
+      catch(e){alert('No se pudo abrir el PDF: '+e.message)}
+    };
+    const details=(item,lines)=>{
+      const d=epEl('details');d.className='ep-b2-details';const summary=epEl('summary','Ver detalles');d.append(summary);
+      lines.forEach(([key,val])=>{if(val!==null&&val!==undefined&&String(val).trim())addText(d,'p',key+': '+val)});
+      item.append(d);return d;
+    };
+    if(requestResult.error)addText(panes[0],'p','No se pudieron cargar las solicitudes: '+requestResult.error.message);
+    else if(!pending.length)addText(panes[0],'p','No hay solicitudes pendientes de preparar.');
+    pending.forEach(r=>{
+      const item=card((r.tipo||'Evento')+' · '+(r.nombre||'Cliente'),showDate(r.fecha)+' · '+(r.lugar||'Lugar sin concretar'),clientLabel(r.cliente_id,profiles));
+      const a=actions(item);
+      a.append(budgetButton('Preparar presupuesto',()=>createBudget(r.cliente_id,r.id)));
+      const d=details(item,[['Servicios',Array.isArray(r.servicios)?r.servicios.join(', '):r.servicios],['Horario',r.horario],['Invitados',r.invitados],['Observaciones',r.detalles]]);
+      const row=epEl('div');row.className='ep-b2-status';const label=budgetNode('label','Estado');const sel=budgetNode('select');
+      [['PENDIENTE','Pendiente'],['EN_PREPARACION','En preparación'],['PRESUPUESTO_ENVIADO','Presupuesto enviado']].forEach(([v,t])=>{const opt=budgetNode('option',t);opt.value=v;sel.append(opt)});
+      sel.value=r.estado||'PENDIENTE';label.append(sel);const save=budgetButton('Guardar estado',async()=>{
+        save.disabled=true;const {error}=await client.from('ep_solicitudes_presupuesto').update({estado:sel.value}).eq('id',r.id);
+        if(error){alert('No se pudo actualizar: '+error.message);save.disabled=false}else loadAdminBudgets();
+      });row.append(label,save);d.append(row);panes[0].append(item);
+    });
+    if(budgetResult.error){panes[1].append(budgetNode('p','No se pudieron cargar los presupuestos: '+budgetResult.error.message));panes[2].append(budgetNode('p','No se pudieron cargar los presupuestos: '+budgetResult.error.message))}
+    else{
+      if(!waiting.length)addText(panes[1],'p','No hay presupuestos esperando respuesta.');
+      if(!final.length)addText(panes[2],'p','Todavía no hay presupuestos finalizados.');
+      const renderBudget=(p,parent)=>{
+        const r=requestById.get(String(p.solicitud_id||''));
+        const date=r?.fecha||p.fecha_evento||p.fecha||p.creado_en;
+        const title=p.titulo||r?.tipo||'Presupuesto';
+        const state=p.estado==='ACEPTADO'?'Aceptado':p.estado==='RECHAZADO'?'Rechazado':'Esperando respuesta';
+        const item=card(title,clientLabel(p.cliente_id,profiles)+' · '+euro(p.importe),showDate(date)+(r?.fecha?' · Fecha del evento':' · Fecha del presupuesto'));
+        const tag=epEl('span',state);tag.className='ep-b2-state '+(p.estado==='ACEPTADO'?'ok':p.estado==='RECHAZADO'?'no':'wait');item.querySelector('.ep-b2-head').append(tag);
+        const a=actions(item);
+        if(p.pdf_path)a.append(budgetButton('Ver / descargar PDF',openPdf(p)));
+        const d=details(item,[['Descripción',p.descripcion],['Estado',state],['Evento',r?.tipo],['Lugar',r?.lugar],['Fecha del evento',r?.fecha?showDate(r.fecha):null]]);
+        if(p.estado!=='PENDIENTE'){
+          const del=budgetButton('Eliminar presupuesto',async()=>{
+            if(!confirm('¿Seguro que deseas eliminar definitivamente este presupuesto del historial? Esta acción no se puede deshacer.'))return;
+            const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
+            if(error){alert('No se pudo eliminar: '+error.message);return}
+            if(p.pdf_path){const {error:storageError}=await client.storage.from('ep-presupuestos').remove([p.pdf_path]);if(storageError)alert('Presupuesto eliminado, pero no se pudo borrar el PDF: '+storageError.message)}
+            loadAdminBudgets();
+          });del.classList.add('ep-b2-delete');d.append(del);
+        }
+        parent.append(item);
+      };
+      waiting.forEach(p=>renderBudget(p,panes[1]));
+      // Historial agrupado por meses: fecha del evento cuando está disponible.
+      const grouped=new Map();
+      final.forEach(p=>{
+        const r=requestById.get(String(p.solicitud_id||''));const d=safeDate(r?.fecha||p.fecha_evento||p.fecha||p.creado_en);
+        const key=d?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'):'sin-fecha';
+        if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(p);
+      });
+      [...grouped.keys()].sort((a,b)=>b.localeCompare(a)).forEach(key=>{
+        const group=epEl('section');group.className='ep-b2-month';
+        const month=key==='sin-fecha'?'Sin fecha':new Date(Number(key.slice(0,4)),Number(key.slice(5))-1,1).toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+        addText(group,'h3',month.charAt(0).toUpperCase()+month.slice(1),'ep-b2-month-title');
+        grouped.get(key).forEach(p=>renderBudget(p,group));panes[2].append(group);
       });
     }
+    if(profileResult.error)addText(root,'p','Aviso: '+profileResult.error.message);
   };
   const createBudget=async(presetUid='',presetSolicitudId=null)=>{
     eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'),budgetNode('p','Cargando clientes registrados…'));
