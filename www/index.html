@@ -2291,25 +2291,67 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     for(const song of songs)line((song.momento||'')+' · '+(song.titulo||'')+' — '+(song.artista||'')+' · '+(song.preferencia||'')+(song.enlace?' · '+song.enlace:'')+(song.mp3_path?' · MP3 adjunto (descarga por separado)':''));
     doc.save('Events_and_Parties_Organizacion_v'+version+'.pdf');
   };
+  let epAdminOrgReturn='events';
+  const epAdminOpenReceived=(id)=>{epAdminOrgReturn='received';return epAdminDetail(id)};
   const epAdminOrganizers=async()=>{
-    eventBody.replaceChildren(epEl('h3','Organizaciones de clientes'),epInfo('Avisos de organizaciones recibidas y solicitudes de cambios. Los PDF se generan desde cada versión.'));
+    epAdminOrgReturn='received';
+    eventBody.replaceChildren(epEl('h3','Organizaciones recibidas'),epInfo('Organizaciones enviadas por clientes, solicitudes de cambios, PDF para el DJ e historial.'));
     try{
-      const orgs=await epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}).limit(200));
-      const profiles=await epCall(client.from('ep_clientes_perfiles').select('id,nombre,email'));
-      if(!orgs.some(o=>o.estado==='ENVIADA'))eventBody.append(epInfo('Todavía no hay organizaciones terminadas y enviadas por los clientes.'));
-      for(const o of orgs.filter(x=>x.estado==='ENVIADA')){
+      const [orgs,profiles,requests]=await Promise.all([
+        epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}).limit(300)),
+        epCall(client.from('ep_clientes_perfiles').select('id,nombre,email')),
+        epCall(client.from('ep_cambios_organizacion').select('*').order('creado_en',{ascending:false}).limit(500))
+      ]);
+      const received=orgs.filter(o=>['ENVIADA','CAMBIO_SOLICITADO','CAMBIO_RECHAZADO'].includes(o.estado)||requests.some(r=>String(r.organizacion_id)===String(o.id)));
+      if(!received.length){eventBody.append(epInfo('Todavía no hay organizaciones enviadas ni solicitudes de cambios.'));return}
+      const pending=requests.filter(r=>r.estado==='PENDIENTE');
+      eventBody.append(epInfo(received.length+' organizaciones recibidas · '+pending.length+' solicitudes de cambios pendientes'));
+      for(const o of received){
         const p=profiles.find(x=>x.id===o.cliente_id),c=epCard(o.titulo||'Evento');
+        const own=requests.filter(r=>String(r.organizacion_id)===String(o.id));
+        const waiting=own.filter(r=>r.estado==='PENDIENTE');
         c.append(epInfo('Cliente: '+(p?.nombre||p?.email||'Cliente')+' · Estado: '+o.estado+' · Versión '+o.version));
-        if(['ENVIADA','CAMBIO_SOLICITADO'].includes(o.estado))c.append(epEl('span',o.estado==='ENVIADA'?'● Organización recibida':'● Solicitud de modificación pendiente','ep-org-pill'));
-        c.append(epBtn('Consultar organización y descargar PDF',()=>epAdminDetail(o.id),'primary'));
+        if(waiting.length)c.append(epEl('strong','⚠ '+waiting.length+' solicitud(es) de cambios pendientes'));
+        else c.append(epInfo('Solicitudes de cambios: '+own.length));
+        c.append(epBtn('Ver organización y editar',()=>epAdminOpenReceived(o.id),'primary'));
+        c.append(epBtn('Descargar PDF para el DJ',async()=>{
+          try{const songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',o.id).order('orden',{ascending:true}));await epExportPdf(o.contenido,songs,o.titulo,o.version)}catch(e){epShowError(e)}
+        }));
+        c.append(epBtn('Historial de cambios y versiones',()=>epAdminHistory(o.id)));
+        if(waiting.length)c.append(epBtn('Revisar solicitudes de cambios',()=>epAdminOpenReceived(o.id),'primary'));
         eventBody.append(c);
       }
-    }catch(e){eventBody.append(epInfo('Es necesario crear las tablas y políticas de Supabase: '+e.message))}
+    }catch(e){eventBody.append(epInfo('No se pudieron cargar las organizaciones: '+e.message))}
+  };
+  const epAdminHistory=async(id)=>{
+    eventBody.replaceChildren(epBtn('← Volver a organizaciones recibidas',epAdminOrganizers),epEl('h3','Historial de cambios y versiones'));
+    try{
+      const [versions,requests]=await Promise.all([
+        epCall(client.from('ep_organizaciones_versiones').select('*').eq('organizacion_id',id).order('version',{ascending:false})),
+        epCall(client.from('ep_cambios_organizacion').select('*').eq('organizacion_id',id).order('creado_en',{ascending:false}))
+      ]);
+      eventBody.append(epEl('h3','Solicitudes de modificación'));
+      if(!requests.length)eventBody.append(epInfo('No hay solicitudes de modificación registradas.'));
+      for(const r of requests){
+        const c=epCard('Solicitud · '+(r.estado||'Sin estado'));
+        c.append(epInfo('Fecha: '+(r.creado_en?new Date(r.creado_en).toLocaleString('es-ES'):'Sin fecha')));
+        c.append(epInfo('Motivo: '+(r.motivo||'No indicado')));
+        if(r.estado==='PENDIENTE')c.append(epBtn('Revisar y responder',()=>epAdminOpenReceived(id),'primary'));
+        eventBody.append(c);
+      }
+      eventBody.append(epEl('h3','Versiones enviadas'));
+      if(!versions.length)eventBody.append(epInfo('No hay versiones archivadas. Los cambios realizados directamente por el administrador no generan por sí solos una versión histórica.'));
+      for(const v of versions){
+        const c=epCard('Versión '+v.version+' · '+(v.creado_en?new Date(v.creado_en).toLocaleString('es-ES'):'Sin fecha'));
+        c.append(epBtn('Descargar PDF de esta versión',()=>epExportPdf(v.contenido,v.canciones||[],v.titulo||'Evento',v.version)));
+        eventBody.append(c);
+      }
+    }catch(e){eventBody.append(epInfo('No se pudo cargar el historial: '+e.message))}
   };
   const epAdminDetail=async(id)=>{
     try{
       const o=await epGetOrg(id),songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',id).order('orden',{ascending:true}));
-      eventBody.replaceChildren(epBtn('← Volver a mis eventos',epAdminAcceptedEvents));
+      eventBody.replaceChildren(epBtn(epAdminOrgReturn==='received'?'← Volver a organizaciones recibidas':'← Volver a mis eventos',epAdminOrgReturn==='received'?epAdminOrganizers:epAdminAcceptedEvents));
       const c=epCard(o.titulo+' · '+o.estado);
       c.append(epInfo('Tipo: '+o.tipo+' · Versión '+o.version));
       // Progreso calculado de los apartados del organizador, sin alterar datos.
@@ -2342,14 +2384,14 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       });
             c.append(epBtn('Ver documentos PDF / Word adjuntos',()=>epAdminAttachments(id)));
 c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.contenido,songs,o.titulo,o.version),'primary'));
-      if(o.estado==='CAMBIO_SOLICITADO'){
+      {
         const requests=await epCall(client.from('ep_cambios_organizacion').select('*').eq('organizacion_id',id).eq('estado','PENDIENTE').order('creado_en',{ascending:false}));
         for(const r of requests){
           c.append(epInfo('Solicitud del cliente: '+r.motivo));
           c.append(epBtn('Autorizar cambios',()=>epDecideChange(r.id,true,id),'primary'),epBtn('Rechazar cambios',()=>epDecideChange(r.id,false,id)));
         }
       }
-      c.append(epBtn('Ver historial de versiones',()=>epVersionsAdmin(id)));
+      c.append(epBtn('Historial de cambios y versiones',()=>epAdminHistory(id)));
       eventBody.append(c);
     }catch(e){epShowError(e)}
   };
