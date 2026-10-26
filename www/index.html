@@ -1258,6 +1258,23 @@ section[hidden]{display:none!important}
 .ep-budget-quick-actions{display:flex;flex-wrap:wrap;gap:8px}.ep-budget-quick-actions button{font-size:13px}
 @media(max-width:600px){.ep-budget-command{padding:14px}.ep-budget-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
+
+<style id="ep-calendar-final-2026">
+.ep-cal-today{border-color:#e6c77f!important;color:#ffe5a5!important}
+.ep-cal-day.is-today{box-shadow:inset 0 0 0 2px #eac57b!important}
+.ep-cal-day.has-conflict{position:relative;border-color:#e78d83!important}
+.ep-cal-day.has-conflict:after{content:'!';position:absolute;right:3px;top:2px;color:#fff;background:#a83f36;border-radius:50%;font-size:10px;font-weight:900;width:15px;height:15px;line-height:15px}
+.ep-cal-conflict{color:#ffc1a6;border-left:3px solid #d97764;padding:9px 12px;background:#38211d;border-radius:7px;font-size:.85rem}
+.ep-cal-agenda-item.conflict{border-left-color:#e48e78}
+.ep-cal-upcoming{margin:14px 0;padding:12px;border:1px solid #675332;border-radius:10px;background:#1d1914}
+.ep-cal-upcoming strong{color:#f0cf91}
+.ep-cal-upcoming button{display:block;width:100%;margin:8px 0 0;padding:9px;border:1px solid #705638;border-radius:8px;background:#292117;color:#f5dfb1;text-align:left;cursor:pointer}
+.ep-cal-upcoming button:hover{border-color:#e4bb6d}
+.ep-cal-view-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0 15px}
+.ep-cal-view-controls button{padding:8px 12px;border:1px solid #8d6e40;background:#1d1913;color:#f4d396;border-radius:8px;cursor:pointer}
+.ep-cal-view-controls button[aria-pressed="true"]{background:#b98b42;color:#120d07;font-weight:800}
+.ep-cal-week-caption{color:#e4c689;font-size:.88rem}
+</style>
 </head>
   
 <body>
@@ -2829,6 +2846,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   let calYear=new Date().getFullYear();
   let calMonth=new Date().getMonth();
   let calSelected='';
+  let calView='mes';
   let calEvents=[];
   let adminCalendarRequests=[];
   let adminCalendarBudgets=[];
@@ -2844,18 +2862,44 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const next=document.createElement('button');next.type='button';next.textContent='Siguiente ›';next.setAttribute('aria-label','Mes siguiente');
     prev.addEventListener('click',()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--}calSelected='';renderCalendar()});
     next.addEventListener('click',()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++}calSelected='';renderCalendar()});
-    nav.append(prev,next);head.append(monthTitle,nav);eventBody.appendChild(head);
+    const todayBtn=document.createElement('button');todayBtn.type='button';todayBtn.textContent='Hoy';todayBtn.className='ep-cal-today';todayBtn.addEventListener('click',()=>{const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();calSelected=dateKey(calYear,calMonth,now.getDate());renderCalendar()});
+    nav.append(prev,todayBtn,next);head.append(monthTitle,nav);eventBody.appendChild(head);
+    if(isAdmin){
+      const controls=document.createElement('div');controls.className='ep-cal-view-controls';
+      for(const [key,label] of [['mes','Vista mensual'],['semana','Vista semanal']]){
+        const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-pressed',String(calView===key));
+        b.addEventListener('click',()=>{calView=key;if(key==='semana'&&!calSelected)calSelected=dateKey(calYear,calMonth,1);renderCalendar()});controls.append(b);
+      }
+      if(calView==='semana'){
+        const d=new Date((calSelected||dateKey(calYear,calMonth,1))+'T12:00:00');
+        const prevWeek=document.createElement('button');prevWeek.type='button';prevWeek.textContent='‹ Semana';
+        const nextWeek=document.createElement('button');nextWeek.type='button';nextWeek.textContent='Semana ›';
+        const moveWeek=(n)=>{d.setDate(d.getDate()+n*7);calYear=d.getFullYear();calMonth=d.getMonth();calSelected=dateKey(calYear,calMonth,d.getDate());renderCalendar()};
+        prevWeek.addEventListener('click',()=>moveWeek(-1));nextWeek.addEventListener('click',()=>moveWeek(1));
+        controls.append(prevWeek,nextWeek);
+      }
+      eventBody.append(controls);
+    }
     const grid=document.createElement('div');grid.className='ep-cal-grid';grid.setAttribute('role','group');grid.setAttribute('aria-label','Calendario de eventos');
     ['L','M','X','J','V','S','D'].forEach(day=>{const el=document.createElement('div');el.className='ep-cal-weekday';el.textContent=day;grid.appendChild(el)});
     const first=(new Date(calYear,calMonth,1).getDay()+6)%7;
     const total=new Date(calYear,calMonth+1,0).getDate();
-    for(let i=0;i<first;i++){const blank=document.createElement('div');grid.appendChild(blank)}
+    const weekAnchor=new Date((calSelected||dateKey(calYear,calMonth,1))+'T12:00:00');
+    const weekStart=new Date(weekAnchor);weekStart.setDate(weekStart.getDate()-(weekStart.getDay()+6)%7);
+    const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
+    if(!(isAdmin&&calView==='semana'))for(let i=0;i<first;i++){const blank=document.createElement('div');grid.appendChild(blank)}
     for(let day=1;day<=total;day++){
       const key=dateKey(calYear,calMonth,day);
+      if(isAdmin&&calView==='semana'){
+        const current=new Date(key+'T12:00:00');
+        if(current<weekStart||current>weekEnd)continue;
+      }
       const count=calEvents.filter(ev=>ev.fecha_evento===key).length;
       const requestCount=isAdmin?adminCalendarRequests.filter(r=>String(r.fecha||'').slice(0,10)===key).length:0;
       const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-day'+(count?' has-event':'')+(requestCount?' has-request':'')+(calSelected===key?' selected':'');
-      btn.setAttribute('aria-label',`${day} de ${monthTitle.textContent}${count?', '+count+' evento(s)':''}`);
+      const now=new Date();if(key===dateKey(now.getFullYear(),now.getMonth(),now.getDate()))btn.classList.add('is-today');
+      if(isAdmin&&count>1)btn.classList.add('has-conflict');
+      btn.setAttribute('aria-label',`${day} de ${monthTitle.textContent}${count?', '+count+' evento(s)':''}${count>1?', varios eventos':''}`);
       btn.setAttribute('aria-pressed',String(calSelected===key));
       const number=document.createElement('span');number.textContent=String(day);btn.appendChild(number);
       if(count||requestCount){const dot=document.createElement('span');dot.className='ep-cal-dot';dot.setAttribute('aria-hidden','true');btn.appendChild(dot)}
@@ -2868,17 +2912,32 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const legend=epEl('div',undefined,'ep-cal-legend');
       legend.append(epEl('span','● Eventos confirmados','ep-cal-legend-gold'),epEl('span','● Solicitudes pendientes','ep-cal-legend-blue'));
       left.append(legend);
+      const upcoming=epEl('div',undefined,'ep-cal-upcoming');
+      upcoming.append(epEl('strong','Próximos eventos'));
+      const today=dateKey(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
+      const nextEvents=calEvents.filter(e=>e.fecha_evento&&e.fecha_evento>=today).sort((a,b)=>a.fecha_evento.localeCompare(b.fecha_evento)).slice(0,3);
+      if(!nextEvents.length)upcoming.append(epEl('p','No hay próximos eventos fechados.'));
+      nextEvents.forEach(ev=>{
+        const b=document.createElement('button');b.type='button';
+        b.textContent=formatDate(ev.fecha_evento)+' · '+(ev.nombrecliente||ev.tipo_evento||'Evento');
+        b.addEventListener('click',()=>{const parts=ev.fecha_evento.split('-');calYear=Number(parts[0]);calMonth=Number(parts[1])-1;calSelected=ev.fecha_evento;renderCalendar()});
+        upcoming.append(b);
+      });
+      left.append(upcoming);
       const right=epEl('aside',undefined,'ep-admin-cal-aside');
       const month=dateKey(calYear,calMonth,1).slice(0,7);
       const accepted=calEvents.filter(ev=>ev.fecha_evento?.startsWith(month));
       const pending=adminCalendarRequests.filter(r=>String(r.fecha||'').startsWith(month));
       const countRow=epEl('div',undefined,'ep-cal-summary');
       countRow.append(epEl('div',String(accepted.length)+' eventos','ep-cal-summary-gold'),epEl('div',String(pending.length)+' solicitudes','ep-cal-summary-blue'));
-      right.append(epEl('h3','Agenda del mes'),countRow);
+      right.append(epEl('h3',calView==='semana'?'Agenda del mes · vista semanal':'Agenda del mes'),countRow);
+      const counts=new Map();calEvents.forEach(ev=>{if(ev.fecha_evento)counts.set(ev.fecha_evento,(counts.get(ev.fecha_evento)||0)+1)});
+      const clashes=[...counts].filter(([date,n])=>n>1&&date.startsWith(month));
+      if(clashes.length)right.append(epEl('p','Atención: '+clashes.length+' fecha(s) con varios eventos. Revisa los horarios antes de confirmar nuevos trabajos.','ep-cal-conflict'));
       const entries=[...accepted.map(ev=>({date:ev.fecha_evento,title:ev.nombrecliente||ev.tipo_evento||'Evento',subtitle:[ev.tipo_evento,ev.lugar_evento,ev.hora_inicio].filter(Boolean).join(' · '),kind:'accepted'})),...pending.map(r=>({date:String(r.fecha||'').slice(0,10),title:r.nombre||r.tipo||'Solicitud de presupuesto',subtitle:[r.tipo,r.lugar].filter(Boolean).join(' · '),kind:'pending'}))].sort((x,y)=>x.date.localeCompare(y.date));
       if(!entries.length)right.append(epInfo('No hay eventos ni solicitudes fechadas en este mes.'));
       entries.forEach(entry=>{
-        const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-agenda-item '+(entry.kind==='pending'?'pending':'confirmed');
+        const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-agenda-item '+(entry.kind==='pending'?'pending':'confirmed')+(entry.kind==='accepted'&&counts.get(entry.date)>1?' conflict':'');
         btn.append(epEl('strong',entry.date?formatDate(entry.date):'Sin fecha'),epEl('span',entry.title),epEl('small',entry.subtitle|| (entry.kind==='pending'?'Presupuesto pendiente':'Evento confirmado')));
         btn.addEventListener('click',()=>{calSelected=entry.date;renderCalendar();const details=eventBody.querySelector('.ep-cal-detail');if(details)details.scrollIntoView({behavior:'smooth',block:'nearest'})});right.append(btn);
       });
@@ -2889,6 +2948,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const detail=document.createElement('section');detail.className='ep-cal-detail';
       const heading=document.createElement('h4');heading.textContent='Eventos del '+formatDate(calSelected);detail.appendChild(heading);
       const matching=calEvents.filter(ev=>ev.fecha_evento===calSelected);
+      if(isAdmin&&matching.length>1)detail.append(epEl('p','Coinciden '+matching.length+' eventos en esta fecha. Comprueba los horarios y recursos disponibles.','ep-cal-conflict'));
       if(!matching.length&&!isAdmin){const empty=document.createElement('p');empty.textContent='No tienes eventos asignados para este día.';detail.appendChild(empty)}
       matching.forEach(ev=>{
         const article=document.createElement('article');const h=document.createElement('h4');h.textContent=ev.nombrecliente||ev.tipo_evento||'Evento confirmado';article.appendChild(h);
@@ -2969,7 +3029,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
       isAdmin?client.from('ep_solicitudes_presupuesto').select('*'):Promise.resolve({data:[],error:null}),
-      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,solicitud_id,titulo,descripcion,estado,importe,pdf_path'):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,solicitud_id,titulo,descripcion,estado,importe,pdf_path,eliminado_en'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
@@ -2978,12 +3038,14 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
     if(error){eventBody.textContent='No se ha podido cargar el calendario: '+(error.message||'Error de acceso a eventos')+'.';console.error('Error al cargar calendario:',error);return}
-    calEvents=(data||[]).map(normalizeEpEvent).sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
+    const deletedBudgets=new Set((acceptedBudgetResult.data||[]).filter(p=>p.eliminado_en).map(p=>String(p.id)));
+    calEvents=(data||[]).map(normalizeEpEvent).filter(ev=>!isAdmin||!ev.presupuesto_id||!deletedBudgets.has(String(ev.presupuesto_id))).sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
     if(isAdmin && !acceptedBudgetResult.error){
       // Fuente de verdad: ep_presupuestos.solicitud_id. Nunca inferir por cliente,
       // nombre, importe o fecha: un cliente puede contratar varios eventos.
       const linked=new Map();
       for(const p of (acceptedBudgetResult.data||[])){
+        if(p.eliminado_en)continue;
         if(p.solicitud_id!=null){
           const key=String(p.solicitud_id);
           if(!linked.has(key))linked.set(key,[]);
