@@ -927,9 +927,9 @@ background:
 .ep-b2-info .ep-b2-sub{color:#b6a994}
 .ep-b2-state{white-space:nowrap;border-radius:20px;padding:4px 9px;font-size:.75rem;border:1px solid #94754b;color:#f3d18d}
 .ep-b2-state.ok{border-color:#5d9c70;color:#a8e1b3}.ep-b2-state.no{border-color:#a36d6d;color:#e9b0ad}
-.ep-b2-actions{display:flex;gap:16px!important;margin:10px 0 0!important;align-items:center;flex-wrap:wrap}
+.ep-b2-actions{display:flex;gap:20px!important;margin:14px 0 12px!important;align-items:center;flex-wrap:wrap}
 .ep-b2-actions button{padding:8px 15px!important;font-size:.84rem}
-.ep-b2-details{margin-top:8px;border-top:1px solid #6c5439;padding-top:6px}
+.ep-b2-link-warning{color:#f4d28c;font-size:.83rem;margin:8px 0!important}.ep-b2-details{margin-top:12px;border-top:1px solid #6c5439;padding-top:6px}
 .ep-b2-details summary{cursor:pointer;color:#e5c07c;font-size:.84rem;font-weight:600}
 .ep-b2-details p{margin:6px 0;font-size:.85rem}
 .ep-b2-status{display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin:12px 0 4px}
@@ -941,6 +941,7 @@ background:
 .ep-b2-month-title{color:#f1cd82;font-size:1.05rem;margin:14px 0 8px;border-bottom:1px solid #685032;padding-bottom:6px}
 @media(max-width:650px){.ep-b2-tabs{gap:6px}.ep-b2-tabs button{font-size:.72rem!important;padding:9px 4px!important}.ep-b2-head{align-items:flex-start}.ep-b2-state{font-size:.68rem}.ep-b2-actions{gap:12px!important}}
 
+.ep-b2-top{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap}.ep-external-budget{max-width:780px;margin:0 auto}.ep-external-budget .ep-budget-form{display:grid;gap:14px}.ep-external-budget input,.ep-external-budget textarea{width:100%;max-width:100%;box-sizing:border-box}
 </style>
 
 <style>
@@ -3332,7 +3333,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const final=allBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
     const root=epEl('div');root.className='ep-b2';
     const top=epEl('div');top.className='ep-b2-top';
-    top.append(budgetButton('+ Crear presupuesto',()=>createBudget()));root.append(top);
+    top.append(budgetButton('+ Crear presupuesto',()=>createBudget()),budgetButton('✉ Crear presupuesto · Nuevo cliente',()=>createExternalBudget()));root.append(top);
     const nav=epEl('div');nav.className='ep-client-tabs ep-b2-tabs';
     const panes=[epEl('section'),epEl('section'),epEl('section')];
     const labels=[['Solicitudes por preparar',pending.length],['Esperando respuesta',waiting.length],['Finalizados',final.length]];
@@ -3385,7 +3386,12 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       a.append(budgetButton('Preparar presupuesto',()=>createBudget(r.cliente_id,r.id)));
       const d=details(item,[['Servicios',Array.isArray(r.servicios)?r.servicios.join(', '):r.servicios],['Horario',r.horario],['Invitados',r.invitados],['Observaciones',r.detalles]]);
       const row=epEl('div');row.className='ep-b2-status';const label=budgetNode('label','Estado');const sel=budgetNode('select');
-      [['PENDIENTE','Pendiente'],['EN_PREPARACION','En preparación'],['PRESUPUESTO_ENVIADO','Presupuesto enviado']].forEach(([v,t])=>{const opt=budgetNode('option',t);opt.value=v;sel.append(opt)});
+      [['PENDIENTE','Pendiente'],['EN_PREPARACION','En preparación']].forEach(([v,t])=>{const opt=budgetNode('option',t);opt.value=v;sel.append(opt)});
+      if(r.estado==='PRESUPUESTO_ENVIADO'){
+        const warning=budgetNode('p','Aviso: figura como enviado, pero no hay ningún presupuesto vinculado. Usa «Preparar presupuesto» para vincularlo.');
+        warning.className='ep-b2-link-warning';d.prepend(warning);
+        const opt=budgetNode('option','Enviado sin presupuesto vinculado');opt.value='PRESUPUESTO_ENVIADO';opt.disabled=true;sel.append(opt);
+      }
       sel.value=r.estado||'PENDIENTE';label.append(sel);const save=budgetButton('Guardar estado',async()=>{
         save.disabled=true;const {error}=await client.from('ep_solicitudes_presupuesto').update({estado:sel.value}).eq('id',r.id);
         if(error){alert('No se pudo actualizar: '+error.message);save.disabled=false}else loadAdminBudgets();
@@ -3433,6 +3439,59 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     }
     if(profileResult.error)addText(root,'p','Aviso: '+profileResult.error.message);
   };
+  // Presupuestos para personas que todavía no tienen una cuenta.
+  // Los envíos se realizan únicamente a través de una Edge Function autenticada.
+  const createExternalBudget=()=>{
+    if(!isAdmin)return;
+    const wrap=budgetNode('section');wrap.className='ep-budget-card ep-external-budget';
+    const heading=budgetNode('h3','Crear presupuesto · Nuevo cliente');
+    const description=budgetNode('p','Prepara y envía un presupuesto a una persona sin cuenta. Al aceptarlo, recibirá instrucciones para registrarse.');
+    const form=budgetNode('form');form.className='ep-budget-form';
+    const field=(label,name,type='text',required=true)=>{
+      const l=budgetNode('label',label),i=budgetNode(type==='textarea'?'textarea':'input');
+      if(type!=='textarea')i.type=type;i.name=name;i.required=required;
+      if(type==='number'){i.min='0';i.step='0.01'}
+      l.append(i);form.append(l);return i;
+    };
+    field('Nombre y apellidos del cliente','nombre');
+    field('Correo electrónico del cliente','email','email');
+    field('Teléfono del cliente','telefono','tel',false);
+    field('Tipo de evento','tipo');
+    field('Fecha del evento','fecha','date',false);
+    field('Lugar del evento','lugar','text',false);
+    field('Título del presupuesto','titulo');
+    field('Descripción y servicios incluidos','descripcion','textarea');
+    field('Importe (€)','importe','number');
+    const pdf=field('Adjuntar PDF del presupuesto (obligatorio)','pdf','file');pdf.accept='application/pdf';
+    const hint=budgetNode('p','PDF de hasta 5 MB. Se enviará un correo con el enlace privado y el presupuesto adjunto. Remitente de contacto: perezrobeta@gmail.com.');
+    const status=budgetNode('p');status.setAttribute('role','status');
+    const submit=budgetNode('button','Enviar presupuesto por correo');submit.type='submit';
+    form.append(hint,submit,status);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();if(!isAdmin)return;
+      const fd=new FormData(form),file=fd.get('pdf');
+      if(!(file instanceof File)||!file.size){status.textContent='Adjunta el PDF del presupuesto.';return}
+      if(file.size>5*1024*1024||file.type!=='application/pdf'){status.textContent='El PDF debe ser válido y ocupar como máximo 5 MB.';return}
+      if(!confirm('¿Enviar el presupuesto a '+fd.get('email')+'?'))return;
+      submit.disabled=true;status.textContent='Preparando el envío seguro…';
+      try{
+        const {data:{session},error:authError}=await client.auth.getSession();
+        if(authError||!session)throw new Error('Inicia sesión de administrador.');
+        const bytes=new Uint8Array(await file.arrayBuffer());
+        let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+        const payload={};for(const k of ['nombre','email','telefono','tipo','fecha','lugar','titulo','descripcion'])payload[k]=String(fd.get(k)||'').trim();
+        payload.importe=Number(fd.get('importe'));payload.pdf_base64=btoa(binary);payload.pdf_filename=file.name;
+        const {data,error}=await client.functions.invoke('ep-external-budgets',{body:{action:'create',payload}});
+        if(error)throw new Error(error.message||'Error en el servicio de envío');
+        if(!data?.ok)throw new Error(data?.error||'El servicio no confirmó el envío');
+        status.textContent='Presupuesto enviado correctamente. El cliente recibirá el PDF y un enlace privado.';
+        form.reset();
+      }catch(err){status.textContent='No se ha confirmado el envío: '+err.message+' Comprueba que la función ep-external-budgets y el correo estén configurados en Supabase.'}
+      finally{submit.disabled=false}
+    });
+    wrap.append(heading,description,form);
+    eventBody.replaceChildren(wrap,budgetButton('← Volver a gestionar presupuestos',loadAdminBudgets));
+  };
   const createBudget=async(presetUid='',presetSolicitudId=null)=>{
     eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'),budgetNode('p','Cargando clientes registrados…'));
     let profiles;
@@ -3474,6 +3533,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     form.addEventListener('submit',async e=>{
       e.preventDefault();save.disabled=true;
       const fd=new FormData(form);
+      if(presetSolicitudId && !fd.get('solicitud_id')){
+        alert('Este presupuesto procede de una solicitud. Debes mantenerla vinculada para que deje de aparecer como pendiente.');save.disabled=false;return;
+      }
       const payload={cliente_id:String(fd.get('cliente_id')).trim(),titulo:String(fd.get('titulo')).trim(),
         descripcion:String(fd.get('descripcion')||'').trim(),importe:Number(fd.get('importe')),estado:'PENDIENTE',solicitud_id:fd.get('solicitud_id')?Number(fd.get('solicitud_id')):null};
       let uploadedPath=null;
