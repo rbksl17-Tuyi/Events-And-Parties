@@ -1224,6 +1224,22 @@ section[hidden]{display:none!important}
 .ep-cal-agenda-item:hover,.ep-cal-agenda-item:focus-visible{outline:1px solid #eac77f}
 @media(max-width:780px){.ep-cal-design-two{grid-template-columns:1fr}.ep-admin-cal-main{padding:9px}.ep-cal-design-two .ep-cal-day{min-height:41px}}
 </style>
+<style id="epBudgetCommandStyle">
+.ep-budget-command{border:1px solid rgba(207,171,96,.42);border-radius:20px;padding:22px;margin:16px 0 24px;background:linear-gradient(135deg,#161617,#24201a);color:#eee4ce}
+.ep-budget-command-head h3{color:#e8c77d;margin:0 0 4px}.ep-budget-command-head p,.ep-budget-command>p{color:#bcb4a4;font-size:13px}
+.ep-budget-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:18px 0}
+.ep-budget-kpi{padding:14px;border:1px solid #50452f;border-radius:12px;background:#1c1c1e;display:flex;flex-direction:column;gap:7px}
+.ep-budget-kpi small,.ep-budget-financial small{color:#bcb4a4}.ep-budget-kpi strong{font-size:26px;color:#ebc97b}
+.ep-budget-financial{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.ep-budget-financial>div{display:flex;flex-direction:column;gap:7px;border-top:1px solid #77623d;padding:12px 4px}.ep-budget-financial strong{color:#f0d39b;font-size:19px}
+.ep-budget-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 10px}.ep-budget-toolbar input{flex:2;min-width:190px}.ep-budget-toolbar select{flex:1;min-width:160px}
+.ep-budget-toolbar input,.ep-budget-toolbar select{background:#121315;color:#f0e7d6;border:1px solid #8e7545;border-radius:9px;padding:11px}
+.ep-budget-results{display:grid;gap:10px;max-height:420px;overflow:auto}.ep-budget-count{font-size:13px;color:#cbb991;margin:0}
+.ep-budget-quick-card{padding:13px;border:1px solid #57472c;border-radius:12px;background:#191919;display:flex;flex-direction:column;gap:8px}
+.ep-budget-quick-card strong{color:#f0d39b}.ep-budget-quick-card p{font-size:13px;color:#d2c9b9;margin:0}.ep-budget-status{font-size:12px;color:#e8c77d}
+.ep-budget-quick-actions{display:flex;flex-wrap:wrap;gap:8px}.ep-budget-quick-actions button{font-size:13px}
+@media(max-width:600px){.ep-budget-command{padding:14px}.ep-budget-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
 </head>
   
 <body>
@@ -3095,6 +3111,67 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     });
     acceptedPane.hidden=true;rejectedPane.hidden=true;
     eventBody.append(tabNav,...allPanes);
+    // Panel ejecutivo: conserva las pestañas y los botones existentes.
+    const allBudgets=budgetResult.data||[], allRequests=requestResult.data||[];
+    const money=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n||0);
+    const total=state=>allBudgets.filter(p=>p.estado===state).reduce((sum,p)=>sum+(Number(p.importe)||0),0);
+    const count=state=>allBudgets.filter(p=>p.estado===state).length;
+    const dashboard=epEl('section');dashboard.className='ep-budget-command';
+    const headline=epEl('div');headline.className='ep-budget-command-head';
+    headline.append(epEl('h3','Resumen de gestión'),epEl('p','Control de solicitudes, presupuestos y seguimiento de eventos.'));
+    dashboard.append(headline);
+    const kpis=epEl('div');kpis.className='ep-budget-kpis';
+    [['Solicitudes',allRequests.length],['Por preparar',allRequests.filter(r=>r.estado==='PENDIENTE'||r.estado==='EN_PREPARACION').length],['Pendientes de respuesta',count('PENDIENTE')],['Aceptados',count('ACEPTADO')],['Rechazados',count('RECHAZADO')]].forEach(([label,value])=>{
+      const tile=epEl('div');tile.className='ep-budget-kpi';tile.append(epEl('small',label),epEl('strong',String(value)));kpis.append(tile);
+    });
+    dashboard.append(kpis);
+    const financial=epEl('div');financial.className='ep-budget-financial';
+    [['Aceptados',total('ACEPTADO')],['Pendientes',total('PENDIENTE')],['Rechazados',total('RECHAZADO')]].forEach(([label,value])=>{
+      const item=epEl('div');item.append(epEl('small',label),epEl('strong',money(value)));financial.append(item);
+    });
+    dashboard.append(financial,epEl('p','Importes presupuestados; no representan cobros realizados.'));
+    const toolbar=epEl('div');toolbar.className='ep-budget-toolbar';
+    const search=epEl('input');search.type='search';search.placeholder='Buscar cliente, evento, fecha, lugar o importe…';search.setAttribute('aria-label','Buscar presupuestos');
+    const statusFilter=epEl('select');statusFilter.setAttribute('aria-label','Filtrar estado');
+    [['','Todos los estados'],['PENDIENTE','Pendiente de respuesta'],['ACEPTADO','Aceptado'],['RECHAZADO','Rechazado']].forEach(([value,label])=>{const option=epEl('option',label);option.value=value;statusFilter.append(option)});
+    const clear=epBtn('Limpiar filtros',()=>{search.value='';statusFilter.value='';renderSearch()});
+    toolbar.append(search,statusFilter,clear);dashboard.append(toolbar);
+    const results=epEl('div');results.className='ep-budget-results';dashboard.append(results);
+    const profilesForSearch=profileResult.data||[];
+    function renderSearch(){
+      results.replaceChildren();const q=search.value.toLocaleLowerCase('es').trim();const state=statusFilter.value;
+      const matches=allBudgets.filter(p=>{
+        if(state&&p.estado!==state)return false;
+        const request=allRequests.find(r=>Number(r.id)===Number(p.solicitud_id));
+        const hay=[p.id,p.titulo,p.descripcion,p.importe,p.estado,clientLabel(p.cliente_id,profilesForSearch),request?.tipo,request?.nombre,request?.fecha,request?.lugar].join(' ').toLocaleLowerCase('es');
+        return !q||hay.includes(q);
+      });
+      const caption=epEl('p',matches.length+' presupuesto(s) encontrado(s)');caption.className='ep-budget-count';results.append(caption);
+      if(!matches.length){results.append(epEl('p','No hay presupuestos que coincidan con los filtros.'));return}
+      matches.forEach(p=>{
+        const r=allRequests.find(r=>Number(r.id)===Number(p.solicitud_id));
+        const card=epEl('article');card.className='ep-budget-quick-card';
+        const title=epEl('strong',(p.titulo||'Presupuesto')+' · '+money(Number(p.importe)));
+        const details=epEl('p',clientLabel(p.cliente_id,profilesForSearch)+(r?' · '+(r.fecha||'Sin fecha')+' · '+(r.lugar||'Sin lugar'):''));
+        const stateLabel=epEl('span',p.estado==='ACEPTADO'?'Aceptado':p.estado==='RECHAZADO'?'Rechazado':'Pendiente de respuesta');stateLabel.className='ep-budget-status';
+        const actions=epEl('div');actions.className='ep-budget-quick-actions';
+        const go=epBtn('Ver presupuesto',()=>{
+          const idx=p.estado==='ACEPTADO'?1:p.estado==='RECHAZADO'?2:0;
+          if(idx===0){search.value=p.titulo||'';results.scrollIntoView({behavior:'smooth',block:'nearest'});return}
+          tabNav.children[idx]?.click();
+          const cards=allPanes[idx].querySelectorAll('.ep-budget-card');
+          const target=[...cards].find(el=>el.textContent.includes(p.titulo||'§§§§'));
+          (target||allPanes[idx]).scrollIntoView({behavior:'smooth',block:'start'});
+        });actions.append(go);
+        if(r){actions.append(epBtn('Ver solicitud',()=>{tabNav.children[0]?.click();const cards=requestsPane.querySelectorAll('.ep-budget-card');const target=[...cards].find(el=>el.textContent.includes(r.nombre||'§§§§'));(target||requestsPane).scrollIntoView({behavior:'smooth',block:'start'})}))}
+        card.append(title,details,stateLabel,actions);results.append(card);
+      });
+    }
+    search.addEventListener('input',renderSearch);statusFilter.addEventListener('change',renderSearch);
+    if(budgetResult.error||requestResult.error){dashboard.append(epEl('p','Algunos indicadores podrían estar incompletos por un error de conexión.'))}
+    eventBody.insertBefore(dashboard,tabNav);
+    renderSearch();
+
     const profiles=profileResult.data||[];
     if(profileResult.error)requestsPane.append(budgetNode('p',profileResult.error.message));
     requestsPane.append(budgetNode('h3','Solicitudes recibidas'));
