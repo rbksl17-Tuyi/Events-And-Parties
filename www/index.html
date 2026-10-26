@@ -904,6 +904,17 @@ background:
 .ep-mis-more>button{display:block;margin:8px 10px!important;max-width:calc(100% - 20px)}
 @media(max-width:600px){.ep-mis-resumen{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-mis-actions{align-items:stretch}.ep-mis-more{max-width:100%}}
 
+
+/* Organizaciones recibidas: resumen mensual limpio para administración */
+.ep-recibidas-list{display:grid;gap:26px;margin-top:22px}
+.ep-recibidas-mes{padding:0!important;display:grid;gap:12px}
+.ep-recibidas-mes h4{margin:0 0 2px;color:#f1cf82;font-size:1.25rem;text-transform:capitalize}
+.ep-recibida-card{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px;border:1px solid #765b35;border-radius:15px;background:linear-gradient(130deg,#1c1915,#101010)}
+.ep-recibida-info{display:grid;gap:5px;min-width:0}
+.ep-recibida-info strong{font-size:1.06rem;color:#fff2d9}
+.ep-recibida-info span{font-size:.9rem;color:#c9bfaf}
+.ep-recibida-card button{white-space:nowrap;flex-shrink:0}
+@media(max-width:650px){.ep-recibida-card{flex-direction:column;align-items:stretch}.ep-recibida-card button{width:100%;white-space:normal}}
 </style>
 
 <style>
@@ -2346,31 +2357,59 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
   const epAdminOpenReceived=(id)=>{epAdminOrgReturn='received';return epAdminDetail(id)};
   const epAdminOrganizers=async()=>{
     epAdminOrgReturn='received';
-    eventBody.replaceChildren(epEl('h3','Organizaciones recibidas'),epInfo('Organizaciones enviadas por clientes, solicitudes de cambios, PDF para el DJ e historial.'));
+    eventBody.replaceChildren(epEl('h3','Organizaciones recibidas'),epInfo('Solo eventos organizados y listos para descargar.'));
+    if(!isAdmin)return;
     try{
-      const [orgs,profiles,requests]=await Promise.all([
-        epCall(client.from('ep_organizaciones').select('*').order('actualizado_en',{ascending:false}).limit(300)),
+      const [orgs,profiles,budgets,requests,events]=await Promise.all([
+        epCall(client.from('ep_organizaciones').select('*').eq('estado','ENVIADA').order('actualizado_en',{ascending:false})),
         epCall(client.from('ep_clientes_perfiles').select('id,nombre,email')),
-        epCall(client.from('ep_cambios_organizacion').select('*').order('creado_en',{ascending:false}).limit(500))
+        epCall(client.from('ep_presupuestos').select('id,solicitud_id,estado,eliminado_en,titulo')),
+        epCall(client.from('ep_solicitudes_presupuesto').select('id,fecha,nombre,tipo')),
+        epCall(client.from('ep_eventos').select('id,presupuesto_id,nombre,datos'))
       ]);
-      const received=orgs.filter(o=>['ENVIADA','CAMBIO_SOLICITADO','CAMBIO_RECHAZADO'].includes(o.estado)||requests.some(r=>String(r.organizacion_id)===String(o.id)));
-      if(!received.length){eventBody.append(epInfo('Todavía no hay organizaciones enviadas ni solicitudes de cambios.'));return}
-      const pending=requests.filter(r=>r.estado==='PENDIENTE');
-      eventBody.append(epInfo(received.length+' organizaciones recibidas · '+pending.length+' solicitudes de cambios pendientes'));
-      for(const o of received){
-        const p=profiles.find(x=>x.id===o.cliente_id),c=epCard(o.titulo||'Evento');
-        const own=requests.filter(r=>String(r.organizacion_id)===String(o.id));
-        const waiting=own.filter(r=>r.estado==='PENDIENTE');
-        c.append(epInfo('Cliente: '+(p?.nombre||p?.email||'Cliente')+' · Estado: '+o.estado+' · Versión '+o.version));
-        if(waiting.length)c.append(epEl('strong','⚠ '+waiting.length+' solicitud(es) de cambios pendientes'));
-        else c.append(epInfo('Solicitudes de cambios: '+own.length));
-        c.append(epBtn('Ver organización y editar',()=>epAdminOpenReceived(o.id),'primary'));
-        c.append(epBtn('Descargar PDF para el DJ',async()=>{
-          try{const songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',o.id).order('orden',{ascending:true}));await epExportPdf(o.contenido,songs,o.titulo,o.version)}catch(e){epShowError(e)}
-        }));
-        c.append(epBtn('Historial de cambios y versiones',()=>epAdminHistory(o.id)));
-        if(waiting.length)c.append(epBtn('Revisar solicitudes de cambios',()=>epAdminOpenReceived(o.id),'primary'));
-        eventBody.append(c);
+      const budgetMap=new Map(budgets.map(b=>[String(b.id),b]));
+      const requestMap=new Map(requests.map(r=>[String(r.id),r]));
+      const eventMap=new Map();
+      for(const e of events)if(e.presupuesto_id!=null&&!eventMap.has(String(e.presupuesto_id)))eventMap.set(String(e.presupuesto_id),e);
+      const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v.slice(0,10))?v.slice(0,10):null;
+      const rows=orgs.map(o=>{
+        const b=budgetMap.get(String(o.presupuesto_id));
+        if(!b||b.estado!=='ACEPTADO'||b.eliminado_en)return null;
+        const r=requestMap.get(String(b.solicitud_id)),e=eventMap.get(String(b.id));
+        const date=validDate(r?.fecha)||validDate(e?.datos?.fecha_evento)||validDate(o?.contenido?.datos?.fecha_evento);
+        const p=profiles.find(x=>String(x.id)===String(o.cliente_id));
+        return {o,date,cliente:p?.nombre||r?.nombre||p?.email||'Cliente',evento:b.titulo||o.titulo||r?.tipo||'Evento'};
+      }).filter(Boolean).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
+      if(!rows.length){eventBody.append(epInfo('Todavía no hay organizaciones finalizadas listas para descargar.'));return}
+      const songResults=await Promise.all(rows.map(async row=>{
+        try{return await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',row.o.id).order('orden',{ascending:true}))}
+        catch(e){return []}
+      }));
+      const groups=new Map();
+      rows.forEach((row,i)=>{
+        row.songs=songResults[i];
+        const key=row.date?row.date.slice(0,7):'sin-fecha';
+        if(!groups.has(key))groups.set(key,[]);
+        groups.get(key).push(row);
+      });
+      const container=epEl('div',undefined,'ep-recibidas-list');eventBody.append(container);
+      for(const [month,items] of groups){
+        const label=month==='sin-fecha'?'Fecha pendiente':new Date(Number(month.slice(0,4)),Number(month.slice(5,7))-1,1).toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+        const section=epEl('section',undefined,'ep-recibidas-mes');
+        section.append(epEl('h4',label.charAt(0).toUpperCase()+label.slice(1)));
+        for(const row of items){
+          const c=epEl('article',undefined,'ep-recibida-card');
+          const info=epEl('div',undefined,'ep-recibida-info');
+          info.append(epEl('strong',row.evento));
+          info.append(epEl('span','Cliente: '+row.cliente));
+          info.append(epEl('span',row.date?'Fecha: '+new Date(Number(row.date.slice(0,4)),Number(row.date.slice(5,7))-1,Number(row.date.slice(8,10))).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}):'Fecha por confirmar'));
+          if(row.songs.length)info.append(epEl('span','♫ '+row.songs.length+' canción'+(row.songs.length===1?'':'es')+' solicitada'+(row.songs.length===1?'':'s')));
+          const download=epBtn('↓ Descargar PDF',async()=>{
+            try{await epExportPdf(row.o.contenido,row.songs,row.evento,row.o.version)}catch(e){epShowError(e)}
+          },'primary');
+          c.append(info,download);section.append(c);
+        }
+        container.append(section);
       }
     }catch(e){eventBody.append(epInfo('No se pudieron cargar las organizaciones: '+e.message))}
   };
