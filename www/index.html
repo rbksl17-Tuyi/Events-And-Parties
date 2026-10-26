@@ -2770,8 +2770,8 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     // Consulta columnas existentes sin exigir campos opcionales que pueden estar dentro de datos (JSONB).
     const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
-      isAdmin?client.from('ep_solicitudes_presupuesto').select('*').in('estado',['PENDIENTE','EN_PREPARACION']):Promise.resolve({data:[],error:null}),
-      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,titulo,estado,importe').eq('estado','ACEPTADO'):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_solicitudes_presupuesto').select('*'):Promise.resolve({data:[],error:null}),
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,solicitud_id,titulo,estado,importe'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
@@ -2781,35 +2781,33 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(error){eventBody.textContent='No se ha podido cargar el calendario: '+(error.message||'Error de acceso a eventos')+'.';console.error('Error al cargar calendario:',error);return}
     calEvents=(data||[]).map(normalizeEpEvent).sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
     if(isAdmin && !acceptedBudgetResult.error){
-      // Una solicitud pasa a evento cuando tiene presupuesto aceptado.
-      // Evitar duplicados si el cliente ya creó el evento en ep_eventos.
-      const acceptedByClient=new Map();
-      for(const budget of (acceptedBudgetResult.data||[])){
-        const id=String(budget.cliente_id||'');
-        if(!acceptedByClient.has(id))acceptedByClient.set(id,[]);
-        acceptedByClient.get(id).push(budget);
+      // Fuente de verdad: ep_presupuestos.solicitud_id. Nunca inferir por cliente,
+      // nombre, importe o fecha: un cliente puede contratar varios eventos.
+      const linked=new Map();
+      for(const p of (acceptedBudgetResult.data||[])){
+        if(p.solicitud_id!=null){
+          const key=String(p.solicitud_id);
+          if(!linked.has(key))linked.set(key,[]);
+          linked.get(key).push(p);
+        }
       }
-      const stillPending=[];
+      const pending=[];
       for(const r of adminCalendarRequests){
-        const accepted=acceptedByClient.get(String(r.cliente_id||''))||[];
+        const budgets=linked.get(String(r.id))||[];
+        const accepted=budgets.filter(p=>p.estado==='ACEPTADO');
         const date=String(r.fecha||'').slice(0,10);
-        // Prioridad: vinculación explícita entre solicitud y presupuesto.
-        // Compatibilidad con la solicitud histórica de Rebeca Rojo del 30/10/2026,
-        // cuyo presupuesto aceptado confirmado por administración es el de 500 €.
-        // No asociar otros presupuestos del mismo cliente por accidente.
-        const linkedId=r.presupuesto_id||r.presupuesto_aceptado_id||null;
-        const explicit=linkedId?accepted.find(b=>String(b.id)===String(linkedId)):null;
-        const isRebecaOct30=date==='2026-10-30' && /rebeca\s+rojo/i.test(String(r.nombre||''));
-        const historical=isRebecaOct30?accepted.filter(b=>Number(b.importe)===500):[];
-        const budget=explicit||(accepted.length===1?accepted[0]:historical.length===1?historical[0]:null);
-        if(date && budget){
-          const existing=calEvents.some(ev=>String(ev.presupuesto_id||'')===String(budget.id) || (String(ev.cliente_id||'')===String(r.cliente_id||'') && ev.fecha_evento===date));
-          if(!existing)calEvents.push({fecha_evento:date,nombrecliente:r.nombre||'',tipo_evento:r.tipo||budget.titulo||'Evento',lugar_evento:r.lugar||'',hora_inicio:r.horario||'',estado_evento:'Confirmado',presupuesto_id:budget.id,cliente_id:r.cliente_id});
+        if(accepted.length&&date){
+          const budget=accepted[0];
+          const existing=calEvents.some(ev=>String(ev.presupuesto_id||'')===String(budget.id) ||
+            (String(ev.cliente_id||'')===String(r.cliente_id||'')&&ev.fecha_evento===date));
+          if(!existing)calEvents.push({fecha_evento:date,nombrecliente:r.nombre||'',tipo_evento:r.tipo||budget.titulo||'Evento',lugar_evento:r.lugar||'',hora_inicio:r.horario||'',estado_evento:'CONFIRMADO',presupuesto_id:budget.id,cliente_id:r.cliente_id});
           continue;
         }
-        stillPending.push(r);
+        // Las solicitudes con presupuesto rechazado no son reservas confirmadas.
+        if(budgets.some(p=>p.estado==='RECHAZADO')&&!budgets.some(p=>p.estado==='PENDIENTE'))continue;
+        if(['PENDIENTE','EN_PREPARACION','PRESUPUESTO_ENVIADO'].includes(r.estado))pending.push(r);
       }
-      adminCalendarRequests=stillPending;
+      adminCalendarRequests=pending;
       calEvents.sort((a,b)=>(a.fecha_evento||'9999').localeCompare(b.fecha_evento||'9999'));
     }
     if(isAdmin && acceptedBudgetResult.error)console.warn('No se pudieron comprobar los presupuestos aceptados del calendario:',acceptedBudgetResult.error.message);
@@ -3027,7 +3025,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         else{alert('Estado actualizado');loadAdminBudgets()}
       });
       box.append(saveStatus);
-      box.append(budgetButton('Crear presupuesto para este cliente',()=>createBudget(r.cliente_id)));
+      box.append(budgetButton('Crear presupuesto para esta solicitud',()=>createBudget(r.cliente_id,r.id)));
       requestsPane.append(box);
     });
     acceptedPane.append(budgetNode('h3','Aceptados'));rejectedPane.append(budgetNode('h3','Rechazados'));
@@ -3047,7 +3045,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       });
     }
   };
-  const createBudget=async(presetUid='')=>{
+  const createBudget=async(presetUid='',presetSolicitudId=null)=>{
     eventBody.replaceChildren(budgetNode('h3','Nuevo presupuesto'),budgetNode('p','Cargando clientes registrados…'));
     let profiles;
     try{profiles=await loadClientProfiles()}catch(error){eventBody.append(budgetNode('p',error.message),budgetButton('Volver',loadAdminBudgets));return}
@@ -3064,6 +3062,23 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const placeholder=budgetNode('option','Selecciona un cliente');placeholder.value='';clientSelect.append(placeholder);
     profiles.forEach(p=>{const option=budgetNode('option',clientLabel(p.id,profiles));option.value=p.id;clientSelect.append(option)});
     clientSelect.value=presetUid;clientWrap.append(clientSelect);form.append(clientWrap);
+    // Relación inequívoca con la solicitud. También disponible para presupuestos creados desde cero.
+    const solicitudWrap=budgetNode('label','Solicitud vinculada al presupuesto');
+    const solicitudSelect=budgetNode('select');solicitudSelect.name='solicitud_id';
+    const solicitudPlaceholder=budgetNode('option','Sin vincular (presupuesto independiente)');solicitudPlaceholder.value='';solicitudSelect.append(solicitudPlaceholder);
+    const {data:solicitudes,error:solicitudesError}=await client.from('ep_solicitudes_presupuesto').select('id,cliente_id,nombre,tipo,fecha,lugar').order('creado_en',{ascending:false});
+    if(solicitudesError){const note=budgetNode('p','No se pudieron cargar las solicitudes: '+solicitudesError.message);form.append(note)}
+    const updateSolicitudes=()=>{
+      const selected=String(clientSelect.value||'');
+      solicitudSelect.replaceChildren(solicitudPlaceholder);
+      for(const r of (solicitudes||[]).filter(r=>String(r.cliente_id)===selected)){
+        const option=budgetNode('option','#'+r.id+' · '+(r.tipo||'Evento')+' · '+(r.fecha||'Sin fecha')+' · '+(r.lugar||'')+' · '+(r.nombre||''));
+        option.value=String(r.id);solicitudSelect.append(option);
+      }
+      if(presetSolicitudId&&[...solicitudSelect.options].some(o=>o.value===String(presetSolicitudId)))solicitudSelect.value=String(presetSolicitudId);
+    };
+    clientSelect.addEventListener('change',()=>{presetSolicitudId=null;updateSolicitudes()});
+    updateSolicitudes();solicitudWrap.append(solicitudSelect);form.append(solicitudWrap);
     field('Título','titulo');field('Descripción','descripcion','textarea');field('Importe en euros','importe','number');
     const pdf=field('Adjuntar presupuesto PDF (opcional)','pdf','file');pdf.accept='application/pdf';pdf.required=false;
     form.append(budgetNode('p','PDF máximo 10 MB. Solo el cliente asignado y la administración podrán acceder al archivo.'));
@@ -3072,7 +3087,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       e.preventDefault();save.disabled=true;
       const fd=new FormData(form);
       const payload={cliente_id:String(fd.get('cliente_id')).trim(),titulo:String(fd.get('titulo')).trim(),
-        descripcion:String(fd.get('descripcion')||'').trim(),importe:Number(fd.get('importe')),estado:'PENDIENTE'};
+        descripcion:String(fd.get('descripcion')||'').trim(),importe:Number(fd.get('importe')),estado:'PENDIENTE',solicitud_id:fd.get('solicitud_id')?Number(fd.get('solicitud_id')):null};
       let uploadedPath=null;
       try{
         if(!profiles.some(p=>p.id===payload.cliente_id))throw new Error('Selecciona un cliente válido');
