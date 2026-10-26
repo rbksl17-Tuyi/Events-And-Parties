@@ -886,6 +886,24 @@ background:
 .ep-cal-day.has-event::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:#8d5100;box-shadow:0 0 0 2px #fff5c0}
 .ep-phone-form{display:grid;gap:12px;max-width:500px;margin-top:18px}
 .ep-phone-form input{background:#181410;color:#fff;border:1px solid #c69b51;border-radius:9px;padding:13px}
+
+/* Mis eventos · panel final simplificado */
+.ep-mis-resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin:14px 0 18px}
+.ep-mis-stat{background:linear-gradient(145deg,#272019,#171511);border:1px solid #987342;border-radius:12px;color:#ead5a8;padding:14px 12px;text-align:left;cursor:pointer;font:inherit;transition:border-color .15s}
+.ep-mis-stat:hover,.ep-mis-stat:focus-visible{border-color:#f2d18b;outline:2px solid #9e793b;outline-offset:1px}
+.ep-mis-stat strong{display:block;color:#f4d38c;font-size:26px;line-height:1.2}
+.ep-mis-stat span{display:block;font-size:12px;margin-top:4px}
+.ep-mis-search{display:block;width:100%;max-width:650px;margin:18px 0;padding:13px 16px;background:#171410;border:1px solid #a78145;border-radius:10px;color:#fff6e5;font:inherit}
+.ep-mis-card{margin-bottom:14px}
+.ep-mis-progress{margin:12px 0 4px;color:#e8d2a6;font-weight:700}
+.ep-mis-missing{color:#f2d6a6;font-size:13px;margin:5px 0 10px;line-height:1.6}
+.ep-mis-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:12px}
+.ep-mis-more{display:inline-block;position:relative;border:1px solid #a77d41;border-radius:9px;background:#2a2117;color:#f1d5a0;min-width:145px}
+.ep-mis-more summary{cursor:pointer;padding:12px 16px;font-weight:700;list-style-position:inside}
+.ep-mis-more[open]{padding-bottom:10px}
+.ep-mis-more>button{display:block;margin:8px 10px!important;max-width:calc(100% - 20px)}
+@media(max-width:600px){.ep-mis-resumen{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-mis-actions{align-items:stretch}.ep-mis-more{max-width:100%}}
+
 </style>
 
 <style>
@@ -2487,9 +2505,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     try{await epCall(client.rpc('ep_resolver_cambios',{p_solicitud:requestId,p_autorizar:approve}));await epAdminDetail(id)}
     catch(e){epShowError(e)}
   };
-  // Mis eventos: estado de la organización y archivado por fecha de celebración.
+  // Mis eventos: vista simplificada para el administrador, con papelera reversible.
   const epAdminAcceptedEvents=async()=>{
-    eventBody.replaceChildren(epEl('h3','Mis eventos'),epInfo('Seguimiento automático de eventos aceptados. El administrador puede consultar y editar la organización en cualquier etapa.'));
+    eventBody.replaceChildren(epEl('h3','Mis eventos'),epInfo('Consulta los próximos eventos, revisa lo que falta y abre cada organización desde un solo lugar.'));
     if(!isAdmin)return;
     const area=epEl('div');eventBody.append(area);
     try{
@@ -2519,56 +2537,85 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         ['archivados','Archivados'],
         ['papelera','Papelera de seguridad']
       ];
+      const dashboard=epEl('div',undefined,'ep-mis-resumen');
+      for(const [key,label] of labels){
+        const tile=epEl('button',undefined,'ep-mis-stat');tile.type='button';
+        tile.append(epEl('strong',String(rows.filter(x=>x.status===key).length)),epEl('span',label));
+        tile.addEventListener('click',()=>{const btn=tabs.querySelectorAll('button')[labels.findIndex(x=>x[0]===key)];if(btn)btn.click()});
+        dashboard.append(tile);
+      }
+      area.append(dashboard);
       const tabs=epClientTabs(labels.map(([key,label])=>[label,()=>show(key)]));
       area.append(tabs);
       const search=document.createElement('input');
       search.type='search';search.placeholder='Buscar cliente, celebración, fecha o presupuesto…';
       search.setAttribute('aria-label','Buscar eventos');
-      search.style.cssText='display:block;width:100%;max-width:650px;margin:18px 0;padding:13px 16px;background:#171410;border:1px solid #a78145;border-radius:10px;color:#fff6e5;font:inherit';
-      area.append(search);
+      search.className='ep-mis-search';area.append(search);
       const content=epEl('div');area.append(content);
       let current='pendientes';
       search.addEventListener('input',()=>show(current));
+      const formatDate=v=>v?v.split('-').reverse().join('/'):'Sin fecha indicada';
+      const sortByDate=(a,b)=>{
+        // Eventos próximos primero; los que no tienen fecha se muestran al final.
+        const da=a.date||'9999-12-31',db=b.date||'9999-12-31';
+        return da.localeCompare(db)||Number(a.b.id)-Number(b.b.id);
+      };
+      const progress=o=>{
+        if(!o)return {label:'Pendiente: el cliente aún no ha iniciado la organización',details:[]};
+        const sections=epTypes[o.tipo]||epTypes.OTRO;
+        const data=o.contenido||{};
+        const missing=sections.filter(name=>!data[name]?.completado);
+        if(o.estado==='ENVIADA')return {label:'Organización enviada por el cliente',details:missing.length?['Apartados sin marcar como completados: '+missing.join(', ')]:[]};
+        if(!missing.length)return {label:'Apartados marcados como completados; pendiente de envío',details:[]};
+        return {label:sections.length-missing.length+' de '+sections.length+' apartados completados',details:['Pendientes: '+missing.join(', ')]};
+      };
       function show(key){
         current=key;content.replaceChildren();
         const term=search.value.trim().toLocaleLowerCase('es');
         const items=rows.filter(x=>x.status===key&&(!term||[
-          x.b.titulo,x.b.descripcion,x.b.id,x.r?.nombre,x.r?.tipo,x.r?.lugar,x.date,x.o?.titulo,x.e?.nombre
-        ].some(v=>String(v??'').toLocaleLowerCase('es').includes(term))));
-        const summary=epInfo(items.length+' evento(s) · '+labels.find(x=>x[0]===key)[1]);
-        content.append(summary);
+          x.b.titulo,x.b.descripcion,x.b.id,x.r?.nombre,x.r?.tipo,x.r?.lugar,x.date,formatDate(x.date),x.o?.titulo,x.e?.nombre
+        ].some(v=>String(v??'').toLocaleLowerCase('es').includes(term)))).sort(sortByDate);
+        content.append(epInfo(items.length+' evento(s) · '+labels.find(x=>x[0]===key)[1]+' · Ordenados por fecha'));
         if(!items.length){content.append(epInfo('No hay eventos en esta pestaña'+(term?' que coincidan con la búsqueda.':'.')));return}
-        items.sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
         for(const {b,o,r,e,date,status} of items){
           const c=epCard(o?.titulo||r?.nombre||e?.nombre||b.titulo||'Celebración');
-          c.append(epInfo('Presupuesto #'+b.id+(date?' · Fecha: '+date.split('-').reverse().join('/'):' · Fecha no indicada')));
+          c.classList.add('ep-mis-card');
+          c.append(epInfo('Presupuesto #'+b.id+' · '+formatDate(date)));
           if(r?.lugar)c.append(epInfo('Lugar: '+r.lugar));
-          const pill=status==='archivados'?'▣ Archivado · fecha celebrada':status==='finalizados'?'✓ Organización finalizada':status==='activos'?'◷ En organización':'● Sin empezar';
+          const pill=status==='papelera'?'▣ En la papelera':status==='archivados'?'▣ Archivado · fecha celebrada':status==='finalizados'?'✓ Organización finalizada':status==='activos'?'◷ En organización':'● Sin empezar';
           c.append(epEl('span',pill,'ep-org-pill'));
-          if(!date)c.append(epInfo('Sin fecha vinculada: no se archivará automáticamente hasta indicar una fecha.'));
+          if(status!=='papelera'){
+            const p=progress(o);
+            c.append(epEl('div',p.label,'ep-mis-progress'));
+            for(const d of p.details)c.append(epEl('div',d,'ep-mis-missing'));
+            if(!date)c.append(epInfo('Falta indicar la fecha; no se archivará automáticamente.'));
+          }
+          const actions=epEl('div',undefined,'ep-mis-actions');
+          if(o)actions.append(epBtn('Abrir organización',()=>epAdminDetail(o.id),'primary'));
+          else if(status!=='papelera')actions.append(epInfo('La organización estará disponible cuando el cliente la inicie.'));
+          if(status==='papelera'){
+            c.append(epInfo('Retirado el '+new Date(b.eliminado_en).toLocaleDateString('es-ES')+' · Oculto en el área del cliente.'));
+            actions.append(epBtn('↩ Restaurar evento',async()=>{
+              if(!confirm('¿Restaurar este evento para el administrador y el cliente?'))return;
+              try{await epCall(client.from('ep_presupuestos').update({eliminado_en:null}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
+            },'primary'));
+          }
+          const details=epEl('details',undefined,'ep-mis-more');
+          const summary=epEl('summary','Más opciones');details.append(summary);
           if(o){
-            c.append(epBtn('Ver y editar organización',()=>epAdminDetail(o.id),'primary'));
-            c.append(epBtn('Descargar PDF para el DJ',async()=>{
+            details.append(epBtn('Descargar PDF para el DJ',async()=>{
               try{
                 const songs=await epCall(client.from('ep_canciones_evento').select('*').eq('organizacion_id',o.id).order('orden',{ascending:true}));
                 epExportPdf(o.contenido||{},songs,o.titulo||b.titulo||'Evento',o.version||1);
               }catch(err){epShowError(err)}
             }));
-            c.append(epBtn('Historial de versiones',()=>epVersionsAdmin(o.id)));
-          }else c.append(epInfo('El cliente todavía no ha comenzado a organizar este evento. La organización estará disponible cuando la inicie.'));
-          if(status==='papelera'){
-            c.append(epInfo('Retirado el '+new Date(b.eliminado_en).toLocaleDateString('es-ES')+' · No visible en el área del cliente.'));
-            c.append(epBtn('↩ Restaurar evento',async()=>{
-              if(!confirm('¿Restaurar este evento para el administrador y el cliente?'))return;
-              try{await epCall(client.from('ep_presupuestos').update({eliminado_en:null}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
-            },'primary'));
-          }else{
-            c.append(epBtn('Enviar a la papelera',async()=>{
-              if(!confirm('¿Enviar este evento a la papelera? Dejará de aparecer al cliente y se podrá restaurar.'))return;
-              try{await epCall(client.from('ep_presupuestos').update({eliminado_en:new Date().toISOString()}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
-            }));
+            details.append(epBtn('Historial de versiones',()=>epVersionsAdmin(o.id)));
           }
-          content.append(c);
+          if(status!=='papelera')details.append(epBtn('Enviar a la papelera',async()=>{
+            if(!confirm('¿Enviar este evento a la papelera? Dejará de aparecer al cliente y se podrá restaurar.'))return;
+            try{await epCall(client.from('ep_presupuestos').update({eliminado_en:new Date().toISOString()}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
+          }));
+          actions.append(details);c.append(actions);content.append(c);
         }
       }
       show('pendientes');
