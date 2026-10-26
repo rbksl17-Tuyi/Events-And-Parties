@@ -2579,6 +2579,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
+    adminCalendarBudgets=isAdmin?(acceptedBudgetResult.data||[]):[];
     if(isAdmin&&requestResult.error)console.warn('No se pudieron consultar las solicitudes del calendario:',requestResult.error.message);
       if(error){info.textContent='No se pudieron consultar tus eventos: '+error.message+' (revisa permisos de lectura en Supabase).';return}
       info.remove();
@@ -2672,6 +2673,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     .ep-cal-day.has-event{background:#ffe45a!important;color:#231500!important;border:2px solid #fff3a2!important;box-shadow:0 0 15px #e9bc4377!important}
     .ep-cal-detail{margin-top:18px;border:1px solid #7b5b2c;border-radius:10px;padding:15px;background:#17130d}
     .ep-cal-detail h4{color:#f0c87a;margin:0 0 10px}
+    .ep-cal-detail article{padding:12px 0;border-bottom:1px solid #564328}
+    .ep-cal-detail article:last-child{border-bottom:0}
+    .ep-cal-detail .adm-btn{margin:8px 8px 4px 0}
+    .ep-cal-agenda-item:focus-visible{outline:2px solid #f0c87a}
     .ep-cal-help{color:#d6bd90;font-size:.9rem;margin:12px 0}
     @media(max-width:480px){.ep-cal-day{min-height:43px;font-size:.85rem}.ep-cal-grid{gap:3px}}
   `;
@@ -2681,6 +2686,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   let calSelected='';
   let calEvents=[];
   let adminCalendarRequests=[];
+  let adminCalendarBudgets=[];
   let calRequest=0;
   const dateKey=(year,month,day)=>`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   const renderCalendar=()=>{
@@ -2729,7 +2735,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       entries.forEach(entry=>{
         const btn=document.createElement('button');btn.type='button';btn.className='ep-cal-agenda-item '+(entry.kind==='pending'?'pending':'confirmed');
         btn.append(epEl('strong',entry.date?formatDate(entry.date):'Sin fecha'),epEl('span',entry.title),epEl('small',entry.subtitle|| (entry.kind==='pending'?'Presupuesto pendiente':'Evento confirmado')));
-        btn.addEventListener('click',()=>{calSelected=entry.date;renderCalendar()});right.append(btn);
+        btn.addEventListener('click',()=>{calSelected=entry.date;renderCalendar();const details=eventBody.querySelector('.ep-cal-detail');if(details)details.scrollIntoView({behavior:'smooth',block:'nearest'})});right.append(btn);
       });
       layout.append(left,right);eventBody.append(layout);
     }
@@ -2739,10 +2745,37 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const heading=document.createElement('h4');heading.textContent='Eventos del '+formatDate(calSelected);detail.appendChild(heading);
       const matching=calEvents.filter(ev=>ev.fecha_evento===calSelected);
       if(!matching.length&&!isAdmin){const empty=document.createElement('p');empty.textContent='No tienes eventos asignados para este día.';detail.appendChild(empty)}
-      matching.forEach(ev=>{const article=document.createElement('article');const h=document.createElement('h4');h.textContent=ev.tipo_evento||'Mi evento';article.appendChild(h);addDetail(article,'Cliente',ev.nombrecliente);addDetail(article,'Lugar',ev.lugar_evento);addDetail(article,'Inicio',ev.hora_inicio);addDetail(article,'Fin',ev.hora_fin);addDetail(article,'Estado',ev.estado_evento);detail.appendChild(article)});
+      matching.forEach(ev=>{
+        const article=document.createElement('article');const h=document.createElement('h4');h.textContent=ev.nombrecliente||ev.tipo_evento||'Evento confirmado';article.appendChild(h);
+        addDetail(article,'Tipo de celebración',ev.tipo_evento);addDetail(article,'Cliente',ev.nombrecliente);
+        addDetail(article,'Fecha',formatDate(ev.fecha_evento));addDetail(article,'Lugar',ev.lugar_evento);
+        addDetail(article,'Inicio',ev.hora_inicio);addDetail(article,'Fin',ev.hora_fin);
+        addDetail(article,'Estado',ev.estado_evento||'Confirmado');
+        if(isAdmin){
+          const budget=adminCalendarBudgets.find(p=>String(p.id)===String(ev.presupuesto_id));
+          if(budget){
+            addDetail(article,'Presupuesto',budget.titulo||'Presupuesto');
+            addDetail(article,'Importe',Number(budget.importe).toLocaleString('es-ES',{style:'currency',currency:'EUR'}));
+            addDetail(article,'Estado del presupuesto',budget.estado);
+            article.append(adminBtn('Ver presupuesto',()=>epCalendarBudgetDetail(budget)));
+            article.append(adminBtn('Ver organización',()=>epCalendarOpenOrganization(budget.id),true));
+          }else article.append(epInfo('No hay un presupuesto vinculado identificable para esta ficha.'));
+        }
+        detail.appendChild(article);
+      });
       if(isAdmin){
         const requests=adminCalendarRequests.filter(r=>String(r.fecha||'').slice(0,10)===calSelected);
-        requests.forEach(r=>{const article=document.createElement('article');article.append(epEl('h4','Solicitud de presupuesto'),epEl('p',r.nombre||r.tipo||'Solicitud pendiente'));detail.append(article)});
+        requests.forEach(r=>{
+          const article=document.createElement('article');article.append(epEl('h4','Solicitud de presupuesto'));
+          addDetail(article,'Cliente',r.nombre);addDetail(article,'Tipo',r.tipo);
+          addDetail(article,'Fecha',r.fecha?formatDate(String(r.fecha).slice(0,10)):'Sin fecha');
+          addDetail(article,'Lugar',r.lugar);addDetail(article,'Horario',r.horario);
+          addDetail(article,'Invitados',r.invitados);addDetail(article,'Servicios',Array.isArray(r.servicios)?r.servicios.join(', '):r.servicios);
+          addDetail(article,'Observaciones',r.detalles);addDetail(article,'Estado',r.estado);
+          const budgets=adminCalendarBudgets.filter(p=>String(p.solicitud_id)===String(r.id));
+          budgets.forEach(p=>article.append(adminBtn('Ver presupuesto: '+(p.titulo||p.id),()=>epCalendarBudgetDetail(p))));
+          detail.append(article);
+        });
         if(!matching.length&&!requests.length)detail.append(epEl('p','No hay eventos ni solicitudes para esta fecha.'));
       }
       eventBody.appendChild(detail);
@@ -2760,6 +2793,26 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       else alert('Solicitud enviada a administración. La fecha original se mantiene hasta su aprobación.');
     });actions.append(change,add);eventBody.append(actions)}
   };
+  // Fichas de calendario: se consultan los registros reales, sin inferir vínculos por nombre.
+  const epCalendarBudgetDetail=(p)=>{
+    eventBody.replaceChildren(adminBtn('← Volver al calendario',loadCalendar));
+    const card=epEl('section',undefined,'ep-cal-detail');
+    card.append(epEl('h3','Presupuesto · '+(p.titulo||'#'+p.id)));
+    addDetail(card,'Descripción',p.descripcion);addDetail(card,'Importe',Number(p.importe).toLocaleString('es-ES',{style:'currency',currency:'EUR'}));
+    addDetail(card,'Estado',p.estado);
+    card.append(adminBtn('Ver organización',()=>epCalendarOpenOrganization(p.id),true));
+    eventBody.append(card);
+  };
+  const epCalendarOpenOrganization=async(budgetId)=>{
+    eventBody.replaceChildren(adminBtn('← Volver al calendario',loadCalendar),epInfo('Consultando organización…'));
+    try{
+      const {data,error}=await client.from('ep_organizaciones').select('id,estado,titulo').eq('presupuesto_id',budgetId).order('actualizado_en',{ascending:false}).limit(1);
+      if(error)throw error;
+      if(!data?.length){eventBody.replaceChildren(adminBtn('← Volver al calendario',loadCalendar),epInfo('El cliente todavía no ha iniciado la organización de este evento.'));return}
+      await epAdminDetail(data[0].id);
+      // epAdminDetail ya permite editar apartados y descargar el PDF.
+    }catch(e){eventBody.replaceChildren(adminBtn('← Volver al calendario',loadCalendar),epInfo('No se pudo consultar la organización: '+e.message))}
+  };
   const loadCalendar=async()=>{
     const request=++calRequest;
     if(!client){eventBody.textContent='No se ha configurado la conexión con Supabase.';return}
@@ -2771,10 +2824,11 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const [eventResult,requestResult,acceptedBudgetResult]=await Promise.all([
       isAdmin?client.from('ep_eventos').select('*'):client.from('ep_eventos').select('*').eq('cliente_id',user.id),
       isAdmin?client.from('ep_solicitudes_presupuesto').select('*'):Promise.resolve({data:[],error:null}),
-      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,solicitud_id,titulo,estado,importe'):Promise.resolve({data:[],error:null})
+      isAdmin?client.from('ep_presupuestos').select('id,cliente_id,solicitud_id,titulo,descripcion,estado,importe,pdf_path'):Promise.resolve({data:[],error:null})
     ]);
     const {data,error}=eventResult;
     adminCalendarRequests=isAdmin?(requestResult.data||[]):[];
+    adminCalendarBudgets=isAdmin?(acceptedBudgetResult.data||[]):[];
     if(isAdmin&&requestResult.error)console.warn('Solicitudes no disponibles en calendario:',requestResult.error.message);
 
     if(request!==calRequest||eventTitle.textContent!=='Calendario')return;
