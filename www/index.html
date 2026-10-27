@@ -3948,5 +3948,78 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 })();
 </script>
 
+
+<style id="ep-unified-dashboard-style">
+.ep-quick-panel{max-width:1150px;margin:0 auto 28px;padding:0 2px;color:#fff2dd}
+.ep-quick-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:0 0 17px}
+.ep-quick-title h2{margin:0;color:#f2cb81;font-size:clamp(20px,3vw,28px)}
+.ep-quick-title button,.ep-quick-action{border:1px solid #c7a064;background:#21190f;color:#f7db9c;border-radius:10px;padding:10px 14px;cursor:pointer;font:inherit}
+.ep-quick-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.ep-quick-stat,.ep-quick-box{border:1px solid #705631;border-radius:15px;background:linear-gradient(145deg,#21190f,#100f0e);padding:17px}
+.ep-quick-stat strong{display:block;font-size:clamp(22px,3vw,33px);color:#f3ce83}.ep-quick-stat span{font-size:13px;color:#d5c6aa}
+.ep-quick-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ep-quick-box h3{margin:0 0 12px;color:#f0cb84;font-size:18px}.ep-quick-box p{color:#d9c9b0;margin:6px 0}
+.ep-quick-line{padding:10px 0;border-bottom:1px solid #54422b;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ep-quick-line:last-child{border-bottom:0}.ep-quick-line small{display:block;color:#c7b99f}.ep-quick-line button{background:#342711;color:#f7d89c;border:1px solid #ad874b;border-radius:8px;padding:7px 11px;cursor:pointer}
+.ep-quick-check{display:flex;align-items:flex-start;gap:10px;padding:8px 0;color:#e7d9c2}.ep-quick-check input{accent-color:#d6aa58;width:18px;height:18px;margin-top:3px}
+.ep-quick-search{width:100%;padding:12px;border:1px solid #a37f48;border-radius:9px;background:#15110e;color:white;margin-bottom:10px}
+.ep-quick-status{font-size:13px;color:#d2bd92}.ep-quick-warning{color:#f4c879;font-size:12px}
+@media(max-width:760px){.ep-quick-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-quick-columns{grid-template-columns:1fr}.ep-quick-stat,.ep-quick-box{padding:13px}}
+</style>
+<script id="ep-unified-dashboard-script">
+/* Panel integrado: consultas con RLS existente; checklist solo local al dispositivo. */
+(()=>{
+'use strict';
+const home=document.getElementById('epClientHome');if(!home||!window.supabase)return;
+const panel=document.createElement('section');panel.className='ep-quick-panel';panel.setAttribute('aria-label','Resumen y herramientas rápidas');
+const grid=home.querySelector('.ep-home-grid');if(!grid)return;grid.before(panel);
+let lastRole='',lastUser='',refreshing=false;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const date=v=>{if(!v)return 'Sin fecha';const d=new Date(String(v).slice(0,10)+'T12:00:00');return Number.isNaN(+d)?String(v):new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'short',year:'numeric'}).format(d)};
+const go=dest=>{const b=home.querySelector('[data-home-destination="'+dest+'"]');if(b)b.click();};
+const btn=(txt,dest)=>'<button type="button" class="ep-quick-nav" data-dest="'+esc(dest)+'">'+esc(txt)+'</button>';
+const line=(a,b,dest)=>'<div class="ep-quick-line"><span>'+esc(a)+'<small>'+esc(b)+'</small></span>'+btn('Abrir',dest)+'</div>';
+const box=(name,content)=>'<div class="ep-quick-box"><h3>'+name+'</h3>'+content+'</div>';
+const stat=(n,t)=>'<div class="ep-quick-stat"><strong>'+esc(n)+'</strong><span>'+esc(t)+'</span></div>';
+const todo=['Confirmar horarios y ubicación','Revisar servicios y material','Confirmar música y peticiones','Revisar montaje y logística','Comprobar los últimos detalles'];
+const sup=window.supabase.createClient(PRIVATE_SUPABASE_URL,PRIVATE_SUPABASE_PUBLISHABLE_KEY);
+async function load(){if(refreshing||home.hidden)return;refreshing=true;const admin=home.classList.contains('ep-is-admin');
+ panel.innerHTML='<div class="ep-quick-title"><h2>'+(admin?'Resumen del negocio':'Tu evento, de un vistazo')+'</h2><span class="ep-quick-status">Actualizando…</span></div>';
+ try{
+ const {data:{user},error:authError}=await sup.auth.getUser();if(authError||!user){panel.innerHTML='';return;}
+ lastUser=user.id;lastRole=admin?'admin':'cliente';
+ const q=(table,columns='*')=>{let query=sup.from(table).select(columns).limit(300);if(!admin)query=query.eq('cliente_id',user.id);return query;};
+ const [eventsR,budgetsR,requestsR]=await Promise.all([q('ep_eventos','id,cliente_id,nombrecliente,fecha_evento,tipo_evento,lugar_evento,hora_inicio,hora_fin,estado_evento'),q('ep_presupuestos','id,cliente_id,titulo,estado,importe,creado_en'),q('ep_solicitudes_presupuesto','id,cliente_id,nombre,tipo,fecha,estado,creado_en')]);
+ const events=eventsR.data||[],budgets=budgetsR.data||[],requests=requestsR.data||[];
+ const today=new Date().toISOString().slice(0,10);const upcoming=events.filter(e=>e.fecha_evento&&e.fecha_evento>=today).sort((a,b)=>a.fecha_evento.localeCompare(b.fecha_evento));
+ const pending=budgets.filter(b=>!/(aceptad|rechazad|cancelad)/i.test(b.estado||''));
+ const accepted=budgets.filter(b=>/aceptad/i.test(b.estado||''));
+ const waiting=requests.filter(r=>!/(finalizad|cancelad|rechazad)/i.test(r.estado||''));
+ const errors=[eventsR,budgetsR,requestsR].filter(r=>r.error).map(r=>r.error.message);
+ let html='<div class="ep-quick-title"><h2>'+(admin?'Resumen del negocio':'Tu evento, de un vistazo')+'</h2><button type="button" id="epQuickRefresh">↻ Actualizar</button></div>';
+ html+='<div class="ep-quick-stats">'+stat(upcoming.length,'Próximos eventos')+stat(waiting.length,'Solicitudes en seguimiento')+stat(pending.length,'Presupuestos por resolver')+stat(accepted.length,'Presupuestos aceptados')+'</div>';
+ if(errors.length)html+='<p class="ep-quick-warning">Algunos datos no se han podido consultar. Revisa los permisos de Supabase: '+esc([...new Set(errors)].join(' · '))+'</p>';
+ const agenda=upcoming.length?upcoming.slice(0,5).map(e=>line((e.tipo_evento||'Evento')+(admin&&e.nombrecliente?' · '+e.nombrecliente:''),date(e.fecha_evento)+(e.hora_inicio?' · '+e.hora_inicio:''),'Mis eventos')).join(''):'<p>No hay próximos eventos registrados.</p>';
+ const alerts=[...waiting.slice(0,3).map(r=>line('Solicitud: '+(r.nombre||r.tipo||'Cliente'),date(r.fecha||r.creado_en),admin?'Gestionar presupuestos':'Presupuestos')),...pending.slice(0,3).map(b=>line(b.titulo||'Presupuesto',b.estado||'Pendiente',admin?'Gestionar presupuestos':'Presupuestos'))];
+ const alertBox=box('Avisos y seguimiento',alerts.length?alerts.join(''):'<p>Sin avisos pendientes según los datos disponibles.</p>');
+ const checklist=box('Checklist de preparación','<p class="ep-quick-warning">Las marcas se guardan únicamente en este navegador; no se sincronizan con otros dispositivos.</p><div id="epQuickChecklist"></div>');
+ const people=admin?box('Fichas de clientes','<p>Busca usuarios registrados y abre sus perfiles.</p><input id="epQuickUserSearch" class="ep-quick-search" placeholder="Buscar cliente…" aria-label="Buscar cliente"><div id="epQuickUsers">Cargando usuarios…</div>'):
+ box('Mi organización','<p>Consulta y completa los detalles de tus eventos.</p>'+btn('Abrir mis eventos','Mis eventos')+' '+btn('Ver presupuestos','Presupuestos'));
+ html+='<div class="ep-quick-columns">'+box('Agenda de próximos eventos',agenda)+alertBox+checklist+people+'</div>';
+ panel.innerHTML=html;
+ panel.querySelector('#epQuickRefresh').addEventListener('click',load);
+ panel.querySelectorAll('[data-dest]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.dest)));
+ const key='ep-checklist-v1:'+user.id+':'+(admin?'admin':'cliente');let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')}catch{}
+ const checks=panel.querySelector('#epQuickChecklist');todo.forEach((task,i)=>{const label=document.createElement('label');label.className='ep-quick-check';const check=document.createElement('input');check.type='checkbox';check.checked=!!saved[i];check.addEventListener('change',()=>{saved[i]=check.checked;try{localStorage.setItem(key,JSON.stringify(saved))}catch{}});label.append(check,document.createTextNode(task));checks.append(label)});
+ if(admin){const node=panel.querySelector('#epQuickUsers');const search=panel.querySelector('#epQuickUserSearch');const {data,error}=await sup.from('ep_clientes_perfiles').select('id,nombre,email').order('nombre',{ascending:true}).limit(300);
+ if(error)node.textContent='No se pueden cargar los perfiles: '+error.message;else{const users=data||[];const render=()=>{const found=users.filter(u=>((u.nombre||'')+' '+(u.email||'')).toLowerCase().includes(search.value.toLowerCase())).slice(0,6);node.innerHTML=found.map(u=>line(u.nombre||'Cliente',u.email||'Sin correo','Mi perfil')).join('')||'<p>No se encontraron clientes.</p>';node.querySelectorAll('[data-dest]').forEach(b=>b.addEventListener('click',()=>home.querySelector('.ep-home-profile')?.click()))};search.addEventListener('input',render);render();}}
+ }catch(e){panel.innerHTML='<p class="ep-quick-warning">No se pudo actualizar el resumen: '+esc(e.message)+'</p>'}finally{refreshing=false}
+ }
+ const observer=new MutationObserver(()=>{if(home.hidden)return;const role=home.classList.contains('ep-is-admin')?'admin':'cliente';if(role!==lastRole||!panel.children.length)load()});observer.observe(home,{attributes:true,attributeFilter:['class','hidden']});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!home.hidden)load()});
+ if(!home.hidden)load();
+})();
+</script>
+
 </body>
 </html>
