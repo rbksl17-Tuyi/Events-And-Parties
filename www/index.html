@@ -942,6 +942,25 @@ background:
 @media(max-width:650px){.ep-b2-tabs{gap:6px}.ep-b2-tabs button{font-size:.72rem!important;padding:9px 4px!important}.ep-b2-head{align-items:flex-start}.ep-b2-state{font-size:.68rem}.ep-b2-actions{gap:12px!important}}
 
 .ep-b2-top{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap}.ep-external-budget{max-width:780px;margin:0 auto}.ep-external-budget .ep-budget-form{display:grid;gap:14px}.ep-external-budget input,.ep-external-budget textarea{width:100%;max-width:100%;box-sizing:border-box}
+
+/* EP 2026: selectores accesibles de fecha y hora en ambos paneles privados */
+#epPrivateInner input[type="date"],#epPrivateInner input[type="time"],
+#epClientHome input[type="date"],#epClientHome input[type="time"],
+#epPrivateInner .ep-hour-select,#epClientHome .ep-hour-select{
+  min-height:44px;max-width:100%;color:#fff3d8;background:#191714;
+  border:1px solid #b78d4e;border-radius:9px;padding:10px 12px;
+  font:inherit;color-scheme:dark;cursor:pointer;
+}
+#epPrivateInner input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;filter:invert(.75) sepia(.6) saturate(1.5)}
+#epPrivateInner .ep-hour-select:focus-visible,#epPrivateInner input[type="date"]:focus-visible,
+#epClientHome .ep-hour-select:focus-visible{outline:2px solid #f2cb79;outline-offset:2px}
+#epPrivateInner .ep-hour-original,#epClientHome .ep-hour-original{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important}
+/* Fotografía nueva: perfiles profesionales visibles y mejor encuadre */
+#epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile{
+ background-image:linear-gradient(180deg,rgba(8,7,6,.02) 0%,rgba(8,7,6,.16) 35%,rgba(8,7,6,.9) 100%),url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&q=90')!important;
+ background-size:cover!important;background-position:center 43%!important;
+}
+
 </style>
 
 <style>
@@ -3766,5 +3785,71 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  sync();
 })();
 </script>
+
+<script id="ep-selectores-fechas-horas">
+/* Mejoras no destructivas: se conserva el input original para los guardados existentes. */
+(()=>{
+  'use strict';
+  const root=document.getElementById('epPrivateInner');
+  if(!root)return;
+  const options=[];
+  for(let mins=0;mins<1440;mins+=15){
+    options.push(String(Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0'));
+  }
+  function enhanceTime(input){
+    if(input.dataset.epHourEnhanced)return;
+    input.dataset.epHourEnhanced='1';
+    const select=document.createElement('select');
+    select.className='ep-hour-select';
+    select.setAttribute('aria-label',input.getAttribute('aria-label')||input.closest('label')?.textContent?.trim()||'Seleccionar hora');
+    select.setAttribute('title','Seleccionar hora (cada 15 minutos)');
+    const empty=document.createElement('option');empty.value='';empty.textContent='Seleccionar hora';select.append(empty);
+    const originalValue=()=>String(input.value||'').slice(0,5);
+    function sync(){
+      const value=originalValue();
+      if(value && !Array.from(select.options).some(o=>o.value===value)){
+        const extra=document.createElement('option');extra.value=value;extra.textContent=value+' (guardada)';select.append(extra);
+      }
+      select.value=value;
+      select.required=input.required;
+      select.disabled=input.disabled;
+    }
+    options.forEach(v=>{const option=document.createElement('option');option.value=v;option.textContent=v;select.append(option)});
+    input.classList.add('ep-hour-original');
+    input.insertAdjacentElement('afterend',select);
+    select.addEventListener('change',()=>{
+      input.value=select.value;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+    input.addEventListener('change',sync);
+    input.addEventListener('input',sync);
+    sync();
+  }
+  function enhanceDate(input){
+    if(input.dataset.epCalendarEnhanced)return;
+    input.dataset.epCalendarEnhanced='1';
+    input.style.colorScheme='dark';
+    input.style.cursor='pointer';
+    input.addEventListener('click',()=>{
+      if(typeof input.showPicker==='function'){
+        try{input.showPicker()}catch(_){/* el navegador usa su selector nativo */}
+      }
+    });
+  }
+  function scan(){
+    root.querySelectorAll('input[type="time"]').forEach(enhanceTime);
+    root.querySelectorAll('input[type="date"]').forEach(enhanceDate);
+  }
+  let pending=false;
+  const observer=new MutationObserver(()=>{
+    if(pending)return;pending=true;
+    queueMicrotask(()=>{pending=false;scan()});
+  });
+  observer.observe(root,{childList:true,subtree:true});
+  scan();
+})();
+</script>
+
 </body>
 </html>
