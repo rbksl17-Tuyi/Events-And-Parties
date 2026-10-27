@@ -967,6 +967,12 @@ background:
  background-size:cover!important;background-position:center 43%!important;
 }
 
+
+/* Horarios de inicio y fin: formulario de presupuestos de clientes y administración */
+.ep-client-request .ep-event-schedule{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ep-client-request .ep-event-schedule label{min-width:0}
+.ep-client-request .ep-budget-duration{padding:14px 16px;border:1px solid #c39a52;border-radius:12px;background:#261b0e;color:#f7d891;font-weight:750}
+@media(max-width:620px){.ep-client-request .ep-event-schedule{grid-template-columns:1fr}}
 </style>
 
 <style>
@@ -3277,7 +3283,55 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   const budgetCard=p=>{const card=budgetNode('article');card.className='ep-budget-card';card.append(budgetNode('h3',p.titulo),budgetNode('p',p.descripcion||'Sin descripción'),budgetNode('p','Importe: '+euro(p.importe)),budgetNode('p','Estado: '+p.estado));if(p.pdf_path){const open=budgetButton('📄 Ver / descargar PDF',async()=>{open.disabled=true;try{const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){alert('No se pudo abrir el PDF: '+e.message)}finally{open.disabled=false}});card.append(open)}return card};
   const epFormField=(form,label,name,type='text',required=true)=>{const wrap=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':type==='select'?'select':'input');if(type!=='textarea'&&type!=='select')input.type=type;input.name=name;input.required=required;wrap.append(input);form.append(wrap);return input};
   const epServices=['DJ y música','Sonido','Iluminación','Ceremonia','Animación y juegos','Montaje técnico','Otros'];
-  const epRequestForm=()=>{const section=budgetNode('section');section.className='ep-budget-card';section.append(budgetNode('h3','Solicitar un nuevo presupuesto'),budgetNode('p','Cuéntanos qué necesitas para tu evento. Te responderemos desde Events and Parties.'));const form=budgetNode('form');form.className='ep-budget-form';epFormField(form,'Nombre de contacto','nombre');const tipo=epFormField(form,'Tipo de evento','tipo','select');['','Boda','Cumpleaños','Evento privado','Colegio','Ceremonia','Otro'].forEach(v=>{const o=budgetNode('option',v||'Selecciona un evento');o.value=v;tipo.append(o)});epFormField(form,'Fecha del evento','fecha','date',false);epFormField(form,'Localidad / lugar','lugar','text',false);epFormField(form,'Horario aproximado','horario','text',false);const inv=epFormField(form,'Número de invitados','invitados','number',false);inv.min='1';const group=budgetNode('fieldset');const legend=budgetNode('legend','Servicios que necesitas');group.append(legend);const choices=budgetNode('div');choices.className='ep-services';epServices.forEach(v=>{const l=budgetNode('label');const input=budgetNode('input');input.type='checkbox';input.name='servicios';input.value=v;l.append(input,document.createTextNode(v));choices.append(l)});group.append(choices);form.append(group);epFormField(form,'Detalles o peticiones especiales','detalles','textarea',false);const send=budgetNode('button','Enviar solicitud');send.type='submit';form.append(send);form.addEventListener('submit',async e=>{e.preventDefault();send.disabled=true;const fd=new FormData(form);try{const {data:{user},error:authError}=await client.auth.getUser();if(authError||!user)throw new Error('Debes iniciar sesión');const payload={cliente_id:user.id,nombre:String(fd.get('nombre')||'').trim(),tipo:String(fd.get('tipo')||'').trim(),fecha:fd.get('fecha')||null,lugar:String(fd.get('lugar')||'').trim(),horario:String(fd.get('horario')||'').trim(),invitados:fd.get('invitados')?Number(fd.get('invitados')):null,servicios:fd.getAll('servicios'),detalles:String(fd.get('detalles')||'').trim()};const {error}=await client.from('ep_solicitudes_presupuesto').insert(payload);if(error)throw error;alert('Solicitud enviada correctamente');loadBudgets()}catch(err){alert('No se pudo enviar: '+err.message);send.disabled=false}});section.append(form);return section};
+  const epRequestForm=()=>{
+    const section=budgetNode('section');section.className='ep-budget-card ep-client-request';
+    section.append(budgetNode('h3','Solicitar un nuevo presupuesto'),budgetNode('p','Cuéntanos qué necesitas para tu evento. Te responderemos desde Events and Parties.'));
+    const form=budgetNode('form');form.className='ep-budget-form';
+    epFormField(form,'Nombre de contacto','nombre');
+    const tipo=epFormField(form,'Tipo de evento','tipo','select');
+    ['','Boda','Cumpleaños','Evento privado','Colegio','Ceremonia','Otro'].forEach(v=>{const o=budgetNode('option',v||'Selecciona un evento');o.value=v;tipo.append(o)});
+    const schedule=budgetNode('div');schedule.className='ep-event-schedule';
+    const addSchedule=(label,name,type)=>{const l=budgetNode('label',label),input=budgetNode('input');input.name=name;input.type=type;input.required=true;if(type==='time')input.step=900;l.append(input);schedule.append(l);return input};
+    const startDate=addSchedule('Fecha de inicio del evento','fecha_inicio','date');
+    const endDate=addSchedule('Fecha de finalización del evento','fecha_fin','date');
+    const startTime=addSchedule('Hora de inicio','hora_inicio','time');
+    const endTime=addSchedule('Hora de finalización','hora_fin','time');
+    form.append(schedule);
+    const duration=budgetNode('p','Duración estimada: selecciona las fechas y las horas.');
+    duration.className='ep-budget-duration';duration.setAttribute('aria-live','polite');
+    const calcDuration=()=>{
+      if(!startDate.value||!endDate.value||!startTime.value||!endTime.value){duration.textContent='Duración estimada: selecciona las fechas y las horas.';return null}
+      const from=new Date(startDate.value+'T'+startTime.value+':00'),to=new Date(endDate.value+'T'+endTime.value+':00');
+      const mins=Math.round((to-from)/60000);
+      if(!Number.isFinite(mins)||mins<=0){duration.textContent='La finalización debe ser posterior al inicio.';return null}
+      const days=Math.floor(mins/1440),hours=Math.floor(mins%1440/60),minutes=mins%60;
+      const result=[days?days+' día'+(days===1?'':'s'):'',hours?hours+' h':'',minutes?minutes+' min':''].filter(Boolean).join(' y ')||'0 min';
+      duration.textContent='Duración estimada: '+result;return result;
+    };
+    [startDate,endDate,startTime,endTime].forEach(input=>{input.addEventListener('change',calcDuration);input.addEventListener('input',calcDuration)});
+    form.append(duration);
+    epFormField(form,'Localidad / lugar','lugar','text',false);
+    const inv=epFormField(form,'Número de invitados','invitados','number',false);inv.min='1';
+    const group=budgetNode('fieldset');const legend=budgetNode('legend','Servicios que necesitas');group.append(legend);
+    const choices=budgetNode('div');choices.className='ep-services';
+    epServices.forEach(v=>{const l=budgetNode('label');const input=budgetNode('input');input.type='checkbox';input.name='servicios';input.value=v;l.append(input,document.createTextNode(v));choices.append(l)});
+    group.append(choices);form.append(group);
+    epFormField(form,'Detalles o peticiones especiales','detalles','textarea',false);
+    const send=budgetNode('button','Enviar solicitud');send.type='submit';form.append(send);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();const estimated=calcDuration();if(!estimated){alert('Comprueba las fechas y horas del evento.');return}
+      send.disabled=true;const fd=new FormData(form);
+      try{
+        const {data:{user},error:authError}=await client.auth.getUser();if(authError||!user)throw new Error('Debes iniciar sesión');
+        // Se conserva el esquema existente de Supabase: fecha y horario (texto).
+        const scheduleText='Inicio: '+fd.get('fecha_inicio')+' '+fd.get('hora_inicio')+' | Fin: '+fd.get('fecha_fin')+' '+fd.get('hora_fin')+' | Duración estimada: '+estimated;
+        const payload={cliente_id:user.id,nombre:String(fd.get('nombre')||'').trim(),tipo:String(fd.get('tipo')||'').trim(),fecha:fd.get('fecha_inicio')||null,lugar:String(fd.get('lugar')||'').trim(),horario:scheduleText,invitados:fd.get('invitados')?Number(fd.get('invitados')):null,servicios:fd.getAll('servicios'),detalles:String(fd.get('detalles')||'').trim()};
+        const {error}=await client.from('ep_solicitudes_presupuesto').insert(payload);if(error)throw error;
+        alert('Solicitud enviada correctamente');loadBudgets();
+      }catch(err){alert('No se pudo enviar: '+err.message);send.disabled=false}
+    });
+    section.append(form);return section;
+  };
   const loadBudgets=async()=>{
     eventBody.textContent='Cargando presupuestos…';
     const {data:{user}}=await client.auth.getUser();
