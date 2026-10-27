@@ -865,6 +865,12 @@ background:
 #epPrivateInner[data-ep-section="Calendario"] .private-panel:before{background-image:linear-gradient(90deg,#080808dc,#0808081c),url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1600&q=85')}
 #epPrivateInner[data-ep-section="Mis eventos"] .private-panel:before{background-image:linear-gradient(90deg,#080808dc,#0808081c),url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=85')}
 #epPrivateInner[data-ep-section="Administración"] .private-panel:before,#epPrivateInner[data-ep-section="Gestionar presupuestos"] .private-panel:before{background-image:linear-gradient(90deg,#080808dc,#0808081c),url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=85')}
+/* Cabecera de presupuestos: evento con iluminación dorada, no oficina */
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .private-panel:before{background-image:linear-gradient(90deg,rgba(8,8,8,.79),rgba(8,8,8,.16)),url("https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=88")!important;background-position:center 53%!important;background-size:cover!important}
+.ep-external-budget .ep-budget-duration{padding:14px 16px;border:1px solid #c39a52;border-radius:12px;background:#261b0e;color:#f7d891;font-weight:750}
+.ep-external-budget .ep-event-schedule{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ep-external-budget .ep-event-schedule label{min-width:0}
+@media(max-width:620px){.ep-external-budget .ep-event-schedule{grid-template-columns:1fr}}
 #epPrivateInner[data-ep-section="Organizadores recibidos"] .private-panel:before{background-image:linear-gradient(90deg,#080808dc,#0808081c),url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85')}
 #epPrivateInner[data-ep-section="Perfiles de usuarios"] .private-panel:before,#epPrivateInner[data-ep-section="Mi perfil"] .private-panel:before{background-image:linear-gradient(90deg,#080808dc,#0808081c),url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1600&q=85')}
 #privateDashboard .private-top{border-bottom:1px solid #9d733c!important;background:linear-gradient(90deg,#080808,#1b140c)!important}
@@ -3360,7 +3366,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const final=allBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
     const root=epEl('div');root.className='ep-b2';
     const top=epEl('div');top.className='ep-b2-top';
-    top.append(budgetButton('+ Crear presupuesto',()=>createBudget()),budgetButton('✉ Crear presupuesto · Nuevo cliente',()=>createExternalBudget()));root.append(top);
+    top.append(budgetButton('✉ Crear presupuesto · Nuevo cliente',()=>createExternalBudget()));root.append(top);
     const nav=epEl('div');nav.className='ep-client-tabs ep-b2-tabs';
     const panes=[epEl('section'),epEl('section'),epEl('section')];
     const labels=[['Solicitudes por preparar',pending.length],['Esperando respuesta',waiting.length],['Finalizados',final.length]];
@@ -3484,7 +3490,30 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     field('Correo electrónico del cliente','email','email');
     field('Teléfono del cliente','telefono','tel',false);
     field('Tipo de evento','tipo');
-    field('Fecha del evento','fecha','date',false);
+    const schedule=budgetNode('div');schedule.className='ep-event-schedule';
+    const scheduleField=(label,name,type)=>{
+      const l=budgetNode('label',label),i=budgetNode('input');i.type=type;i.name=name;i.required=true;
+      if(type==='time')i.step=900;
+      l.append(i);schedule.append(l);return i;
+    };
+    const fechaInicio=scheduleField('Fecha de inicio del evento','fecha_inicio','date');
+    const fechaFin=scheduleField('Fecha de finalización del evento','fecha_fin','date');
+    const horaInicio=scheduleField('Hora de inicio','hora_inicio','time');
+    const horaFin=scheduleField('Hora de finalización','hora_fin','time');
+    form.append(schedule);
+    const duracion=budgetNode('p','Duración estimada: selecciona las fechas y las horas de inicio y finalización.');
+    duracion.className='ep-budget-duration';duracion.setAttribute('aria-live','polite');
+    const updateDuracion=()=>{
+      if(!fechaInicio.value||!fechaFin.value||!horaInicio.value||!horaFin.value){duracion.textContent='Duración estimada: selecciona las fechas y las horas de inicio y finalización.';return}
+      const start=new Date(fechaInicio.value+'T'+horaInicio.value+':00');
+      const finish=new Date(fechaFin.value+'T'+horaFin.value+':00');
+      const minutes=Math.round((finish-start)/60000);
+      if(!Number.isFinite(minutes)||minutes<=0){duracion.textContent='Revisa las fechas y horas: la finalización debe ser posterior al inicio.';return}
+      const days=Math.floor(minutes/1440),hours=Math.floor(minutes%1440/60),mins=minutes%60;
+      duracion.textContent='Duración estimada: '+[days?days+' día'+(days===1?'':'s'):'',hours?hours+' h':'',mins?mins+' min':''].filter(Boolean).join(' y ');
+    };
+    [fechaInicio,fechaFin,horaInicio,horaFin].forEach(input=>{input.addEventListener('change',updateDuracion);input.addEventListener('input',updateDuracion)});
+    form.append(duracion);
     field('Lugar del evento','lugar','text',false);
     field('Título del presupuesto','titulo');
     field('Descripción y servicios incluidos','descripcion','textarea');
@@ -3499,6 +3528,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const fd=new FormData(form),file=fd.get('pdf');
       if(!(file instanceof File)||!file.size){status.textContent='Adjunta el PDF del presupuesto.';return}
       if(file.size>5*1024*1024||file.type!=='application/pdf'){status.textContent='El PDF debe ser válido y ocupar como máximo 5 MB.';return}
+      const startDate=new Date(fd.get('fecha_inicio')+'T'+fd.get('hora_inicio')+':00');
+      const endDate=new Date(fd.get('fecha_fin')+'T'+fd.get('hora_fin')+':00');
+      if(!Number.isFinite(startDate.getTime())||!Number.isFinite(endDate.getTime())||endDate<=startDate){status.textContent='La fecha y hora de finalización deben ser posteriores al inicio.';return}
       if(!confirm('¿Enviar el presupuesto a '+fd.get('email')+'?'))return;
       submit.disabled=true;status.textContent='Preparando el envío seguro…';
       try{
@@ -3506,7 +3538,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         if(authError||!session)throw new Error('Inicia sesión de administrador.');
         const bytes=new Uint8Array(await file.arrayBuffer());
         let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
-        const payload={};for(const k of ['nombre','email','telefono','tipo','fecha','lugar','titulo','descripcion'])payload[k]=String(fd.get(k)||'').trim();
+        const payload={};for(const k of ['nombre','email','telefono','tipo','fecha_inicio','fecha_fin','hora_inicio','hora_fin','lugar','titulo','descripcion'])payload[k]=String(fd.get(k)||'').trim();
+        payload.fecha=payload.fecha_inicio; // compatibilidad con la fecha usada anteriormente
+        payload.duracion_minutos=Math.round((endDate-startDate)/60000);
         payload.importe=Number(fd.get('importe'));payload.pdf_base64=btoa(binary);payload.pdf_filename=file.name;
         const {data,error}=await client.functions.invoke('ep-external-budgets',{body:{action:'create',payload}});
         if(error)throw new Error(error.message||'Error en el servicio de envío');
