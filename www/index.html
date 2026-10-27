@@ -3787,67 +3787,76 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 </script>
 
 <script id="ep-selectores-fechas-horas">
-/* Mejoras no destructivas: se conserva el input original para los guardados existentes. */
+/* Selectores accesibles para las áreas privadas; preservan los inputs originales. */
 (()=>{
-  'use strict';
-  const root=document.getElementById('epPrivateInner');
-  if(!root)return;
-  const options=[];
-  for(let mins=0;mins<1440;mins+=15){
-    options.push(String(Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0'));
+ 'use strict';
+ const root=document.getElementById('epPrivateInner');if(!root)return;
+ const pad=n=>String(n).padStart(2,'0');
+ const css=document.createElement('style');css.textContent=`
+ .ep-hour-original,.ep-date-original{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;clip-path:inset(50%)!important}
+ .ep-hour-controls{display:flex;align-items:center;gap:7px;max-width:270px}
+ .ep-hour-controls select{min-width:0;flex:1;padding:11px 9px!important;background:#191613!important;color:#fff2d6!important;border:1px solid #ad874b!important;border-radius:9px!important;font:inherit}
+ .ep-hour-controls span{color:#e8c17b;font-weight:800}
+ .ep-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:11px 13px;border:1px solid #ad874b;border-radius:9px;background:#191613;color:#fff2d6;font:inherit;cursor:pointer;text-align:left}
+ .ep-date-wrap{position:relative;min-width:0}
+ .ep-date-popup{position:absolute;top:calc(100% + 6px);left:0;z-index:9999;width:min(320px,90vw);padding:14px;background:#15120f;color:#fff3df;border:1px solid #b99153;border-radius:14px;box-shadow:0 16px 38px #000c}
+ .ep-date-popup[hidden]{display:none!important}
+ .ep-date-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+ .ep-date-header strong{font-size:15px;text-transform:capitalize;text-align:center}
+ .ep-date-header button,.ep-date-today{border:1px solid #7d6039;background:#282016;color:#f5d28b;border-radius:7px;padding:6px 10px;cursor:pointer}
+ .ep-date-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center}
+ .ep-date-days span{font-size:11px;color:#bdb09b;padding:6px 0}
+ .ep-date-days button{border:0;border-radius:7px;background:transparent;color:#f4e7d1;min-height:36px;cursor:pointer}
+ .ep-date-days button:hover,.ep-date-days button:focus-visible{background:#4b371b;outline:1px solid #d9b470}
+ .ep-date-days button[aria-pressed=true]{background:#d8b26e;color:#1b1307;font-weight:800}
+ .ep-date-footer{display:flex;justify-content:flex-end;margin-top:12px}
+ `;document.head.append(css);
+ const formatDate=v=>{if(!/^\d{4}-\d\d-\d\d$/.test(v))return 'Seleccionar fecha';const [y,m,d]=v.split('-');return `${d}/${m}/${y}`};
+ function enhanceTime(input){
+  if(input.dataset.epHourEnhanced)return;input.dataset.epHourEnhanced='1';
+  const wrap=document.createElement('div');wrap.className='ep-hour-controls';
+  const hours=document.createElement('select'),minutes=document.createElement('select');
+  hours.setAttribute('aria-label','Hora');minutes.setAttribute('aria-label','Minutos');
+  hours.innerHTML='<option value="">Hora</option>'+Array.from({length:24},(_,i)=>`<option value="${pad(i)}">${pad(i)}</option>`).join('');
+  minutes.innerHTML='<option value="">Min.</option>'+[0,15,30,45].map(i=>`<option value="${pad(i)}">${pad(i)}</option>`).join('');
+  const colon=document.createElement('span');colon.textContent=':';wrap.append(hours,colon,minutes);
+  input.classList.add('ep-hour-original');input.insertAdjacentElement('afterend',wrap);
+  function sync(){const v=input.value||'';const parts=v.split(':');hours.value=parts[0]||'';let minute=parts[1]||'';
+   if(minute&&!Array.from(minutes.options).some(o=>o.value===minute)){const op=document.createElement('option');op.value=minute;op.textContent=minute;minutes.append(op)}
+   minutes.value=minute;hours.disabled=minutes.disabled=input.disabled;hours.required=minutes.required=input.required;}
+  function update(){input.value=hours.value&&minutes.value?hours.value+':'+minutes.value:'';input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));}
+  hours.addEventListener('change',update);minutes.addEventListener('change',update);input.addEventListener('change',sync);input.addEventListener('input',sync);sync();
+ }
+ let openPopup=null;
+ function enhanceDate(input){
+  if(input.dataset.epCalendarEnhanced)return;input.dataset.epCalendarEnhanced='1';
+  const wrap=document.createElement('div');wrap.className='ep-date-wrap';const trigger=document.createElement('button');trigger.type='button';trigger.className='ep-date-trigger';
+  const popup=document.createElement('div');popup.className='ep-date-popup';popup.hidden=true;
+  input.classList.add('ep-date-original');input.insertAdjacentElement('afterend',wrap);wrap.append(trigger,popup);
+  let view=new Date();
+  const monthFmt=new Intl.DateTimeFormat('es-ES',{month:'long',year:'numeric'});
+  const sync=()=>{trigger.textContent=formatDate(input.value)+'  ▾';trigger.disabled=input.disabled;};
+  function render(){popup.replaceChildren();const head=document.createElement('div');head.className='ep-date-header';
+   const prev=document.createElement('button');prev.type='button';prev.textContent='‹';prev.setAttribute('aria-label','Mes anterior');
+   const next=document.createElement('button');next.type='button';next.textContent='›';next.setAttribute('aria-label','Mes siguiente');
+   const title=document.createElement('strong');title.textContent=monthFmt.format(view);head.append(prev,title,next);popup.append(head);
+   prev.onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};next.onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
+   const days=document.createElement('div');days.className='ep-date-days';['L','M','X','J','V','S','D'].forEach(d=>{const e=document.createElement('span');e.textContent=d;days.append(e)});
+   const first=new Date(view.getFullYear(),view.getMonth(),1);const offset=(first.getDay()+6)%7;
+   for(let i=0;i<offset;i++)days.append(document.createElement('span'));
+   const total=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+   for(let d=1;d<=total;d++){const val=`${view.getFullYear()}-${pad(view.getMonth()+1)}-${pad(d)}`;const b=document.createElement('button');b.type='button';b.textContent=d;b.setAttribute('aria-pressed',String(input.value===val));
+    if((input.min&&val<input.min)||(input.max&&val>input.max))b.disabled=true;
+    b.onclick=()=>{input.value=val;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));popup.hidden=true;openPopup=null;sync();trigger.focus()};days.append(b)}popup.append(days);
+   const footer=document.createElement('div');footer.className='ep-date-footer';const today=document.createElement('button');today.type='button';today.className='ep-date-today';today.textContent='Hoy';today.onclick=()=>{view=new Date();render()};footer.append(today);popup.append(footer);
   }
-  function enhanceTime(input){
-    if(input.dataset.epHourEnhanced)return;
-    input.dataset.epHourEnhanced='1';
-    const select=document.createElement('select');
-    select.className='ep-hour-select';
-    select.setAttribute('aria-label',input.getAttribute('aria-label')||input.closest('label')?.textContent?.trim()||'Seleccionar hora');
-    select.setAttribute('title','Seleccionar hora (cada 15 minutos)');
-    const empty=document.createElement('option');empty.value='';empty.textContent='Seleccionar hora';select.append(empty);
-    const originalValue=()=>String(input.value||'').slice(0,5);
-    function sync(){
-      const value=originalValue();
-      if(value && !Array.from(select.options).some(o=>o.value===value)){
-        const extra=document.createElement('option');extra.value=value;extra.textContent=value+' (guardada)';select.append(extra);
-      }
-      select.value=value;
-      select.required=input.required;
-      select.disabled=input.disabled;
-    }
-    options.forEach(v=>{const option=document.createElement('option');option.value=v;option.textContent=v;select.append(option)});
-    input.classList.add('ep-hour-original');
-    input.insertAdjacentElement('afterend',select);
-    select.addEventListener('change',()=>{
-      input.value=select.value;
-      input.dispatchEvent(new Event('input',{bubbles:true}));
-      input.dispatchEvent(new Event('change',{bubbles:true}));
-    });
-    input.addEventListener('change',sync);
-    input.addEventListener('input',sync);
-    sync();
-  }
-  function enhanceDate(input){
-    if(input.dataset.epCalendarEnhanced)return;
-    input.dataset.epCalendarEnhanced='1';
-    input.style.colorScheme='dark';
-    input.style.cursor='pointer';
-    input.addEventListener('click',()=>{
-      if(typeof input.showPicker==='function'){
-        try{input.showPicker()}catch(_){/* el navegador usa su selector nativo */}
-      }
-    });
-  }
-  function scan(){
-    root.querySelectorAll('input[type="time"]').forEach(enhanceTime);
-    root.querySelectorAll('input[type="date"]').forEach(enhanceDate);
-  }
-  let pending=false;
-  const observer=new MutationObserver(()=>{
-    if(pending)return;pending=true;
-    queueMicrotask(()=>{pending=false;scan()});
-  });
-  observer.observe(root,{childList:true,subtree:true});
-  scan();
+  trigger.onclick=()=>{if(openPopup&&openPopup!==popup)openPopup.hidden=true;popup.hidden=!popup.hidden;if(!popup.hidden){const v=input.value;view=/^\d{4}-\d\d-\d\d$/.test(v)?new Date(Number(v.slice(0,4)),Number(v.slice(5,7))-1,1):new Date();render();openPopup=popup}else openPopup=null};
+  input.addEventListener('change',sync);input.addEventListener('input',sync);sync();
+ }
+ document.addEventListener('pointerdown',e=>{if(openPopup&&!openPopup.parentElement.contains(e.target)){openPopup.hidden=true;openPopup=null}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&openPopup){openPopup.hidden=true;openPopup=null}});
+ function scan(){root.querySelectorAll('input[type="time"]').forEach(enhanceTime);root.querySelectorAll('input[type="date"]').forEach(enhanceDate)}
+ let pending=false;new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;scan()})}).observe(root,{childList:true,subtree:true});scan();
 })();
 </script>
 
