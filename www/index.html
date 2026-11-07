@@ -4040,37 +4040,39 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     box.append(budgetNode('h4','✦ Contrato del evento'));
     const status=budgetNode('p','Consultando el contrato...');status.className='ep-contract-live-status';box.append(status);
     const buttons=budgetNode('div');buttons.className='ep-contract-live-actions';box.append(buttons);
-    const {data,error}=await client.from('ep_contratos').select('*').eq('presupuesto_id',p.id).maybeSingle();
-    if(error){status.textContent='El sistema de contratos necesita configurar la tabla y los permisos en Supabase.';return box;}
-    const contract=data;
+    const {data,error}=await client.from('ep_contratos').select('*').eq('presupuesto_id',p.id).limit(2);
+    if(!error && data?.length>1){status.textContent='Hay varios contratos para este presupuesto. Contacta con administración para revisarlos.';return box;}
+    if(error){status.textContent='No se pudo consultar el contrato: '+error.message+'. Comprueba los permisos de Supabase.';return box;}
+    const contract=data?.[0]||null;
     const openFile=async(path)=>{try{const {data,error}=await client.storage.from(epContractBucket).createSignedUrl(path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){epContractError(e)}};
     const upload=async(kind,file)=>{
       if(!file)return;
+      if((kind==='original'&&!admin)||(kind==='firmado'&&admin)){alert('No tienes permiso para esta operación.');return;}
       if(file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){alert('Selecciona un archivo PDF.');return}
       if(file.size>15*1024*1024){alert('El PDF no puede superar 15 MB.');return}
       const {data:{user},error:userError}=await client.auth.getUser();if(userError||!user){alert('Inicia sesión para continuar.');return}
       const path=p.id+'/'+kind+'/'+user.id+'-'+Date.now()+'.pdf';
       const {error:storageError}=await client.storage.from(epContractBucket).upload(path,file,{contentType:'application/pdf',upsert:false});
       if(storageError){epContractError(storageError);return}
-      const changes=kind==='original'?{presupuesto_id:p.id,cliente_id:p.cliente_id,original_path:path,estado:'PENDIENTE_FIRMA'}:{firmado_path:path,estado:'PENDIENTE_VALIDACION'};
+      const changes=kind==='original'?{presupuesto_id:p.id,cliente_id:p.cliente_id,contrato_pdf:path,estado:'PENDIENTE_FIRMA'}:{contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'};
       const query=contract?client.from('ep_contratos').update(changes).eq('presupuesto_id',p.id):client.from('ep_contratos').insert(changes);
       const {error:dbError}=await query;
       if(dbError){await client.storage.from(epContractBucket).remove([path]);epContractError(dbError);return}
-      alert(kind==='original'?'Contrato enviado al área del cliente.':'Contrato firmado entregado al administrador.');
+      alert(kind==='original'?'Contrato guardado. El cliente podrá verlo desde su área privada si tiene acceso autorizado.':'Contrato firmado guardado. Administración podrá revisarlo.');
       if(admin)loadAdminBudgets();else loadBudgets();
     };
     const picker=(label,kind)=>{const input=budgetNode('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;input.addEventListener('change',()=>upload(kind,input.files?.[0]));const b=budgetButton(label,()=>input.click());buttons.append(b,input)};
-    if(!contract||!contract.original_path){status.textContent=admin?'Todavía no has enviado un contrato.':'El administrador todavía no ha enviado el contrato.';if(admin)picker('Adjuntar y enviar contrato PDF','original');return box}
+    if(!contract||!contract.contrato_pdf){status.textContent=admin?'Todavía no has enviado un contrato.':'El administrador todavía no ha enviado el contrato.';if(admin)picker('Adjuntar y enviar contrato PDF','original');return box}
     const states={PENDIENTE_FIRMA:'Pendiente de firma del cliente',PENDIENTE_VALIDACION:'Firmado · pendiente de validación',VALIDADO:'Contrato firmado y validado'};
     status.textContent=states[contract.estado]||'Contrato disponible';
-    buttons.append(budgetButton('Ver contrato PDF',()=>openFile(contract.original_path)));
+    buttons.append(budgetButton('Ver contrato PDF',()=>openFile(contract.contrato_pdf)));
     if(admin){
-      if(contract.firmado_path){buttons.append(budgetButton('Ver PDF firmado',()=>openFile(contract.firmado_path)));
+      if(contract.contrato_firmado_pdf){buttons.append(budgetButton('Ver PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
         if(contract.estado!=='VALIDADO')buttons.append(budgetButton('Validar contrato',async()=>{if(!confirm('¿Confirmas que has revisado el contrato firmado?'))return;const {error}=await client.from('ep_contratos').update({estado:'VALIDADO'}).eq('presupuesto_id',p.id);if(error)epContractError(error);else loadAdminBudgets()}));
       }
       if(contract.estado==='PENDIENTE_FIRMA')picker('Sustituir contrato PDF','original');
     }else{
-      if(contract.firmado_path)buttons.append(budgetButton('Ver mi PDF firmado',()=>openFile(contract.firmado_path)));
+      if(contract.contrato_firmado_pdf)buttons.append(budgetButton('Ver mi PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
       if(contract.estado==='PENDIENTE_FIRMA')picker('Subir contrato firmado PDF','firmado');
     }
     return box;
