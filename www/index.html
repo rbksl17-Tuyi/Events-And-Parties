@@ -1945,6 +1945,96 @@ section[hidden]{display:none!important}
 }
 </style>
 
+
+<style id="ep-budgets-premium-2026">
+/* Gestión de presupuestos: estética coordinada con Eventos y Calendario */
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .private-panel{
+  position:relative;isolation:isolate;overflow:hidden;
+  background:radial-gradient(ellipse at 94% 8%,rgba(45,110,158,.13),transparent 38%),
+  radial-gradient(ellipse at 3% 72%,rgba(216,160,62,.09),transparent 42%),#101114;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .private-panel:before{
+  content:"";position:absolute;top:110px;right:-90px;width:380px;height:2px;
+  transform:rotate(-19deg);background:linear-gradient(90deg,transparent,#f7d98d,transparent);
+  box-shadow:0 0 14px #f2c86b;opacity:.65;pointer-events:none;z-index:-1;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2{
+  position:relative;padding:clamp(12px,2.5vw,25px);border:1px solid #8c6c3c;
+  border-radius:20px;background:linear-gradient(150deg,#1b1b21 0%,#111216 65%,#1a1611 100%);
+  box-shadow:0 14px 45px #0007,inset 0 1px #f9d58a33;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2:before{
+  content:"";position:absolute;top:0;left:12%;right:12%;height:2px;
+  background:linear-gradient(90deg,transparent,#f6d489,transparent);
+  box-shadow:0 0 13px #e6b44eaa;pointer-events:none;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-top button{
+  border:1px solid #e5c17d!important;border-radius:12px!important;
+  background:linear-gradient(125deg,#ffe5a0,#bd842d,#f3cc77)!important;
+  color:#20160b!important;box-shadow:0 0 17px #e8b14b42,inset 0 1px #fff8!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+  background:transparent!important;border:0!important;padding:0!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button{
+  min-height:62px;white-space:normal!important;
+  background:linear-gradient(155deg,#292b33,#1c1e25)!important;
+  border:1px solid #9c8055!important;border-radius:13px!important;
+  color:#f7f2e8!important;box-shadow:inset 0 1px #ffffff20!important;
+  transition:transform .15s,box-shadow .15s;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button.active{
+  background:linear-gradient(125deg,#05d8f1,#08a8ec 56%,#136fd0)!important;
+  border:1px solid #92efff!important;color:#fff!important;
+  box-shadow:0 0 18px #06cfff80,inset 0 1px #ffffffa0!important;
+  text-shadow:0 1px 2px #08506d;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button:hover{transform:translateY(-1px)}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-budget-simple-search{
+  display:block;width:100%;margin:13px 0 18px;padding:14px 16px;
+  background:#30323e!important;color:white!important;border:1px solid #a3a4b5!important;
+  border-radius:12px!important;box-shadow:inset 0 2px 8px #0003;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-item{
+  background:linear-gradient(120deg,#303343,#262937)!important;
+  border:1px solid #9a7a4d!important;border-radius:16px!important;
+  padding:17px 19px!important;box-shadow:inset 0 1px #ffffff1c,0 8px 20px #0004;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-info h3{color:#fff7e9!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-info p{color:#ded9d3!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-actions button{
+  border:1px solid #d9b877!important;background:linear-gradient(140deg,#8e6328,#e1b55c)!important;
+  color:#21170b!important;border-radius:10px!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-actions button:hover{filter:brightness(1.13)}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-delete{
+  background:#542b2d!important;color:#fff!important;border-color:#d48a8a!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-details{
+  border-top-color:#7c6a51!important;color:#eee8dc;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-month-title{color:#f7d58c}
+.ep-contract-preview{
+  margin-top:12px;padding:13px 15px;border:1px solid #85734f;border-radius:12px;
+  background:linear-gradient(125deg,#242938,#191d28);color:#f6efe1;
+}
+.ep-contract-preview strong{display:block;color:#f5d18b;margin-bottom:5px}
+.ep-contract-preview p{font-size:13px;margin:5px 0!important;color:#e1d8c7}
+.ep-contract-preview .ep-contract-status{
+  display:inline-block;margin-top:7px;padding:4px 9px;border:1px solid #ad9768;
+  border-radius:999px;color:#e9d29e;font-size:12px;
+}
+@media(max-width:650px){
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs{gap:5px}
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button{
+  font-size:11px!important;min-height:66px;padding:8px 4px!important}
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2{padding:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button{transition:none}
+}
+</style>
 </head>
   
 <body>
@@ -4141,6 +4231,14 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         const a=actions(item);
         if(p.pdf_path)a.append(budgetButton('Ver / descargar PDF',openPdf(p)));
         const d=details(item,[['Descripción',p.descripcion],['Estado',state],['Evento',r?.tipo],['Lugar',r?.lugar],['Fecha del evento',r?.fecha?showDate(r.fecha):null]]);
+        if(p.estado==='ACEPTADO'){
+          const contract=epEl('div');contract.className='ep-contract-preview';
+          const heading=epEl('strong','✦ Contrato del evento');
+          const explanation=epEl('p','Flujo previsto: adjuntar contrato PDF → enviar al área del cliente → recibir documento firmado → validar.');
+          const status=epEl('span','Pendiente de habilitar conexión segura con Supabase');
+          status.className='ep-contract-status';
+          contract.append(heading,explanation,status);item.append(contract);
+        }
         if(p.estado!=='PENDIENTE'){
           const del=budgetButton('Eliminar presupuesto',async()=>{
             if(!confirm('¿Seguro que deseas eliminar definitivamente este presupuesto del historial? Esta acción no se puede deshacer.'))return;
