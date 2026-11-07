@@ -4510,5 +4510,91 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 })();
 </script>
 
+
+<style id="ep-calendario-azul-premium-2026">
+/* Calendario: actualización exclusivamente visual. Se conservan eventos, solicitudes,
+   navegación, agenda, acciones y consultas Supabase existentes. */
+#epPrivateInner[data-ep-section="Calendario"]{
+  --ep-cal-blue:#078bd1;
+  --ep-cal-blue-bright:#12b9f5;
+}
+#epPrivateInner[data-ep-section="Calendario"] .private-panel{
+  background:linear-gradient(150deg,#161412,#0b0b0d 70%)!important;
+  border:1px solid #a57c42!important;
+  border-radius:19px!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-main,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-aside,
+#epPrivateInner[data-ep-section="Calendario"] .ep-calendar-main,
+#epPrivateInner[data-ep-section="Calendario"] .ep-calendar-aside{
+  background:linear-gradient(140deg,#302b2b,#19191d 85%)!important;
+  border:1px solid #a88756!important;
+  border-radius:17px!important;
+  box-shadow:inset 0 1px 0 #ffffff1a,0 8px 22px #0005!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button{
+  border-radius:11px!important;
+  border:1px solid #a88957!important;
+  color:#f8ead0!important;
+  background:linear-gradient(180deg,#302821,#181716)!important;
+  box-shadow:inset 0 1px #ffffff1b!important;
+  font-weight:700!important;
+  transition:filter .18s,box-shadow .18s,background .18s!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button[aria-pressed="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button[aria-selected="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button[aria-pressed="true"]{
+  background:linear-gradient(112deg,#087dbd,#00a8e8 55%,#0663a9)!important;
+  border-color:#5bd5ff!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px #c9f4ff66,0 0 14px #00b6f65c!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{
+  border-radius:10px!important;
+  transition:filter .18s,box-shadow .18s!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-pressed="true"]{
+  background:linear-gradient(112deg,#087dbd,#00a8e8 55%,#0663a9)!important;
+  color:#fff!important;
+  border:2px solid #5bd5ff!important;
+  outline:none!important;
+  box-shadow:inset 0 1px #c9f4ff77,0 0 17px #00b6f67a!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected *,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"] *{
+  color:#fff!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day:not(.selected):hover,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button:hover,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button:hover{
+  filter:brightness(1.17);
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming{
+  border-radius:12px!important;
+  background:linear-gradient(115deg,#292525,#19191c)!important;
+  border-color:#9c7845!important;
+  box-shadow:inset 0 1px #ffffff10!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item:focus-visible,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming button:focus-visible{
+  outline:2px solid #39c6ff!important;
+  outline-offset:2px;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-detail{
+  border-radius:15px!important;
+  border-color:#a88756!important;
+}
+@media(max-width:700px){
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button,
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button{
+    padding:9px 10px!important;
+  }
+}
+</style>
+
 </body>
 </html>
