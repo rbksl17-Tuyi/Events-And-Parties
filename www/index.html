@@ -999,6 +999,45 @@ background:
 .ep-mis-stat.ep-mis-stat-active{background:linear-gradient(135deg,#e8c77e,#a77537)!important;border-color:#f5db9f!important;color:#1b140b!important}
 .ep-mis-stat.ep-mis-stat-active strong,.ep-mis-stat.ep-mis-stat-active span{color:#1b140b!important}
 .ep-mis-actions .ep-mis-danger{border-color:#b96b5e!important;color:#ffccbf!important}
+
+/* EVENTS & PARTIES · renovación visual exclusiva de Mis eventos. No altera consultas Supabase ni acciones. */
+.ep-mis-premium{--ep-gold:#f0bb53;--ep-gold-light:#ffe3a1;--ep-edge:#9b753d;color:#f8f3e9}
+.ep-mis-premium .ep-mis-resumen{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:22px 0 20px}
+.ep-mis-premium .ep-mis-stat{position:relative;min-height:96px;padding:17px 14px 14px 58px;background:linear-gradient(125deg,#30271c,#151413 75%);border:1px solid #a57c3d;border-radius:18px;box-shadow:inset 0 1px #f2c87620,0 7px 20px #0005;transition:background .2s,transform .2s,box-shadow .2s}
+.ep-mis-premium .ep-mis-stat:hover{transform:translateY(-2px);box-shadow:0 8px 24px #0008}
+.ep-mis-premium .ep-mis-stat-icon{position:absolute;left:18px;top:21px;font-size:25px;color:#e5b35b}
+.ep-mis-premium .ep-mis-stat strong{font-size:30px;color:#fff;font-weight:750}
+.ep-mis-premium .ep-mis-stat span:last-child{font-size:12px;color:#e9dfcc;line-height:1.35}
+.ep-mis-premium .ep-mis-stat-active{border-color:#ffe2a0;background:linear-gradient(120deg,#79521f,#4c361d 60%,#231a13);box-shadow:inset 0 1px #ffe1a04d,0 0 0 1px #f0b95c66,0 7px 22px #0008}
+.ep-mis-premium .ep-client-tabs{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0 20px}
+.ep-mis-premium .ep-client-tabs button{border:1px solid #99743d!important;background:linear-gradient(#24211e,#151413)!important;color:#f5f0e9!important;border-radius:13px!important;padding:13px 17px!important;font-weight:650!important;transition:all .2s;box-shadow:inset 0 1px #ffffff12}
+.ep-mis-premium .ep-client-tabs button:hover{border-color:#f7c56d!important;background:#3c2e1d!important}
+.ep-mis-premium .ep-client-tabs button.active{background:linear-gradient(120deg,#ffe3a1 0%,#e6a939 60%,#f3c669 100%)!important;border-color:#ffe1a0!important;color:#21160b!important;box-shadow:0 2px 15px #d99d3c50,inset 0 1px #fff9!important}
+.ep-mis-premium .ep-mis-search{max-width:none;border-radius:14px;background:#191817;border:1px solid #776b5c;padding:16px 18px;margin:16px 0 18px}
+.ep-mis-premium .ep-mis-search:focus{outline:2px solid #dca64c;outline-offset:1px}
+.ep-mis-premium .ep-mis-card{display:grid;grid-template-columns:165px minmax(0,1fr);column-gap:22px;align-items:start;padding:18px!important;margin:18px 0!important;border:1px solid #a37b3f!important;border-radius:19px!important;background:linear-gradient(120deg,#24211e,#171717 70%)!important;box-shadow:0 10px 30px #0005;overflow:hidden}
+.ep-mis-premium .ep-mis-photo{grid-column:1;grid-row:1 / span 12;min-height:192px;height:100%;border-radius:13px;background-position:center;background-size:cover;background-color:#372b1b;box-shadow:inset 0 0 25px #0005}
+.ep-mis-premium .ep-mis-photo-wedding{background-image:linear-gradient(#0001,#0002),url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=450&q=80')}
+.ep-mis-premium .ep-mis-photo-party{background-image:linear-gradient(#0001,#0003),url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=450&q=80')}
+.ep-mis-premium .ep-mis-photo-event{background-image:linear-gradient(#0001,#0003),url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=450&q=80')}
+.ep-mis-premium .ep-mis-card-body{display:contents}
+.ep-mis-premium .ep-mis-card>:not(.ep-mis-photo){grid-column:2;min-width:0}
+.ep-mis-premium .ep-mis-card h3,.ep-mis-premium .ep-mis-card h4{font-size:clamp(22px,2vw,30px);margin:0 0 8px;color:#fff}
+.ep-mis-premium .ep-mis-card .ep-org-pill{display:inline-block;width:max-content;max-width:100%;padding:6px 12px;border:1px solid #d8a44e;border-radius:30px;color:#f5cf83;background:#3b2a1640;box-shadow:0 0 12px #b47b2728}
+.ep-mis-premium .ep-mis-progress{color:#f5efe7;margin-top:14px}
+.ep-mis-premium .ep-mis-progress-line{display:flex;align-items:center;gap:14px;margin:10px 0;color:#f6e4c5;font-size:13px}
+.ep-mis-premium .ep-mis-track{height:9px;background:#393634;border:1px solid #67605b;border-radius:99px;overflow:hidden;flex:1;max-width:650px}
+.ep-mis-premium .ep-mis-track-fill{height:100%;background:linear-gradient(90deg,#d89324,#ffe39a);border-radius:99px;box-shadow:0 0 10px #f4b743}
+.ep-mis-premium .ep-mis-actions{gap:10px;margin-top:17px}
+.ep-mis-premium .ep-mis-actions>button,.ep-mis-premium .ep-mis-more{border-radius:11px!important;padding:12px 15px!important;border:1px solid #ad8547!important;background:linear-gradient(#30271f,#1a1817)!important;color:#f7e9d0!important;font-weight:650!important;box-shadow:none!important}
+.ep-mis-premium .ep-mis-actions>button:first-child{background:linear-gradient(125deg,#ffe39a,#e2a333)!important;color:#201407!important;border-color:#ffe5a6!important;box-shadow:0 3px 12px #dca43b55!important}
+.ep-mis-premium .ep-mis-actions>button.ep-mis-danger{border-color:#c76a6a!important;color:#ffc3c3!important;background:#422022!important}
+.ep-mis-premium .ep-mis-more{padding:0!important;min-width:unset}
+.ep-mis-premium .ep-mis-more summary{padding:12px 15px}
+@media(max-width:1100px){.ep-mis-premium .ep-mis-resumen{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.ep-mis-premium .ep-mis-resumen{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-mis-premium .ep-mis-card{grid-template-columns:95px minmax(0,1fr);gap:12px;padding:12px!important}.ep-mis-premium .ep-mis-photo{min-height:130px}.ep-mis-premium .ep-mis-actions>button{padding:10px!important}.ep-mis-premium .ep-mis-stat{padding-left:48px}.ep-mis-premium .ep-mis-stat-icon{left:13px}}
+@media(max-width:420px){.ep-mis-premium .ep-mis-card{grid-template-columns:1fr}.ep-mis-premium .ep-mis-photo{grid-column:1;grid-row:auto;height:145px}.ep-mis-premium .ep-mis-card>:not(.ep-mis-photo){grid-column:1}}
+
 </style>
 
 <style>
@@ -2741,10 +2780,12 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         ['archivados','Archivados'],
         ['papelera','Papelera de seguridad']
       ];
+      area.classList.add('ep-mis-premium');
       const dashboard=epEl('div',undefined,'ep-mis-resumen');
       for(const [key,label] of labels){
         const tile=epEl('button',undefined,'ep-mis-stat');tile.type='button';tile.dataset.status=key;
-        tile.append(epEl('strong',String(rows.filter(x=>x.status===key).length)),epEl('span',label));
+        const icons={pendientes:'▦',activos:'⚙',finalizados:'✓',archivados:'▣',papelera:'♧'};
+        tile.append(epEl('span',icons[key],'ep-mis-stat-icon'),epEl('strong',String(rows.filter(x=>x.status===key).length)),epEl('span',label));
         tile.addEventListener('click',()=>{const btn=tabs.querySelectorAll('button')[labels.findIndex(x=>x[0]===key)];if(btn)btn.click()});
         dashboard.append(tile);
       }
@@ -2784,6 +2825,14 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         for(const {b,o,r,e,date,status} of items){
           const c=epCard(o?.titulo||r?.nombre||e?.nombre||b.titulo||'Celebración');
           c.classList.add('ep-mis-card');
+          const typeText=String(r?.tipo||o?.tipo||b.titulo||'').toLowerCase();
+          const photo=epEl('div',undefined,'ep-mis-photo');
+          photo.classList.add(/boda|matrimonio|ceremonia/.test(typeText)?'ep-mis-photo-wedding':/cumple|fiesta|discoteca/.test(typeText)?'ep-mis-photo-party':'ep-mis-photo-event');
+          photo.setAttribute('role','img');photo.setAttribute('aria-label','Fotografía decorativa del tipo de celebración');
+          c.prepend(photo);
+          const detailsBody=epEl('div',undefined,'ep-mis-card-body');
+          while(c.childNodes.length>1)detailsBody.append(c.childNodes[1]);
+          c.append(detailsBody);
           c.append(epInfo('Presupuesto #'+b.id+' · '+formatDate(date)));
           if(r?.lugar)c.append(epInfo('Lugar: '+r.lugar));
           const pill=status==='papelera'?'▣ En la papelera':status==='archivados'?'▣ Archivado · fecha celebrada':status==='finalizados'?'✓ Organización finalizada':status==='activos'?'◷ En organización':'● Sin empezar';
@@ -2791,6 +2840,14 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
           if(status!=='papelera'){
             const p=progress(o);
             c.append(epEl('div',p.label,'ep-mis-progress'));
+            if(o){
+              const sections=epTypes[o.tipo]||epTypes.OTRO;
+              const done=sections.filter(name=>(o.contenido||{})[name]?.completado).length;
+              const percent=sections.length?Math.round(done/sections.length*100):0;
+              const track=epEl('div',undefined,'ep-mis-track');const bar=epEl('div',undefined,'ep-mis-track-fill');bar.style.width=percent+'%';track.append(bar);
+              track.setAttribute('role','progressbar');track.setAttribute('aria-valuenow',String(percent));track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');
+              const progressLine=epEl('div',undefined,'ep-mis-progress-line');progressLine.append(track,epEl('span',percent+'%'));c.append(progressLine);
+            }
             for(const d of p.details)c.append(epEl('div',d,'ep-mis-missing'));
             if(!date)c.append(epInfo('Falta indicar la fecha; no se archivará automáticamente.'));
           }
