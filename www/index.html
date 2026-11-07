@@ -993,6 +993,12 @@ background:
 #epPrivateInner[data-ep-section="Perfiles de usuarios"] .ep-lux-user strong{color:#f6db9e!important}
 #epPrivateInner[data-ep-section="Perfiles de usuarios"] .ep-lux-user small{color:#cfc4b2!important}
 
+
+/* Actualización: selección inequívoca de Mis eventos */
+.ep-client-tabs button.active{background:linear-gradient(135deg,#f5d78e,#b7833f)!important;color:#1b140b!important;border-color:#f8dc9a!important;box-shadow:inset 0 1px 0 #fff5c2,0 3px 12px #0008!important}
+.ep-mis-stat.ep-mis-stat-active{background:linear-gradient(135deg,#e8c77e,#a77537)!important;border-color:#f5db9f!important;color:#1b140b!important}
+.ep-mis-stat.ep-mis-stat-active strong,.ep-mis-stat.ep-mis-stat-active span{color:#1b140b!important}
+.ep-mis-actions .ep-mis-danger{border-color:#b96b5e!important;color:#ffccbf!important}
 </style>
 
 <style>
@@ -2239,7 +2245,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
       const {data:{user}}=await client.auth.getUser();
       if(!user)throw Error('Inicia sesión para acceder a tus eventos.');
       const [budgets,orgs]=await Promise.all([
-        epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado,creado_en').eq('cliente_id',user.id).eq('estado','ACEPTADO').order('creado_en',{ascending:false})),
+        epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado,creado_en').eq('cliente_id',user.id).eq('estado','ACEPTADO').is('eliminado_en',null).order('creado_en',{ascending:false})),
         epCall(client.from('ep_organizaciones').select('*').eq('cliente_id',user.id).order('actualizado_en',{ascending:false}))
       ]);
       if(!budgets.length){
@@ -2274,7 +2280,7 @@ const PRIVATE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_TRMY3nDt7rsi9bcTyFv1zg_
     try{
       const org=await epGetOrg(id);
       const root=epOrgRoot();
-      const acceptedBudget=await epCall(client.from('ep_presupuestos').select('titulo,descripcion,estado').eq('id',org.presupuesto_id).eq('estado','ACEPTADO').single());
+      const acceptedBudget=await epCall(client.from('ep_presupuestos').select('titulo,descripcion,estado').eq('id',org.presupuesto_id).eq('estado','ACEPTADO').is('eliminado_en',null).single());
       root.append(epBtn('← Volver a eventos creados',epClientEvents));
       const effectiveType=epTypeOf((acceptedBudget.titulo||'')+' '+(acceptedBudget.descripcion||''));
       const displayType=org.tipo&&org.tipo!=='OTRO'?org.tipo:effectiveType;
@@ -2737,7 +2743,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       ];
       const dashboard=epEl('div',undefined,'ep-mis-resumen');
       for(const [key,label] of labels){
-        const tile=epEl('button',undefined,'ep-mis-stat');tile.type='button';
+        const tile=epEl('button',undefined,'ep-mis-stat');tile.type='button';tile.dataset.status=key;
         tile.append(epEl('strong',String(rows.filter(x=>x.status===key).length)),epEl('span',label));
         tile.addEventListener('click',()=>{const btn=tabs.querySelectorAll('button')[labels.findIndex(x=>x[0]===key)];if(btn)btn.click()});
         dashboard.append(tile);
@@ -2768,7 +2774,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         return {label:sections.length-missing.length+' de '+sections.length+' apartados completados',details:['Pendientes: '+missing.join(', ')]};
       };
       function show(key){
-        current=key;content.replaceChildren();
+        current=key;content.replaceChildren();dashboard.querySelectorAll('.ep-mis-stat').forEach(tile=>tile.classList.toggle('ep-mis-stat-active',tile.dataset.status===key));
         const term=search.value.trim().toLocaleLowerCase('es');
         const items=rows.filter(x=>x.status===key&&(!term||[
           x.b.titulo,x.b.descripcion,x.b.id,x.r?.nombre,x.r?.tipo,x.r?.lugar,x.date,formatDate(x.date),x.o?.titulo,x.e?.nombre
@@ -2789,7 +2795,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
             if(!date)c.append(epInfo('Falta indicar la fecha; no se archivará automáticamente.'));
           }
           const actions=epEl('div',undefined,'ep-mis-actions');
-          if(o)actions.append(epBtn('Abrir organización',()=>epAdminDetail(o.id),'primary'));
+          if(o){actions.append(epBtn('Abrir organización',()=>epAdminDetail(o.id),'primary'));if(status!=='papelera')actions.append(epBtn('✎ Modificar organización',()=>{epAdminOrgReturn='events';epAdminEditOrganization(o.id)}));}
           else if(status!=='papelera')actions.append(epInfo('La organización estará disponible cuando el cliente la inicie.'));
           if(status==='papelera'){
             c.append(epInfo('Retirado el '+new Date(b.eliminado_en).toLocaleDateString('es-ES')+' · Oculto en el área del cliente.'));
@@ -2809,10 +2815,21 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
             }));
             details.append(epBtn('Historial de versiones',()=>epVersionsAdmin(o.id)));
           }
-          if(status!=='papelera')details.append(epBtn('Enviar a la papelera',async()=>{
+          if(status!=='papelera')details.append(epBtn('Enviar a la papelera (también se oculta al cliente)',async()=>{
             if(!confirm('¿Enviar este evento a la papelera? Dejará de aparecer al cliente y se podrá restaurar.'))return;
             try{await epCall(client.from('ep_presupuestos').update({eliminado_en:new Date().toISOString()}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
           }));
+          if(status!=='papelera'){
+            const remove=epBtn('Eliminar evento',async()=>{
+              if(!confirm('¿Mover este evento a la papelera? Se ocultará también en la cuenta del cliente. Podrás restaurarlo después.'))return;
+              try{
+                const saved=await epCall(client.from('ep_presupuestos').update({eliminado_en:new Date().toISOString()}).eq('id',b.id).select('id').maybeSingle());
+                if(!saved)throw new Error('Supabase no confirmó el cambio. Revisa los permisos de administrador.');
+                await epAdminAcceptedEvents();
+              }catch(err){epShowError(err)}
+            });
+            remove.classList.add('ep-mis-danger');actions.append(remove);
+          }
           actions.append(details);c.append(actions);content.append(c);
         }
       }
@@ -2828,7 +2845,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const {data:{user},error:authError}=await client.auth.getUser();
     if(authError||!user){box.append(budgetNode('p','Inicia sesión para continuar.'));eventBody.append(box);return}
     const [br,er]=await Promise.all([
-      client.from('ep_presupuestos').select('id,titulo,descripcion,estado,cliente_id').eq('cliente_id',user.id).eq('estado','ACEPTADO'),
+      client.from('ep_presupuestos').select('id,titulo,descripcion,estado,cliente_id').eq('cliente_id',user.id).eq('estado','ACEPTADO').is('eliminado_en',null),
       client.from('ep_eventos').select('presupuesto_id').eq('cliente_id',user.id)
     ]);
     if(br.error||er.error){box.append(budgetNode('p','No se puede verificar la disponibilidad de presupuestos. Instala primero la configuración SQL y comprueba los permisos. '+(br.error?.message||er.error?.message||'')));eventBody.append(box);return}
@@ -2926,9 +2943,14 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(isAdmin&&requestResult.error)console.warn('No se pudieron consultar las solicitudes del calendario:',requestResult.error.message);
       if(error){info.textContent='No se pudieron consultar tus eventos: '+error.message+' (revisa permisos de lectura en Supabase).';return}
       info.remove();
-      if(!data?.length){eventBody.append(budgetNode('p','No aparecen eventos asociados a tu usuario. Si el evento existe en Supabase, comprueba que cliente_id corresponde al usuario con el que has iniciado sesión y que la política RLS permite leerlo.'));return}
+      // La papelera del administrador se refleja en el listado del cliente.
+      const {data:visibleBudgets,error:visibleError}=await client.from('ep_presupuestos').select('id').eq('cliente_id',user.id).eq('estado','ACEPTADO').is('eliminado_en',null);
+      if(visibleError)throw visibleError;
+      const visibleIds=new Set((visibleBudgets||[]).map(b=>String(b.id)));
+      const visibleEvents=(data||[]).filter(ev=>!ev.presupuesto_id||visibleIds.has(String(ev.presupuesto_id)));
+      if(!visibleEvents.length){eventBody.append(budgetNode('p','No aparecen eventos asociados a tu usuario. Si el evento existe en Supabase, comprueba que cliente_id corresponde al usuario con el que has iniciado sesión y que la política RLS permite leerlo.'));return}
       const group=document.createElement('section');group.className='ep-client-form';group.append(budgetNode('h3','Eventos registrados'));
-      for(const row of data.map(normalizeEpEvent).sort((a,b)=>(b.fecha_evento||'').localeCompare(a.fecha_evento||''))){
+      for(const row of visibleEvents.map(normalizeEpEvent).sort((a,b)=>(b.fecha_evento||'').localeCompare(a.fecha_evento||''))){
         const field=(...keys)=>{for(const k of keys){if(row[k])return String(row[k])}return ''};
         const date=row.fecha_evento;
         const card=document.createElement('article');card.className='ep-budget-card';
@@ -2939,7 +2961,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
             const {data:{user}}=await client.auth.getUser();
             if(!user)throw Error('Debes iniciar sesión.');
             if(!row.presupuesto_id)throw Error('Este evento no tiene un presupuesto vinculado. Para organizarlo necesitas asociarlo a un presupuesto aceptado.');
-            const budget=await epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado').eq('id',row.presupuesto_id).eq('cliente_id',user.id).single());
+            const budget=await epCall(client.from('ep_presupuestos').select('id,titulo,descripcion,estado').eq('id',row.presupuesto_id).eq('cliente_id',user.id).is('eliminado_en',null).single());
             if(budget.estado!=='ACEPTADO')throw Error('El presupuesto vinculado debe estar aceptado.');
             let org=await epCall(client.from('ep_organizaciones').select('*').eq('cliente_id',user.id).eq('presupuesto_id',row.presupuesto_id).maybeSingle());
             if(!org){
@@ -3441,7 +3463,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const {data:{user}}=await client.auth.getUser();
     if(!user){eventBody.textContent='Inicia sesión.';return}
     const [budgetResult,requestResult]=await Promise.all([
-      client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false}),
+      client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).is('eliminado_en',null).order('creado_en',{ascending:false}),
       client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false})
     ]);
     if(eventTitle.textContent!=='Presupuestos')return;
