@@ -1840,6 +1840,111 @@ section[hidden]{display:none!important}
   #privateDashboard #epLuxurySidebar::before,#privateDashboard #epLuxurySidebar::after{width:90px!important;left:-15px!important;}
 }
 </style>
+
+<style id="ep-calendar-cinematic-premium-2026">
+/* Rediseño exclusivamente visual del calendario. No modifica datos ni Supabase. */
+#epPrivateInner[data-ep-section="Calendario"] .private-panel{
+  position:relative!important;isolation:isolate;
+  background:radial-gradient(ellipse at 90% 8%,rgba(16,80,116,.16),transparent 38%),
+    radial-gradient(ellipse at 9% 65%,rgba(168,110,30,.12),transparent 44%),
+    linear-gradient(130deg,#080c12 0%,#080b0e 55%,#0b1119 100%)!important;
+  border:1px solid rgba(213,161,70,.58)!important;border-radius:20px!important;
+  box-shadow:inset 0 1px 0 rgba(255,221,156,.13),0 18px 45px rgba(0,0,0,.24)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .private-panel::after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;right:0;top:190px;
+  width:min(75%,850px);height:145px;opacity:.8;
+  background:
+    radial-gradient(ellipse at 61% 38%,rgba(255,218,132,.82) 0%,rgba(236,164,51,.27) 5%,transparent 15%),
+    linear-gradient(168deg,transparent 38%,rgba(217,151,47,.05) 41%,rgba(255,198,91,.7) 43%,rgba(255,210,122,.12) 45%,transparent 49%),
+    linear-gradient(174deg,transparent 48%,rgba(229,169,69,.22) 49%,transparent 51%);
+  filter:drop-shadow(0 0 12px rgba(242,165,55,.45));
+}
+#epPrivateInner[data-ep-section="Calendario"] #privatePanelTitle{
+  color:#fff3d6!important;text-shadow:0 0 16px rgba(226,158,59,.34)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-head,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-layout{position:relative;z-index:1}
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-main,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-aside{
+  background:linear-gradient(145deg,rgba(23,29,38,.96),rgba(7,12,19,.98))!important;
+  border:1px solid #c79643!important;border-radius:20px!important;
+  box-shadow:inset 0 1px 0 rgba(255,222,158,.13),0 12px 32px rgba(0,0,0,.23)!important;
+  position:relative;overflow:hidden;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-main:after,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-aside:after{
+  content:"";position:absolute;bottom:0;right:0;width:54%;height:55px;
+  background:linear-gradient(170deg,transparent 38%,rgba(255,190,73,.7) 41%,rgba(240,163,45,.1) 44%,transparent 49%);
+  filter:drop-shadow(0 0 8px rgba(255,179,54,.55));pointer-events:none;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-visible-month,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-aside h3{
+  color:#fff!important;text-shadow:0 2px 15px rgba(224,171,82,.22);
+  font-family:system-ui,sans-serif!important;font-weight:800!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{
+  border:1px solid #e0b052!important;border-radius:11px!important;
+  background:linear-gradient(145deg,#edc46e 0%,#c5902e 53%,#966517 100%)!important;
+  color:#fff!important;text-shadow:0 1px 2px #6c450c!important;
+  box-shadow:inset 0 1px 1px rgba(255,247,202,.6),0 2px 8px rgba(0,0,0,.2)!important;
+  transition:filter .18s,transform .18s,box-shadow .18s!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day:hover{
+  transform:translateY(-2px);filter:brightness(1.1);
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event:not(.selected):not([aria-selected="true"]){
+  background:linear-gradient(145deg,#28cf7a,#008d4e)!important;
+  border-color:#66e9a6!important;box-shadow:0 0 15px rgba(17,206,111,.32),inset 0 1px rgba(255,255,255,.32)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-request:not(.has-event):not(.selected):not([aria-selected="true"]){
+  background:linear-gradient(145deg,#f2a94c,#bb5d15)!important;border-color:#ffbb73!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"]{
+  background:linear-gradient(145deg,#13e4ff,#087cdb)!important;
+  border-color:#6af1ff!important;box-shadow:0 0 17px rgba(0,194,255,.7),inset 0 1px rgba(255,255,255,.4)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button[aria-pressed="true"]{
+  background:linear-gradient(145deg,#06d7ff,#0873d4)!important;color:#fff!important;
+  border-color:#66e9ff!important;box-shadow:0 0 14px rgba(0,189,255,.52)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button{
+  border:1px solid #cda454!important;border-radius:12px!important;
+  box-shadow:inset 0 1px rgba(255,230,171,.12),0 3px 12px rgba(0,0,0,.3)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item{
+  border:1px solid rgba(221,168,77,.8)!important;border-left:5px solid #2fd284!important;
+  border-radius:13px!important;background:linear-gradient(120deg,#27354a,#111a29)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.1)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item.pending{border-left-color:#ed9838!important}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming{
+  background:linear-gradient(120deg,#263247,#101720)!important;
+  border:1px solid #d0a255!important;border-radius:14px!important;
+  box-shadow:0 0 13px rgba(222,162,58,.12)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming button{
+  background:linear-gradient(145deg,#d7a44d,#a16a1e)!important;
+  color:#fff!important;border:1px solid #f4cc7c!important;
+  border-radius:9px!important;font-weight:700;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-summary>div{
+  border-radius:11px!important;box-shadow:inset 0 1px rgba(255,255,255,.08)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-legend-gold{color:#55e4a2!important}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-legend-blue{color:#ffad54!important}
+@media(max-width:760px){
+  #epPrivateInner[data-ep-section="Calendario"] .private-panel::after{width:95%;top:155px;opacity:.45}
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{border-radius:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{transition:none!important}
+}
+</style>
+
 </head>
   
 <body>
