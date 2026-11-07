@@ -4596,5 +4596,42 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 }
 </style>
 
+
+<style id="ep-calendario-estados-verde-2026">
+/* Estados visuales: verde = evento, naranja = solicitud, azul = selección. */
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event:not(.selected):not([aria-selected="true"]):not([aria-pressed="true"]){
+  background:linear-gradient(145deg,#23895b,#12553c)!important;
+  color:#fff!important;border:2px solid #65d7a0!important;
+  box-shadow:inset 0 1px 0 #ffffff33,0 0 12px #21956555!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-request:not(.has-event):not(.selected):not([aria-selected="true"]):not([aria-pressed="true"]){
+  background:linear-gradient(145deg,#d8892c,#935018)!important;
+  color:#fff!important;border:2px solid #ffc17b!important;
+  box-shadow:0 0 10px #dd8a3a44!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event.has-request:not(.selected):not([aria-selected="true"]):not([aria-pressed="true"]){
+  background:linear-gradient(135deg,#23895b 0 50%,#c77b27 50% 100%)!important;
+  color:#fff!important;border:2px solid #d4b77a!important;
+}
+/* El día elegido sigue siendo azul, aunque tenga evento o solicitud. */
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-pressed="true"]{
+  background:linear-gradient(112deg,#087dbd,#00a8e8 55%,#0663a9)!important;
+  color:#fff!important;border:2px solid #5bd5ff!important;
+  box-shadow:inset 0 1px #c9f4ff77,0 0 17px #00b6f67a!important;
+}
+/* Mantener visible el indicador de evento verde incluso al seleccionar la fecha. */
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event::after{
+  background:#4ce09a!important;box-shadow:0 0 0 2px #0e4932,0 0 7px #2ee69b!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event .ep-cal-dot{
+  background:#4ce09a!important;box-shadow:0 0 0 1px #14553c,0 0 6px #39d998!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-request:not(.has-event) .ep-cal-dot{
+  background:#ffbd71!important;
+}
+</style>
+
 </body>
 </html>
