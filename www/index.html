@@ -1539,6 +1539,40 @@ section[hidden]{display:none!important}
 @media(max-width:900px){#epPrivateInner .ep-mis-premium .ep-mis-resumen{grid-template-columns:repeat(3,minmax(0,1fr))!important}#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:125px minmax(0,1fr)!important}}
 @media(max-width:620px){#epPrivateInner .ep-mis-premium .ep-mis-resumen{grid-template-columns:repeat(2,minmax(0,1fr))!important}#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:1fr!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{grid-column:1!important;grid-row:auto!important;height:145px!important;min-height:145px!important}#epPrivateInner .ep-mis-premium .ep-mis-card>:not(.ep-mis-photo){grid-column:1!important}#epPrivateInner .ep-mis-premium .ep-mis-stat{padding-left:49px!important}}
 </style>
+
+<style id="ep-ajustes-compactos-noviembre">
+/* Corrige el exceso de espacio sin cambiar la organización de los datos. */
+#privateDashboard{padding-top:0!important}
+#privateDashboard .private-top{top:0!important;margin-top:0!important}
+#epPrivateInner.private-layout{margin-top:0!important;padding-top:12px!important}
+#epPrivateInner .private-panel{margin-top:0!important}
+#epPrivateInner .private-panel:before{height:112px!important;min-height:0!important;margin:0 0 12px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-resumen{gap:9px!important;margin:10px 0 13px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-stat{min-height:70px!important;padding:10px 9px 9px 40px!important;border-radius:12px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-stat strong{font-size:23px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-stat span:last-child{font-size:10px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-stat-icon{font-size:19px!important;left:12px!important;top:19px!important}
+#epPrivateInner .ep-mis-premium .ep-client-tabs{gap:7px!important;margin:10px 0 12px!important}
+#epPrivateInner .ep-mis-premium .ep-client-tabs button{padding:9px 12px!important;border-radius:10px!important;font-size:12px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-search{padding:11px 14px!important;border-radius:10px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:112px minmax(0,1fr)!important;gap:14px!important;padding:12px!important;margin:11px 0!important;border-radius:14px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-photo{height:150px!important;min-height:150px!important;border-radius:10px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card h3,#epPrivateInner .ep-mis-premium .ep-mis-card h4{font-size:23px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-progress{margin-top:7px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-actions{gap:7px!important;margin-top:10px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-actions>button,#epPrivateInner .ep-mis-premium .ep-mis-more summary{padding:9px 11px!important;font-size:12px!important;border-radius:9px!important}
+/* Sustituye las dos rayas por una luz dorada sutil. */
+#epLuxurySidebar:before{content:""!important;position:absolute!important;left:-24px!important;bottom:72px!important;width:170px!important;height:90px!important;border-radius:50%!important;background:radial-gradient(ellipse at 30% 75%,#e3a84966,transparent 65%)!important;filter:blur(11px)!important;transform:none!important;pointer-events:none!important;opacity:.8!important}
+#epLuxurySidebar:after{content:""!important;position:absolute!important;left:0!important;bottom:68px!important;width:155px!important;height:50px!important;background:radial-gradient(ellipse at 15% 80%,#ffe1a560,transparent 65%)!important;filter:blur(15px)!important;transform:none!important;pointer-events:none!important;opacity:.6!important}
+/* Azul petróleo para navegación activa; dorado reservado a acciones y pestañas. */
+#epLuxurySidebar button.active{background:linear-gradient(105deg,#27606a,#142f39)!important;color:#f4fcff!important;border:1px solid #5c9ca3!important;box-shadow:inset 0 1px #ffffff25,0 0 12px #377d8544!important}
+#epLuxurySidebar button.active .ep-lux-symbol{color:#c8edf0!important}
+/* Usar el control de hora nativo, fiable en tablet y móvil. */
+#epPrivateInner input[type="time"]{position:relative!important;display:block!important;opacity:1!important;pointer-events:auto!important;clip-path:none!important;width:100%!important;max-width:290px!important;height:44px!important;padding:9px 12px!important;color:#fff3df!important;background:#211b17!important;border:1px solid #b58a4e!important;border-radius:9px!important;color-scheme:dark!important}
+#epPrivateInner .ep-hour-controls{display:none!important}
+@media(max-width:700px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:90px minmax(0,1fr)!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:130px!important;min-height:130px!important}}
+@media(max-width:520px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:1fr!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:120px!important;min-height:120px!important}#epPrivateInner .ep-mis-premium .ep-mis-stat{padding-left:37px!important}}
+</style>
 </head>
   
 <body>
@@ -3963,7 +3997,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   const epOpenSection=(title)=>{epClientHome.hidden=true;epPrivateInner.hidden=false;const button=[...document.querySelectorAll('[data-private-tab]')].find(b=>b.dataset.privateTab===title);if(button)button.click()};
   document.querySelectorAll('[data-home-destination]').forEach(b=>b.addEventListener('click',()=>epOpenSection(b.dataset.homeDestination)));
   document.getElementById('epBackHome').addEventListener('click',epShowHome);
-  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;isAdmin=false;epRefreshHomeRole();checkAdmin(user);document.getElementById('privateWelcome').textContent='';epShowHome()};
+  const showDashboard=(user)=>{overlay.hidden=true;dashboard.hidden=false;dashboard.scrollTop=0;isAdmin=false;epRefreshHomeRole();checkAdmin(user);document.getElementById('privateWelcome').textContent='';epShowHome()};
   document.getElementById('openPrivate').addEventListener('click',e=>{e.preventDefault();showLogin()});
   document.getElementById('closePrivate').addEventListener('click',()=>overlay.hidden=true);
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.hidden=true});
@@ -4164,7 +4198,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  }
  document.addEventListener('pointerdown',e=>{if(openPopup&&!openPopup.parentElement.contains(e.target)){openPopup.hidden=true;openPopup=null}});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&openPopup){openPopup.hidden=true;openPopup=null}});
- function scan(){root.querySelectorAll('input[type="time"]').forEach(enhanceTime);root.querySelectorAll('input[type="date"]').forEach(enhanceDate)}
+ function scan(){root.querySelectorAll('input[type="date"]').forEach(enhanceDate)}
  let pending=false;new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;scan()})}).observe(root,{childList:true,subtree:true});scan();
 })();
 </script>
