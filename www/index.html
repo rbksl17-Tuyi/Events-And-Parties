@@ -4176,9 +4176,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     eventBody.textContent='Cargando presupuestos…';
     const {data:{user}}=await client.auth.getUser();
     if(!user){eventBody.textContent='Inicia sesión.';return}
-    const [budgetResult,requestResult]=await Promise.all([
+    const [budgetResult,requestResult,externalResult]=await Promise.all([
       client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).is('eliminado_en',null).order('creado_en',{ascending:false}),
-      client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false})
+      client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false}),
+      client.from('ep_presupuestos_externos').select('*').ilike('email',user.email||'__sin_correo__').order('id',{ascending:false})
     ]);
     if(eventTitle.textContent!=='Presupuestos')return;
     eventBody.replaceChildren();
@@ -4200,6 +4201,30 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));
       requested.append(card);
     });
+    // Presupuestos externos vinculados al correo verificado del usuario.
+    // No se duplican ni alteran registros de ep_presupuestos.
+    const externalBudgets=externalResult.data||[];
+    const externalCard=p=>{
+      const card=budgetNode('article');card.className='ep-budget-card';
+      card.append(budgetNode('h3',p.titulo||'Presupuesto externo'),budgetNode('p',p.descripcion||'Sin descripción'),budgetNode('p','Importe: '+euro(p.importe)),budgetNode('p','Estado: '+(p.estado||'PENDIENTE')));
+      if(p.pdf_path)card.append(budgetButton('📄 Ver / descargar PDF',async()=>{
+        const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);
+        if(error){alert('No se pudo abrir el PDF: '+error.message);return}
+        window.open(data.signedUrl,'_blank','noopener,noreferrer');
+      }));
+      if(p.estado==='PENDIENTE'){
+        const actions=budgetNode('div');actions.className='ep-budget-actions';
+        for(const estado of ['ACEPTADO','RECHAZADO'])actions.append(budgetButton(estado==='ACEPTADO'?'Aceptar':'Rechazar',async()=>{
+          if(!confirm('¿Confirmas tu decisión?'))return;
+          const {data,error}=await client.from('ep_presupuestos_externos').update({estado}).eq('id',p.id).eq('estado','PENDIENTE').select('id,estado');
+          if(error||!data?.length){alert('No se pudo actualizar el presupuesto: '+(error?.message||'Sin filas modificadas'));return}
+          loadBudgets();
+        }));
+        card.append(actions);
+      }
+      return card;
+    };
+    if(externalResult.error)received.append(budgetNode('p','No se pudieron consultar presupuestos externos: '+externalResult.error.message));
     received.append(budgetNode('h3','Presupuestos recibidos'));
     accepted.append(budgetNode('h3','Presupuestos aceptados'));
     if(budgetResult.error){received.append(budgetNode('p','No se pudieron consultar los presupuestos: '+budgetResult.error.message));accepted.append(budgetNode('p','No se pudieron consultar los presupuestos.'))}
@@ -4207,8 +4232,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const budgets=budgetResult.data||[];
       const incoming=budgets.filter(p=>p.estado!=='ACEPTADO');
       const approved=budgets.filter(p=>p.estado==='ACEPTADO');
-      if(!incoming.length)received.append(budgetNode('p','No tienes presupuestos recibidos pendientes o rechazados.'));
-      if(!approved.length)accepted.append(budgetNode('p','Todavía no tienes presupuestos aceptados.'));
+      if(!incoming.length&&!externalBudgets.some(p=>p.estado!=='ACEPTADO'))received.append(budgetNode('p','No tienes presupuestos recibidos pendientes o rechazados.'));
+      if(!approved.length&&!externalBudgets.some(p=>p.estado==='ACEPTADO'))accepted.append(budgetNode('p','Todavía no tienes presupuestos aceptados.'));
+      externalBudgets.filter(p=>p.estado!=='ACEPTADO').forEach(p=>received.append(externalCard(p)));
+      externalBudgets.filter(p=>p.estado==='ACEPTADO').forEach(p=>accepted.append(externalCard(p)));
       incoming.forEach(p=>{
         const card=budgetCard(p);
         if(p.estado==='PENDIENTE'){
@@ -4478,7 +4505,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(!isAdmin)return;
     const wrap=budgetNode('section');wrap.className='ep-budget-card ep-external-budget';
     const heading=budgetNode('h3','Crear presupuesto · Nuevo cliente');
-    const description=budgetNode('p','Prepara y envía un presupuesto a una persona sin cuenta. Este envío por correo no crea todavía un presupuesto en la base de datos ni un enlace de aceptación.');
+    const description=budgetNode('p','Prepara y envía un presupuesto a una persona sin cuenta. El presupuesto se enviará por correo. Para que aparezca en el área privada, super-function debe guardarlo también en ep_presupuestos_externos.');
     const form=budgetNode('form');form.className='ep-budget-form';
     const field=(label,name,type='text',required=true)=>{
       const l=budgetNode('label',label),i=budgetNode(type==='textarea'?'textarea':'input');
