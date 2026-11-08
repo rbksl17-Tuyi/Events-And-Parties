@@ -4352,9 +4352,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   const loadAdminBudgets=async()=>{
     if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}
     eventBody.textContent='Cargando presupuestos…';
-    const [budgetResult,requestResult,profileResult]=await Promise.all([
+    const [budgetResult,requestResult,externalResult,profileResult]=await Promise.all([
       client.from('ep_presupuestos').select('*').order('creado_en',{ascending:false}),
       client.from('ep_solicitudes_presupuesto').select('*').order('creado_en',{ascending:false}).limit(100),
+      client.from('ep_presupuestos_externos').select('*').order('creado_en',{ascending:false}),
       loadClientProfiles().then(data=>({data})).catch(error=>({error}))
     ]);
     if(eventTitle.textContent!=='Gestionar presupuestos')return;
@@ -4362,8 +4363,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const requestById=new Map(allRequests.map(r=>[String(r.id),r]));
     const preparedIds=new Set(allBudgets.map(p=>String(p.solicitud_id||'')).filter(Boolean));
     const pending=allRequests.filter(r=>!preparedIds.has(String(r.id)));
-    const waiting=allBudgets.filter(p=>p.estado==='PENDIENTE');
-    const final=allBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
+    const externalBudgets=(externalResult.data||[]).map(p=>({...p,_external:true}));
+    const combinedBudgets=[...allBudgets,...externalBudgets];
+    const waiting=combinedBudgets.filter(p=>p.estado==='PENDIENTE');
+    const final=combinedBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
     const root=epEl('div');root.className='ep-b2';
     const top=epEl('div');top.className='ep-b2-top';
     top.append(budgetButton('✉ Crear presupuesto · Nuevo cliente',()=>createExternalBudget()));root.append(top);
@@ -4462,31 +4465,31 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       });row.append(label,save);d.append(row);panes[0].append(item);
     });
     if(budgetResult.error){panes[1].append(budgetNode('p','No se pudieron cargar los presupuestos: '+budgetResult.error.message));panes[2].append(budgetNode('p','No se pudieron cargar los presupuestos: '+budgetResult.error.message))}
+    if(externalResult.error){panes[1].append(budgetNode('p','No se pudieron cargar los presupuestos externos: '+externalResult.error.message));panes[2].append(budgetNode('p','No se pudieron cargar los presupuestos externos: '+externalResult.error.message))}
     else{
       if(!waiting.length)addText(panes[1],'p','No hay presupuestos esperando respuesta.');
       if(!final.length)addText(panes[2],'p','Todavía no hay presupuestos finalizados.');
       const renderBudget=(p,parent)=>{
         const r=requestById.get(String(p.solicitud_id||''));
-        const date=r?.fecha||p.fecha_evento||p.fecha||p.creado_en;
+        const date=r?.fecha||p.fecha_inicio||p.fecha_evento||p.fecha||p.creado_en;
         const title=p.titulo||r?.tipo||'Presupuesto';
         const state=p.estado==='ACEPTADO'?'Aceptado':p.estado==='RECHAZADO'?'Rechazado':'Esperando respuesta';
-        const item=card(title,clientLabel(p.cliente_id,profiles)+' · '+euro(p.importe),showDate(date)+(r?.fecha?' · Fecha del evento':' · Fecha del presupuesto'));
+        const item=card(title,(p._external?(p.nombre||'Cliente')+' · '+p.email:clientLabel(p.cliente_id,profiles))+' · '+euro(p.importe),showDate(date)+((r?.fecha||p.fecha_inicio)?' · Fecha del evento':' · Fecha del presupuesto'));
         const tag=epEl('span',state);tag.className='ep-b2-state '+(p.estado==='ACEPTADO'?'ok':p.estado==='RECHAZADO'?'no':'wait');item.querySelector('.ep-b2-head').append(tag);
         const a=actions(item);
         if(p.pdf_path)a.append(budgetButton('Ver / descargar PDF',openPdf(p)));
-        const d=details(item,[['Descripción',p.descripcion],['Estado',state],['Evento',r?.tipo],['Lugar',r?.lugar],['Fecha del evento',r?.fecha?showDate(r.fecha):null]]);
-        if(p.estado==='ACEPTADO'){
+        const d=details(item,[['Descripción',p.descripcion],['Estado',state],['Origen',p._external?'Presupuesto enviado por correo':null],['Correo',p._external?p.email:null],['Teléfono',p._external?p.telefono:null],['Evento',r?.tipo||p.tipo],['Lugar',r?.lugar||p.lugar],['Fecha del evento',(r?.fecha||p.fecha_inicio)?showDate(r?.fecha||p.fecha_inicio):null]]);
+        if(p.estado==='ACEPTADO'&&!p._external){
           epContractPanel(p,true).then(panel=>item.append(panel)).catch(epContractError);
         }
-        const del=budgetButton('Eliminar definitivamente',()=>deleteBudgetPermanently(p));
-        del.classList.add('ep-b2-delete');a.append(del);
+        if(!p._external){const del=budgetButton('Eliminar definitivamente',()=>deleteBudgetPermanently(p));del.classList.add('ep-b2-delete');a.append(del);}
         parent.append(item);
       };
       waiting.forEach(p=>renderBudget(p,panes[1]));
       // Historial agrupado por meses: fecha del evento cuando está disponible.
       const grouped=new Map();
       final.forEach(p=>{
-        const r=requestById.get(String(p.solicitud_id||''));const d=safeDate(r?.fecha||p.fecha_evento||p.fecha||p.creado_en);
+        const r=requestById.get(String(p.solicitud_id||''));const d=safeDate(r?.fecha||p.fecha_inicio||p.fecha_evento||p.fecha||p.creado_en);
         const key=d?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'):'sin-fecha';
         if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(p);
       });
