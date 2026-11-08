@@ -4216,15 +4216,58 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       approved.forEach(p=>{
         const card=budgetCard(p);
         accepted.append(card);
-        // Mantener visible el apartado de contratos desde el primer momento,
-        // incluso si la consulta a Supabase tarda o devuelve un error.
-        const contractSlot=budgetNode('div');
-        contractSlot.className='ep-client-contract-slot';
-        contractSlot.append(budgetNode('p','Cargando contrato del presupuesto…'));
+        // Contrato visible de inmediato, sin depender de una respuesta silenciosa.
+        const contractSlot=budgetNode('section');
+        contractSlot.className='ep-contract-live ep-client-contract-slot';
+        const heading=budgetNode('h4','✦ Contrato del presupuesto #'+p.id);
+        const message=budgetNode('p','Consultando el contrato enviado por administración…');
+        message.className='ep-contract-live-status';
+        const actions=budgetNode('div');actions.className='ep-contract-live-actions';
+        const view=budgetButton('Ver contrato PDF',()=>openClientContract('original'));
+        const signed=budgetButton('Subir contrato firmado PDF',()=>openClientContract('firmado'));
+        const signedView=budgetButton('Ver mi PDF firmado',()=>openClientContract('ver_firmado'));
+        signedView.hidden=true;
+        actions.append(view,signed,signedView);
+        contractSlot.append(heading,message,actions);
         card.append(contractSlot);
-        epContractPanel(p,false).then(panel=>contractSlot.replaceChildren(panel)).catch(err=>{
-          contractSlot.replaceChildren(budgetNode('p','No se pudo cargar el contrato: '+(err?.message||'Error desconocido')));
-        });
+        let currentContract=null;
+        const refreshClientContract=async()=>{
+          const result=await client.from('ep_contratos').select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf,estado').eq('presupuesto_id',p.id).limit(2);
+          if(result.error){message.textContent='No se puede consultar el contrato: '+result.error.message+'. Comprueba los permisos de lectura de ep_contratos.';return}
+          if(result.data?.length>1){message.textContent='Hay más de un contrato para este presupuesto. Contacta con administración.';return}
+          currentContract=result.data?.[0]||null;
+          if(!currentContract?.contrato_pdf){message.textContent='El administrador todavía no ha enviado un contrato para este presupuesto.';return}
+          message.textContent=currentContract.contrato_firmado_pdf?'Contrato firmado recibido · '+(currentContract.estado||'pendiente de revisión'):'Contrato disponible · pendiente de firma';
+          signed.hidden=!!currentContract.contrato_firmado_pdf;
+          signedView.hidden=!currentContract.contrato_firmado_pdf;
+        };
+        const openClientContract=async(kind)=>{
+          if(!currentContract?.contrato_pdf){await refreshClientContract();if(!currentContract?.contrato_pdf){alert('Todavía no hay un contrato accesible para este presupuesto. '+message.textContent);return}}
+          if(kind==='firmado'){
+            if(currentContract.contrato_firmado_pdf){alert('Ya hay un contrato firmado registrado.');return}
+            const input=document.createElement('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;
+            input.addEventListener('change',async()=>{
+              const file=input.files?.[0];if(!file)return;
+              if(!file.name.toLowerCase().endsWith('.pdf')||file.size>15*1024*1024){alert('Selecciona un PDF de 15 MB como máximo.');return}
+              const {data:{user},error:authError}=await client.auth.getUser();
+              if(authError||!user){alert('Debes iniciar sesión.');return}
+              signed.disabled=true;message.textContent='Subiendo el contrato firmado…';
+              const path=p.id+'/firmado/'+user.id+'-'+Date.now()+'.pdf';
+              const uploaded=await client.storage.from('ep-contratos').upload(path,file,{contentType:'application/pdf',upsert:false});
+              if(uploaded.error){message.textContent='No se pudo subir el PDF: '+uploaded.error.message;signed.disabled=false;return}
+              const saved=await client.from('ep_contratos').update({contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'}).eq('id',currentContract.id).eq('cliente_id',user.id).select('id');
+              if(saved.error||!saved.data?.length){await client.storage.from('ep-contratos').remove([path]);message.textContent='No se pudo registrar el PDF firmado: '+(saved.error?.message||'No se autorizó la actualización');signed.disabled=false;return}
+              signed.disabled=false;await refreshClientContract();alert('Contrato firmado recibido correctamente.');
+            },{once:true});contractSlot.append(input);input.click();return;
+          }
+          const path=kind==='ver_firmado'?currentContract.contrato_firmado_pdf:currentContract.contrato_pdf;
+          if(!path){alert('Ese PDF todavía no está disponible.');return}
+          const result=await client.storage.from('ep-contratos').download(String(path).replace(/^\/+/, '').replace(/^ep-contratos\//,''));
+          if(result.error){alert('No se pudo descargar el contrato: '+result.error.message);return}
+          const url=URL.createObjectURL(new Blob([result.data],{type:'application/pdf'}));
+          const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer';link.download=kind==='ver_firmado'?'contrato-firmado.pdf':'contrato.pdf';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);
+        };
+        refreshClientContract().catch(err=>{message.textContent='Error al consultar el contrato: '+err.message});
       });
     }
     const tabs=epClientTabs([
