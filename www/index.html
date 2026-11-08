@@ -1582,6 +1582,21 @@ section[hidden]{display:none!important}
 .ep-contract-upload-input{display:block;max-width:100%;margin:0 0 12px;padding:10px;border:1px solid #967044;border-radius:9px;background:#17130e;color:#fff1d5}
 .ep-contract-upload-input::file-selector-button{margin-right:12px;padding:7px 10px;background:#c9a15b;color:#171006;border:0;border-radius:7px;cursor:pointer}
 </style>
+
+<style id="ep-quitar-rectangulo-negro-cliente">
+/* Restaurar la portada del cliente sin el recuadro negro gigante. */
+#epClientHome:not(.ep-is-admin) .ep-home-intro {
+  min-height:0!important; height:auto!important; max-height:none!important;
+  margin:0 0 18px!important; padding:14px 4px 18px!important;
+  background:none!important; background-image:none!important;
+  border:0!important; border-radius:0!important; box-shadow:none!important;
+  display:block!important;
+}
+#epClientHome:not(.ep-is-admin) .ep-home-intro::before,
+#epClientHome:not(.ep-is-admin) .ep-home-intro::after {content:none!important;display:none!important}
+#epClientHome:not(.ep-is-admin) .ep-home-intro h1 {margin:8px 0!important;font-size:clamp(25px,3.4vw,42px)!important}
+#epClientHome:not(.ep-is-admin) .ep-home-intro p {margin:5px 0!important}
+</style>
 </head>
   
 <body>
