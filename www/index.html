@@ -4121,6 +4121,93 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     }
     return box;
   };
+  const epExternalContractPanel=async(p,admin)=>{
+    const box=budgetNode('section');box.className='ep-contract-live';
+    if(!p.cliente_id){box.textContent='El presupuesto aún no está vinculado a una cuenta de cliente. El cliente debe iniciar sesión con su correo confirmado.';return box;}
+    box.append(budgetNode('h4','✦ Contrato del evento'));
+    const status=budgetNode('p','Consultando el contrato...');status.className='ep-contract-live-status';box.append(status);
+    const buttons=budgetNode('div');buttons.className='ep-contract-live-actions';box.append(buttons);
+    // Elegir el registro más reciente sin eliminar el historial de contratos.
+    const {data,error}=await client.from('ep_contratos_externos').select('*').eq('presupuesto_externo_id',p.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
+    const hasHistory=!!(data && data.length>1);
+    if(error){status.textContent='No se pudo consultar el contrato: '+error.message+'. Comprueba los permisos de Supabase.';return box;}
+    const contract=data?.[0]||null;
+    // Abrir contratos privados comprobando que el archivo realmente existe.
+    // Las URLs firmadas pueden generarse incluso cuando la ruta apunta a un archivo inexistente.
+    const openFile=async(rawPath)=>{
+      const storage=client.storage.from(epContractBucket);
+      let path=String(rawPath||'').trim().replace(/^\/+/, '').replace(/^ep-contratos\//,'');
+      if(!path){alert('Este contrato no tiene una ruta de archivo registrada.');return}
+      const openPdf=async(filePath)=>{
+        const {data,error}=await storage.download(filePath);
+        if(error)throw error;
+        if(!data || !data.size)throw new Error('El PDF está vacío o no se pudo descargar.');
+        const pdfUrl=URL.createObjectURL(new Blob([data],{type:'application/pdf'}));
+        const tab=window.open(pdfUrl,'_blank','noopener,noreferrer');
+        if(!tab){const link=document.createElement('a');link.href=pdfUrl;link.download='contrato-evento.pdf';document.body.append(link);link.click();link.remove()}
+        setTimeout(()=>URL.revokeObjectURL(pdfUrl),120000);
+      };
+      try{await openPdf(path)}catch(firstError){
+        // Recuperar únicamente una ruta antigua si hay una coincidencia inequívoca
+        // del mismo identificador de archivo, en la carpeta de ESTE presupuesto.
+        const folder='externos/'+String(p.id)+'/original';
+        const filename=path.split('/').pop()||'';
+        const uuid=filename.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
+        if(path.startsWith(folder+'/') && uuid){
+          const {data:files,error:listError}=await storage.list(folder,{limit:100});
+          if(!listError){
+            const matches=(files||[]).filter(f=>f.name?.toLowerCase().startsWith(uuid.toLowerCase()) && f.name.toLowerCase().endsWith('.pdf'));
+            if(matches.length===1){
+              const corrected=folder+'/'+matches[0].name;
+              try{await openPdf(corrected);return}catch(e){firstError=e}
+            }
+          }
+        }
+        alert('No se pudo abrir el contrato PDF.\nRuta registrada: '+path+'\nMotivo: '+(firstError?.message||'archivo no disponible')+'\nComprueba que la ruta y el nombre coinciden exactamente en Storage → ep-contratos.');
+      }
+    };
+    const upload=async(kind,file)=>{
+      if(!file)return;
+      if((kind==='original'&&!admin)||(kind==='firmado'&&admin)){alert('No tienes permiso para esta operación.');return;}
+      if(file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){alert('Selecciona un archivo PDF.');return}
+      if(file.size>15*1024*1024){alert('El PDF no puede superar 15 MB.');return}
+      const {data:{user},error:userError}=await client.auth.getUser();if(userError||!user){alert('Inicia sesión para continuar.');return}
+      const path='externos/'+p.id+'/'+kind+'/'+user.id+'-'+Date.now()+'.pdf';
+      const {error:storageError}=await client.storage.from(epContractBucket).upload(path,file,{contentType:'application/pdf',upsert:false});
+      if(storageError){epContractError(storageError);return}
+      const changes=kind==='original'?{presupuesto_externo_id:p.id,cliente_id:p.cliente_id,contrato_pdf:path,estado:'PENDIENTE_FIRMA'}:{contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'};
+      const query=contract?client.from('ep_contratos_externos').update(changes).eq('id',contract.id):client.from('ep_contratos_externos').insert(changes);
+      // Verificar que la operación afectó realmente a una fila: UPDATE con RLS
+      // puede devolver error=null y cero filas actualizadas.
+      const {data:savedRows,error:dbError}=await query.select('id,presupuesto_externo_id,cliente_id,contrato_pdf,contrato_firmado_pdf');
+      if(dbError||!savedRows?.length){
+        await client.storage.from(epContractBucket).remove([path]);
+        epContractError(dbError||new Error('Supabase no confirmó ningún registro actualizado. Revisa los permisos UPDATE/INSERT de ep_contratos.'));
+        return;
+      }
+      if(kind==='original' && (String(savedRows[0].presupuesto_externo_id)!==String(p.id) || savedRows[0].contrato_pdf!==path)){
+        epContractError(new Error('El contrato no quedó asociado al presupuesto esperado. Comprueba ep_contratos antes de volver a subirlo.'));
+        return;
+      }
+      alert(kind==='original'?'Contrato registrado y vinculado al presupuesto correctamente.':'Contrato firmado registrado correctamente.');
+      if(admin)loadAdminBudgets();else loadBudgets();
+    };
+    const picker=(label,kind)=>{const input=budgetNode('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;input.addEventListener('change',()=>upload(kind,input.files?.[0]));const b=budgetButton(label,()=>input.click());buttons.append(b,input)};
+    if(!contract||!contract.contrato_pdf){status.textContent=admin?'Todavía no has enviado un contrato.':'El administrador todavía no ha enviado el contrato.';if(admin)picker('Adjuntar y enviar contrato PDF','original');return box}
+    const states={PENDIENTE_FIRMA:'Pendiente de firma del cliente',PENDIENTE_VALIDACION:'Firmado · pendiente de validación',VALIDADO:'Contrato firmado y validado'};
+    status.textContent=(states[contract.estado]||'Contrato disponible')+(hasHistory?' · Se muestra el registro más reciente; existen versiones anteriores conservadas.':'');
+    buttons.append(budgetButton('Ver contrato PDF',()=>openFile(contract.contrato_pdf)));
+    if(admin){
+      if(contract.contrato_firmado_pdf){buttons.append(budgetButton('Ver PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
+        if(contract.estado!=='VALIDADO')buttons.append(budgetButton('Validar contrato',async()=>{if(!confirm('¿Confirmas que has revisado el contrato firmado?'))return;const {error}=await client.from('ep_contratos_externos').update({estado:'VALIDADO'}).eq('id',contract.id);if(error)epContractError(error);else loadAdminBudgets()}));
+      }
+      if(contract.estado==='PENDIENTE_FIRMA')picker('Sustituir contrato PDF','original');
+    }else{
+      if(contract.contrato_firmado_pdf)buttons.append(budgetButton('Ver mi PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
+      if(!contract.contrato_firmado_pdf && (contract.estado==='PENDIENTE_FIRMA'||!contract.estado))picker('Subir contrato firmado PDF','firmado');
+    }
+    return box;
+  };
   const epFormField=(form,label,name,type='text',required=true)=>{const wrap=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':type==='select'?'select':'input');if(type!=='textarea'&&type!=='select')input.type=type;input.name=name;input.required=required;wrap.append(input);form.append(wrap);return input};
   const epServices=['DJ y música','Sonido','Iluminación','Ceremonia','Animación y juegos','Montaje técnico','Otros'];
   const epRequestForm=()=>{
@@ -4176,6 +4263,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     eventBody.textContent='Cargando presupuestos…';
     const {data:{user}}=await client.auth.getUser();
     if(!user){eventBody.textContent='Inicia sesión.';return}
+    try{await client.rpc('ep_vincular_presupuestos_externos')}catch(e){console.warn('Vinculación de presupuestos externos:',e)}
     const [budgetResult,requestResult,externalResult]=await Promise.all([
       client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).is('eliminado_en',null).order('creado_en',{ascending:false}),
       client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false}),
@@ -4222,6 +4310,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         }));
         card.append(actions);
       }
+      if(p.estado==='ACEPTADO'){epExternalContractPanel(p,false).then(panel=>card.append(panel)).catch(epContractError);}
       return card;
     };
     if(externalResult.error)received.append(budgetNode('p','No se pudieron consultar presupuestos externos: '+externalResult.error.message));
@@ -4479,8 +4568,8 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         const a=actions(item);
         if(p.pdf_path)a.append(budgetButton('Ver / descargar PDF',openPdf(p)));
         const d=details(item,[['Descripción',p.descripcion],['Estado',state],['Origen',p._external?'Presupuesto enviado por correo':null],['Correo',p._external?p.email:null],['Teléfono',p._external?p.telefono:null],['Evento',r?.tipo||p.tipo],['Lugar',r?.lugar||p.lugar],['Fecha del evento',(r?.fecha||p.fecha_inicio)?showDate(r?.fecha||p.fecha_inicio):null]]);
-        if(p.estado==='ACEPTADO'&&!p._external){
-          epContractPanel(p,true).then(panel=>item.append(panel)).catch(epContractError);
+        if(p.estado==='ACEPTADO'){
+          (p._external?epExternalContractPanel(p,true):epContractPanel(p,true)).then(panel=>item.append(panel)).catch(epContractError);
         }
         if(!p._external){const del=budgetButton('Eliminar definitivamente',()=>deleteBudgetPermanently(p));del.classList.add('ep-b2-delete');a.append(del);}
         parent.append(item);
