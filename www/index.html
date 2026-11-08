@@ -5041,5 +5041,29 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 }
 </style>
 
+<!-- Acceso directo desde el botón del correo de presupuestos. -->
+<script>
+(function () {
+  function abrirAccesoDesdeCorreo() {
+    if (window.location.hash !== '#acceso') return;
+    const bienvenida = document.getElementById('splash');
+    if (bienvenida) {
+      bienvenida.classList.add('hidden');
+      bienvenida.setAttribute('aria-hidden', 'true');
+      bienvenida.remove();
+    }
+    document.documentElement.style.overflow = '';
+    const enlace = document.getElementById('openPrivate');
+    if (enlace) enlace.click();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', abrirAccesoDesdeCorreo, {once: true});
+  } else {
+    abrirAccesoDesdeCorreo();
+  }
+  window.addEventListener('hashchange', abrirAccesoDesdeCorreo);
+})();
+</script>
+
 </body>
 </html>
