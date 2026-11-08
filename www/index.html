@@ -4106,7 +4106,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(contract.estado==='PENDIENTE_FIRMA')picker('Sustituir contrato PDF','original');
     }else{
       if(contract.contrato_firmado_pdf)buttons.append(budgetButton('Ver mi PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
-      if(contract.estado==='PENDIENTE_FIRMA')picker('Subir contrato firmado PDF','firmado');
+      if(!contract.contrato_firmado_pdf && (contract.estado==='PENDIENTE_FIRMA'||!contract.estado))picker('Subir contrato firmado PDF','firmado');
     }
     return box;
   };
@@ -4213,7 +4213,19 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         card.append(budgetButton('Solicitar modificación',()=>{const msg=prompt('Indica qué quieres modificar del presupuesto:');if(msg?.trim()){const title='Modificación de presupuesto #'+p.id;window.location.href='mailto:perezrobeta@gmail.com?subject='+encodeURIComponent(title)+'&body='+encodeURIComponent(msg.trim())}}));
         received.append(card);
       });
-      approved.forEach(p=>{const card=budgetCard(p);accepted.append(card);epContractPanel(p,false).then(panel=>card.append(panel)).catch(epContractError)});
+      approved.forEach(p=>{
+        const card=budgetCard(p);
+        accepted.append(card);
+        // Mantener visible el apartado de contratos desde el primer momento,
+        // incluso si la consulta a Supabase tarda o devuelve un error.
+        const contractSlot=budgetNode('div');
+        contractSlot.className='ep-client-contract-slot';
+        contractSlot.append(budgetNode('p','Cargando contrato del presupuesto…'));
+        card.append(contractSlot);
+        epContractPanel(p,false).then(panel=>contractSlot.replaceChildren(panel)).catch(err=>{
+          contractSlot.replaceChildren(budgetNode('p','No se pudo cargar el contrato: '+(err?.message||'Error desconocido')));
+        });
+      });
     }
     const tabs=epClientTabs([
       ['Solicita nuevo presupuesto',()=>panes.forEach((p,i)=>p.hidden=i!==0)],
