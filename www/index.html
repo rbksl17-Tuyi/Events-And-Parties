@@ -4243,7 +4243,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         card.append(contractSlot);
         let currentContract=null;
         const refreshClientContract=async()=>{
-          const result=await client.from('ep_contratos').select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf,estado,created_at').eq('presupuesto_id',p.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
+          const result=await client.from('ep_contratos').select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf,estado,created_at').eq('presupuesto_id',p.id).eq('cliente_id',p.cliente_id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
           if(result.error){message.textContent='No se puede consultar el contrato: '+result.error.message+'. Comprueba los permisos de lectura de ep_contratos.';return}
           const hasHistory=!!(result.data && result.data.length>1);
           currentContract=result.data?.[0]||null;
@@ -4278,9 +4278,21 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
               const path=p.id+'/firmado/'+user.id+'-'+Date.now()+'.pdf';
               const uploaded=await client.storage.from('ep-contratos').upload(path,file,{contentType:'application/pdf',upsert:false});
               if(uploaded.error){message.textContent='No se pudo subir el PDF: '+uploaded.error.message;signed.disabled=false;return}
-              const saved=await client.from('ep_contratos').update({contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'}).eq('id',currentContract.id).eq('cliente_id',user.id).select('id');
-              if(saved.error||!saved.data?.length){await client.storage.from('ep-contratos').remove([path]);message.textContent='No se pudo registrar el PDF firmado: '+(saved.error?.message||'No se autorizó la actualización');signed.disabled=false;return}
-              signed.disabled=false;await refreshClientContract();alert('Contrato firmado recibido correctamente.');
+              // Guardar primero la ruta. Separar el estado permite identificar si
+              // el rechazo viene de RLS o de una restricción sobre el estado.
+              const saved=await client.from('ep_contratos').update({contrato_firmado_pdf:path}).eq('id',currentContract.id).eq('cliente_id',user.id).select('id,contrato_firmado_pdf');
+              if(saved.error||!saved.data?.some(row=>row.contrato_firmado_pdf===path)){
+                // No borrar el archivo: puede faltar la política DELETE de Storage.
+                // Conservar la ruta facilita recuperar el PDF sin volver a subirlo.
+                message.textContent='El PDF está en Storage, pero no se pudo vincular al contrato #'+currentContract.id+'. Ruta: '+path+'. Motivo: '+(saved.error?.message||'UPDATE no modificó ninguna fila; revisar política UPDATE de ep_contratos.');
+                signed.disabled=false;return;
+              }
+              const stateResult=await client.from('ep_contratos').update({estado:'PENDIENTE_VALIDACION'}).eq('id',currentContract.id).eq('cliente_id',user.id).select('id');
+              signed.disabled=false;await refreshClientContract();
+              if(stateResult.error||!stateResult.data?.length){
+                message.textContent='PDF firmado registrado. El estado sigue pendiente de actualizar por administración.';
+                alert('El contrato firmado se ha guardado. Administración debe revisar el estado del contrato.');
+              }else alert('Contrato firmado recibido correctamente.');
             },{once:true});contractSlot.append(input);input.click();return;
           }
           const path=kind==='ver_firmado'?currentContract.contrato_firmado_pdf:currentContract.contrato_pdf;
