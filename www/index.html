@@ -3469,6 +3469,22 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     box.append(budgetNode('h3','Crear evento desde un presupuesto aceptado'));
     const {data:{user},error:authError}=await client.auth.getUser();
     if(authError||!user){box.append(budgetNode('p','Inicia sesión para continuar.'));eventBody.append(box);return}
+    // Convertir de forma segura los presupuestos externos aceptados a la
+    // referencia interna que ya utilizan eventos, calendario y organizaciones.
+    // El RPC es idempotente: no crea duplicados al recargar la pantalla.
+    try {
+      await client.rpc('ep_vincular_presupuestos_externos');
+      const ext=await client.from('ep_presupuestos_externos')
+        .select('id').eq('estado','ACEPTADO').ilike('email',user.email||'__sin_correo__');
+      if(ext.error)throw ext.error;
+      for(const item of (ext.data||[])){
+        const linked=await client.rpc('ep_preparar_evento_externo',{p_externo_id:item.id});
+        if(linked.error)throw linked.error;
+      }
+    }catch(linkError){
+      box.append(budgetNode('p','No se pudo conectar el presupuesto externo con los eventos: '+linkError.message));
+      eventBody.append(box);return;
+    }
     const [br,er]=await Promise.all([
       client.from('ep_presupuestos').select('id,titulo,descripcion,estado,cliente_id').eq('cliente_id',user.id).eq('estado','ACEPTADO').is('eliminado_en',null),
       client.from('ep_eventos').select('presupuesto_id').eq('cliente_id',user.id)
