@@ -4044,7 +4044,40 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(!error && data?.length>1){status.textContent='Hay varios contratos para este presupuesto. Contacta con administración para revisarlos.';return box;}
     if(error){status.textContent='No se pudo consultar el contrato: '+error.message+'. Comprueba los permisos de Supabase.';return box;}
     const contract=data?.[0]||null;
-    const openFile=async(path)=>{try{const {data,error}=await client.storage.from(epContractBucket).createSignedUrl(path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){epContractError(e)}};
+    // Abrir contratos privados comprobando que el archivo realmente existe.
+    // Las URLs firmadas pueden generarse incluso cuando la ruta apunta a un archivo inexistente.
+    const openFile=async(rawPath)=>{
+      const storage=client.storage.from(epContractBucket);
+      let path=String(rawPath||'').trim().replace(/^\/+/, '').replace(/^ep-contratos\//,'');
+      if(!path){alert('Este contrato no tiene una ruta de archivo registrada.');return}
+      const openPdf=async(filePath)=>{
+        const {data,error}=await storage.download(filePath);
+        if(error)throw error;
+        if(!data || !data.size)throw new Error('El PDF está vacío o no se pudo descargar.');
+        const pdfUrl=URL.createObjectURL(new Blob([data],{type:'application/pdf'}));
+        const tab=window.open(pdfUrl,'_blank','noopener,noreferrer');
+        if(!tab){const link=document.createElement('a');link.href=pdfUrl;link.download='contrato-evento.pdf';document.body.append(link);link.click();link.remove()}
+        setTimeout(()=>URL.revokeObjectURL(pdfUrl),120000);
+      };
+      try{await openPdf(path)}catch(firstError){
+        // Recuperar únicamente una ruta antigua si hay una coincidencia inequívoca
+        // del mismo identificador de archivo, en la carpeta de ESTE presupuesto.
+        const folder=String(p.id)+'/original';
+        const filename=path.split('/').pop()||'';
+        const uuid=filename.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
+        if(path.startsWith(folder+'/') && uuid){
+          const {data:files,error:listError}=await storage.list(folder,{limit:100});
+          if(!listError){
+            const matches=(files||[]).filter(f=>f.name?.toLowerCase().startsWith(uuid.toLowerCase()) && f.name.toLowerCase().endsWith('.pdf'));
+            if(matches.length===1){
+              const corrected=folder+'/'+matches[0].name;
+              try{await openPdf(corrected);return}catch(e){firstError=e}
+            }
+          }
+        }
+        alert('No se pudo abrir el contrato PDF.\nRuta registrada: '+path+'\nMotivo: '+(firstError?.message||'archivo no disponible')+'\nComprueba que la ruta y el nombre coinciden exactamente en Storage → ep-contratos.');
+      }
+    };
     const upload=async(kind,file)=>{
       if(!file)return;
       if((kind==='original'&&!admin)||(kind==='firmado'&&admin)){alert('No tienes permiso para esta operación.');return;}
