@@ -4089,9 +4089,19 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(storageError){epContractError(storageError);return}
       const changes=kind==='original'?{presupuesto_id:p.id,cliente_id:p.cliente_id,contrato_pdf:path,estado:'PENDIENTE_FIRMA'}:{contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'};
       const query=contract?client.from('ep_contratos').update(changes).eq('presupuesto_id',p.id):client.from('ep_contratos').insert(changes);
-      const {error:dbError}=await query;
-      if(dbError){await client.storage.from(epContractBucket).remove([path]);epContractError(dbError);return}
-      alert(kind==='original'?'Contrato guardado. El cliente podrá verlo desde su área privada si tiene acceso autorizado.':'Contrato firmado guardado. Administración podrá revisarlo.');
+      // Verificar que la operación afectó realmente a una fila: UPDATE con RLS
+      // puede devolver error=null y cero filas actualizadas.
+      const {data:savedRows,error:dbError}=await query.select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf');
+      if(dbError||!savedRows?.length){
+        await client.storage.from(epContractBucket).remove([path]);
+        epContractError(dbError||new Error('Supabase no confirmó ningún registro actualizado. Revisa los permisos UPDATE/INSERT de ep_contratos.'));
+        return;
+      }
+      if(kind==='original' && (String(savedRows[0].presupuesto_id)!==String(p.id) || savedRows[0].contrato_pdf!==path)){
+        epContractError(new Error('El contrato no quedó asociado al presupuesto esperado. Comprueba ep_contratos antes de volver a subirlo.'));
+        return;
+      }
+      alert(kind==='original'?'Contrato registrado y vinculado al presupuesto correctamente.':'Contrato firmado registrado correctamente.');
       if(admin)loadAdminBudgets();else loadBudgets();
     };
     const picker=(label,kind)=>{const input=budgetNode('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;input.addEventListener('change',()=>upload(kind,input.files?.[0]));const b=budgetButton(label,()=>input.click());buttons.append(b,input)};
@@ -4236,7 +4246,19 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
           if(result.error){message.textContent='No se puede consultar el contrato: '+result.error.message+'. Comprueba los permisos de lectura de ep_contratos.';return}
           if(result.data?.length>1){message.textContent='Hay más de un contrato para este presupuesto. Contacta con administración.';return}
           currentContract=result.data?.[0]||null;
-          if(!currentContract?.contrato_pdf){message.textContent='El administrador todavía no ha enviado un contrato para este presupuesto.';return}
+          if(!currentContract?.contrato_pdf){
+            // Diferenciar la ausencia de una fila de una fila sin PDF y
+            // detectar desajustes de identidad sin revelar datos de terceros.
+            const {data:sessionData,error:sessionError}=await client.auth.getUser();
+            if(sessionError||!sessionData?.user){message.textContent='Tu sesión ha caducado. Cierra sesión y vuelve a entrar para consultar el contrato.';return}
+            if(String(p.cliente_id)!==String(sessionData.user.id)){
+              message.textContent='Este presupuesto no está asociado al usuario con el que has iniciado sesión. Contacta con administración.';return;
+            }
+            message.textContent=currentContract
+              ? 'El registro del contrato existe, pero no tiene PDF original asociado. Administración debe comprobar el campo contrato_pdf.'
+              : 'No se encuentra un contrato visible para este presupuesto (#'+p.id+'). Si administración ya lo subió, comprueba que el registro sigue existiendo y que la política de lectura permite verlo con esta sesión.';
+            return;
+          }
           message.textContent=currentContract.contrato_firmado_pdf?'Contrato firmado recibido · '+(currentContract.estado||'pendiente de revisión'):'Contrato disponible · pendiente de firma';
           signed.hidden=!!currentContract.contrato_firmado_pdf;
           signedView.hidden=!currentContract.contrato_firmado_pdf;
