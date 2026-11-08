@@ -4375,6 +4375,33 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(subtitle)addText(info,'p',subtitle,'ep-b2-sub');head.append(info);item.append(head);return item;
     };
     const actions=item=>{const el=epEl('div');el.className='ep-budget-actions ep-b2-actions';item.append(el);return el};
+    // Borrado comprobado: nunca anunciar éxito sin confirmación de Supabase.
+    // Si hay dependencias protegidas, se detiene y se conserva toda la información.
+    const deleteBudgetPermanently=async p=>{
+      if(!confirm('¿Eliminar DEFINITIVAMENTE este presupuesto? Desaparecerá también del área del cliente si Supabase permite el borrado. Esta acción no se puede deshacer.'))return;
+      if(!confirm('Última confirmación: ¿quieres eliminar el presupuesto n.º '+p.id+'?'))return;
+      try{
+        const {data,error}=await client.from('ep_presupuestos').delete().eq('id',p.id).select('id');
+        if(error)throw error;
+        if(!data?.some(row=>String(row.id)===String(p.id)))throw new Error('Supabase no confirmó la eliminación. Comprueba la política DELETE del administrador.');
+        // El PDF se retira después de confirmar la eliminación del registro.
+        if(p.pdf_path){
+          const {error:fileError}=await client.storage.from('ep-presupuestos').remove([p.pdf_path]);
+          if(fileError)alert('El presupuesto se ha eliminado, pero el archivo PDF requiere limpieza en Storage: '+fileError.message);
+        }
+        await loadAdminBudgets();
+      }catch(e){alert('No se ha eliminado el presupuesto. Puede tener contratos, eventos u organizaciones vinculados, o faltar permisos DELETE. No se ha borrado nada desde esta pantalla. Detalle: '+e.message)}
+    };
+    const deleteRequestPermanently=async r=>{
+      if(!confirm('¿Eliminar DEFINITIVAMENTE esta solicitud por preparar? Dejará de aparecer también en la cuenta del cliente.'))return;
+      if(!confirm('Última confirmación: ¿eliminar la solicitud n.º '+r.id+'?'))return;
+      try{
+        const {data,error}=await client.from('ep_solicitudes_presupuesto').delete().eq('id',r.id).select('id');
+        if(error)throw error;
+        if(!data?.some(row=>String(row.id)===String(r.id)))throw new Error('Supabase no confirmó la eliminación. Comprueba la política DELETE del administrador.');
+        await loadAdminBudgets();
+      }catch(e){alert('No se ha eliminado la solicitud. Comprueba los permisos DELETE o sus relaciones con otros registros: '+e.message)}
+    };
     const openPdf=p=>async()=>{
       try{const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}
       catch(e){alert('No se pudo abrir el PDF: '+e.message)}
@@ -4390,6 +4417,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const item=card((r.tipo||'Evento')+' · '+(r.nombre||'Cliente'),showDate(r.fecha)+' · '+(r.lugar||'Lugar sin concretar'),clientLabel(r.cliente_id,profiles));
       const a=actions(item);
       a.append(budgetButton('Preparar presupuesto',()=>createBudget(r.cliente_id,r.id)));
+      const removeRequest=budgetButton('Eliminar definitivamente',()=>deleteRequestPermanently(r));removeRequest.classList.add('ep-b2-delete');a.append(removeRequest);
       const d=details(item,[['Servicios',Array.isArray(r.servicios)?r.servicios.join(', '):r.servicios],['Horario',r.horario],['Invitados',r.invitados],['Observaciones',r.detalles]]);
       const row=epEl('div');row.className='ep-b2-status';const label=budgetNode('label','Estado');const sel=budgetNode('select');
       [['PENDIENTE','Pendiente'],['EN_PREPARACION','En preparación']].forEach(([v,t])=>{const opt=budgetNode('option',t);opt.value=v;sel.append(opt)});
@@ -4420,15 +4448,8 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         if(p.estado==='ACEPTADO'){
           epContractPanel(p,true).then(panel=>item.append(panel)).catch(epContractError);
         }
-        if(p.estado!=='PENDIENTE'){
-          const del=budgetButton('Eliminar presupuesto',async()=>{
-            if(!confirm('¿Seguro que deseas eliminar definitivamente este presupuesto del historial? Esta acción no se puede deshacer.'))return;
-            const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
-            if(error){alert('No se pudo eliminar: '+error.message);return}
-            if(p.pdf_path){const {error:storageError}=await client.storage.from('ep-presupuestos').remove([p.pdf_path]);if(storageError)alert('Presupuesto eliminado, pero no se pudo borrar el PDF: '+storageError.message)}
-            loadAdminBudgets();
-          });del.classList.add('ep-b2-delete');d.append(del);
-        }
+        const del=budgetButton('Eliminar definitivamente',()=>deleteBudgetPermanently(p));
+        del.classList.add('ep-b2-delete');a.append(del);
         parent.append(item);
       };
       waiting.forEach(p=>renderBudget(p,panes[1]));
