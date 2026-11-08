@@ -1601,6 +1601,15 @@ section[hidden]{display:none!important}
 #epClientHome:not(.ep-is-admin) .ep-home-intro p {margin:0!important}
 @media(max-width:600px){#epClientHome:not(.ep-is-admin) .ep-home-intro{min-height:235px!important;padding:22px!important}}
 </style>
+<style id="ep-correccion-definitiva-portada-cliente">
+/* Solo portada de clientes: elimina el panel negro añadido al final. */
+#epClientHome:not(.ep-is-admin) #epLuxuryMotto {display:none!important;height:0!important;margin:0!important;padding:0!important;border:0!important}
+/* Evita la gran superficie vacía provocada por la altura mínima forzada. */
+#epClientHome:not(.ep-is-admin) {min-height:0!important;height:auto!important;padding-bottom:24px!important}
+/* Mantiene la fotografía original y el saludo de Mi espacio personal. */
+#epClientHome:not(.ep-is-admin) .ep-home-intro {min-height:235px!important;margin-top:0!important;margin-bottom:16px!important}
+#epClientHome:not(.ep-is-admin)::before,#epClientHome:not(.ep-is-admin)::after {content:none!important;display:none!important}
+</style>
 </head>
   
 <body>
