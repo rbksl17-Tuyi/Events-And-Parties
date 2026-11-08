@@ -4386,7 +4386,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
           p_confirmar:true
         });
         if(error)throw error;
-        if(data!==true)throw new Error('Supabase no confirmó la eliminación definitiva del presupuesto.');
+        if(!(data===true || (data && data.eliminado===true && String(data.presupuesto_id)===String(p.id))))throw new Error('Supabase no confirmó la eliminación definitiva del presupuesto.');
         // El PDF se retira después de confirmar la eliminación del registro.
         if(p.pdf_path){
           const {error:fileError}=await client.storage.from('ep-presupuestos').remove([p.pdf_path]);
@@ -4478,7 +4478,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(!isAdmin)return;
     const wrap=budgetNode('section');wrap.className='ep-budget-card ep-external-budget';
     const heading=budgetNode('h3','Crear presupuesto · Nuevo cliente');
-    const description=budgetNode('p','Prepara y envía un presupuesto a una persona sin cuenta. Al aceptarlo, recibirá instrucciones para registrarse.');
+    const description=budgetNode('p','Prepara y envía un presupuesto a una persona sin cuenta. Este envío por correo no crea todavía un presupuesto en la base de datos ni un enlace de aceptación.');
     const form=budgetNode('form');form.className='ep-budget-form';
     const field=(label,name,type='text',required=true)=>{
       const l=budgetNode('label',label),i=budgetNode(type==='textarea'?'textarea':'input');
@@ -4519,7 +4519,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     field('Descripción y servicios incluidos','descripcion','textarea');
     field('Importe (€)','importe','number');
     const pdf=field('Adjuntar PDF del presupuesto (obligatorio)','pdf','file');pdf.accept='application/pdf';
-    const hint=budgetNode('p','PDF de hasta 5 MB. Se enviará un correo con el enlace privado y el presupuesto adjunto. Remitente de contacto: perezrobeta@gmail.com.');
+    const hint=budgetNode('p','PDF de hasta 5 MB. Se enviará un correo con el presupuesto adjunto. Remitente de contacto: perezrobeta@gmail.com.');
     const status=budgetNode('p');status.setAttribute('role','status');
     const submit=budgetNode('button','Enviar presupuesto por correo');submit.type='submit';
     form.append(hint,submit,status);
@@ -4542,12 +4542,12 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         payload.fecha=payload.fecha_inicio; // compatibilidad con la fecha usada anteriormente
         payload.duracion_minutos=Math.round((endDate-startDate)/60000);
         payload.importe=Number(fd.get('importe'));payload.pdf_base64=btoa(binary);payload.pdf_filename=file.name;
-        const {data,error}=await client.functions.invoke('ep-external-budgets',{body:{action:'create',payload}});
+        const {data,error}=await client.functions.invoke('super-function',{body:{action:'create',payload}});
         if(error)throw new Error(error.message||'Error en el servicio de envío');
         if(!data?.ok)throw new Error(data?.error||'El servicio no confirmó el envío');
-        status.textContent='Presupuesto enviado correctamente. El cliente recibirá el PDF y un enlace privado.';
+        status.textContent='Presupuesto enviado correctamente. El cliente recibirá el PDF adjunto.';
         form.reset();
-      }catch(err){status.textContent='No se ha confirmado el envío: '+err.message+' Comprueba que la función ep-external-budgets y el correo estén configurados en Supabase.'}
+      }catch(err){status.textContent='No se ha confirmado el envío: '+err.message+' Comprueba la función super-function y la configuración de Resend en Supabase.'}
       finally{submit.disabled=false}
     });
     wrap.append(heading,description,form);
