@@ -4040,8 +4040,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     box.append(budgetNode('h4','✦ Contrato del evento'));
     const status=budgetNode('p','Consultando el contrato...');status.className='ep-contract-live-status';box.append(status);
     const buttons=budgetNode('div');buttons.className='ep-contract-live-actions';box.append(buttons);
-    const {data,error}=await client.from('ep_contratos').select('*').eq('presupuesto_id',p.id).limit(2);
-    if(!error && data?.length>1){status.textContent='Hay varios contratos para este presupuesto. Contacta con administración para revisarlos.';return box;}
+    // Elegir el registro más reciente sin eliminar el historial de contratos.
+    const {data,error}=await client.from('ep_contratos').select('*').eq('presupuesto_id',p.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
+    const hasHistory=!!(data && data.length>1);
     if(error){status.textContent='No se pudo consultar el contrato: '+error.message+'. Comprueba los permisos de Supabase.';return box;}
     const contract=data?.[0]||null;
     // Abrir contratos privados comprobando que el archivo realmente existe.
@@ -4088,7 +4089,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const {error:storageError}=await client.storage.from(epContractBucket).upload(path,file,{contentType:'application/pdf',upsert:false});
       if(storageError){epContractError(storageError);return}
       const changes=kind==='original'?{presupuesto_id:p.id,cliente_id:p.cliente_id,contrato_pdf:path,estado:'PENDIENTE_FIRMA'}:{contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'};
-      const query=contract?client.from('ep_contratos').update(changes).eq('presupuesto_id',p.id):client.from('ep_contratos').insert(changes);
+      const query=contract?client.from('ep_contratos').update(changes).eq('id',contract.id):client.from('ep_contratos').insert(changes);
       // Verificar que la operación afectó realmente a una fila: UPDATE con RLS
       // puede devolver error=null y cero filas actualizadas.
       const {data:savedRows,error:dbError}=await query.select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf');
@@ -4107,11 +4108,11 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const picker=(label,kind)=>{const input=budgetNode('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;input.addEventListener('change',()=>upload(kind,input.files?.[0]));const b=budgetButton(label,()=>input.click());buttons.append(b,input)};
     if(!contract||!contract.contrato_pdf){status.textContent=admin?'Todavía no has enviado un contrato.':'El administrador todavía no ha enviado el contrato.';if(admin)picker('Adjuntar y enviar contrato PDF','original');return box}
     const states={PENDIENTE_FIRMA:'Pendiente de firma del cliente',PENDIENTE_VALIDACION:'Firmado · pendiente de validación',VALIDADO:'Contrato firmado y validado'};
-    status.textContent=states[contract.estado]||'Contrato disponible';
+    status.textContent=(states[contract.estado]||'Contrato disponible')+(hasHistory?' · Se muestra el registro más reciente; existen versiones anteriores conservadas.':'');
     buttons.append(budgetButton('Ver contrato PDF',()=>openFile(contract.contrato_pdf)));
     if(admin){
       if(contract.contrato_firmado_pdf){buttons.append(budgetButton('Ver PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
-        if(contract.estado!=='VALIDADO')buttons.append(budgetButton('Validar contrato',async()=>{if(!confirm('¿Confirmas que has revisado el contrato firmado?'))return;const {error}=await client.from('ep_contratos').update({estado:'VALIDADO'}).eq('presupuesto_id',p.id);if(error)epContractError(error);else loadAdminBudgets()}));
+        if(contract.estado!=='VALIDADO')buttons.append(budgetButton('Validar contrato',async()=>{if(!confirm('¿Confirmas que has revisado el contrato firmado?'))return;const {error}=await client.from('ep_contratos').update({estado:'VALIDADO'}).eq('id',contract.id);if(error)epContractError(error);else loadAdminBudgets()}));
       }
       if(contract.estado==='PENDIENTE_FIRMA')picker('Sustituir contrato PDF','original');
     }else{
@@ -4242,9 +4243,9 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         card.append(contractSlot);
         let currentContract=null;
         const refreshClientContract=async()=>{
-          const result=await client.from('ep_contratos').select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf,estado').eq('presupuesto_id',p.id).limit(2);
+          const result=await client.from('ep_contratos').select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf,estado,created_at').eq('presupuesto_id',p.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
           if(result.error){message.textContent='No se puede consultar el contrato: '+result.error.message+'. Comprueba los permisos de lectura de ep_contratos.';return}
-          if(result.data?.length>1){message.textContent='Hay más de un contrato para este presupuesto. Contacta con administración.';return}
+          const hasHistory=!!(result.data && result.data.length>1);
           currentContract=result.data?.[0]||null;
           if(!currentContract?.contrato_pdf){
             // Diferenciar la ausencia de una fila de una fila sin PDF y
@@ -4259,7 +4260,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
               : 'No se encuentra un contrato visible para este presupuesto (#'+p.id+'). Si administración ya lo subió, comprueba que el registro sigue existiendo y que la política de lectura permite verlo con esta sesión.';
             return;
           }
-          message.textContent=currentContract.contrato_firmado_pdf?'Contrato firmado recibido · '+(currentContract.estado||'pendiente de revisión'):'Contrato disponible · pendiente de firma';
+          message.textContent=(currentContract.contrato_firmado_pdf?'Contrato firmado recibido · '+(currentContract.estado||'pendiente de revisión'):'Contrato disponible · pendiente de firma')+(hasHistory?' · Se muestra el registro más reciente; hay versiones anteriores.':'');
           signed.hidden=!!currentContract.contrato_firmado_pdf;
           signedView.hidden=!currentContract.contrato_firmado_pdf;
         };
