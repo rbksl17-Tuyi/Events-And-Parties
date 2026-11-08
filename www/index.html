@@ -4381,16 +4381,19 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(!confirm('¿Eliminar DEFINITIVAMENTE este presupuesto? Desaparecerá también del área del cliente si Supabase permite el borrado. Esta acción no se puede deshacer.'))return;
       if(!confirm('Última confirmación: ¿quieres eliminar el presupuesto n.º '+p.id+'?'))return;
       try{
-        const {data,error}=await client.from('ep_presupuestos').delete().eq('id',p.id).select('id');
+        const {data,error}=await client.rpc('ep_eliminar_presupuesto_definitivo',{
+          p_presupuesto_id:p.id,
+          p_confirmar:true
+        });
         if(error)throw error;
-        if(!data?.some(row=>String(row.id)===String(p.id)))throw new Error('Supabase no confirmó la eliminación. Comprueba la política DELETE del administrador.');
+        if(data!==true)throw new Error('Supabase no confirmó la eliminación definitiva del presupuesto.');
         // El PDF se retira después de confirmar la eliminación del registro.
         if(p.pdf_path){
           const {error:fileError}=await client.storage.from('ep-presupuestos').remove([p.pdf_path]);
           if(fileError)alert('El presupuesto se ha eliminado, pero el archivo PDF requiere limpieza en Storage: '+fileError.message);
         }
         await loadAdminBudgets();
-      }catch(e){alert('No se ha eliminado el presupuesto. Puede tener contratos, eventos u organizaciones vinculados, o faltar permisos DELETE. No se ha borrado nada desde esta pantalla. Detalle: '+e.message)}
+      }catch(e){alert('No se ha confirmado la eliminación definitiva del presupuesto. Revisa el mensaje de Supabase. Detalle: '+e.message)}
     };
     const deleteRequestPermanently=async r=>{
       if(!confirm('¿Eliminar DEFINITIVAMENTE esta solicitud por preparar? Dejará de aparecer también en la cuenta del cliente.'))return;
