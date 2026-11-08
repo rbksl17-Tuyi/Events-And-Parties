@@ -1573,6 +1573,15 @@ section[hidden]{display:none!important}
 @media(max-width:700px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:90px minmax(0,1fr)!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:130px!important;min-height:130px!important}}
 @media(max-width:520px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:1fr!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:120px!important;min-height:120px!important}#epPrivateInner .ep-mis-premium .ep-mis-stat{padding-left:37px!important}}
 </style>
+<style id="ep-contratos-firmados-ui-2026">
+/* Suprimir el bloque oscuro sobredimensionado de la cabecera del cliente sin afectar al administrador. */
+#epClientHome:not(.ep-is-admin) .ep-home-intro{min-height:0!important;margin:0 0 18px!important;padding:18px 22px!important;background-image:none!important;background:#15100b!important;border:1px solid #8e6c3c!important;border-radius:13px!important}
+#epClientHome:not(.ep-is-admin) .ep-home-intro h1{margin:5px 0!important;font-size:clamp(23px,3vw,34px)!important}
+#epClientHome:not(.ep-is-admin) .ep-home-intro p{margin:4px 0!important}
+.ep-contract-upload-label{display:block;margin:14px 0 5px;color:#f3d79d;font-weight:700}
+.ep-contract-upload-input{display:block;max-width:100%;margin:0 0 12px;padding:10px;border:1px solid #967044;border-radius:9px;background:#17130e;color:#fff1d5}
+.ep-contract-upload-input::file-selector-button{margin-right:12px;padding:7px 10px;background:#c9a15b;color:#171006;border:0;border-radius:7px;cursor:pointer}
+</style>
 </head>
   
 <body>
@@ -3645,7 +3654,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(approved.length){
         const ids=approved.map(p=>p.id);
         const {data:contracts,error:contractsError}=await client.from('ep_contratos')
-          .select('presupuesto_id,cliente_id,contrato_pdf,estado')
+          .select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf,estado')
           .eq('cliente_id',user.id).in('presupuesto_id',ids);
         if(eventTitle.textContent!=='Presupuestos')return;
         if(contractsError){
@@ -3670,6 +3679,53 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
               });
               card.append(btn);
             }else card.append(budgetNode('p','El contrato todavía no tiene un PDF asociado.'));
+            if(contract.contrato_firmado_pdf){
+              card.append(budgetNode('p','✓ Contrato firmado recibido.'));
+              const signedBtn=budgetButton('📄 Ver contrato firmado',async()=>{
+                signedBtn.disabled=true;
+                try{
+                  const {data,error}=await client.storage.from('ep-contratos').createSignedUrl(contract.contrato_firmado_pdf,120);
+                  if(error)throw error;
+                  if(!data?.signedUrl)throw new Error('No se ha podido generar el enlace.');
+                  window.location.assign(data.signedUrl);
+                }catch(err){alert('No se pudo abrir el contrato firmado: '+err.message);}
+                finally{signedBtn.disabled=false;}
+              });
+              card.append(signedBtn);
+            }else if(contract.contrato_pdf){
+              const uploadLabel=budgetNode('label','Devolver contrato firmado (PDF, máximo 10 MB)');
+              uploadLabel.className='ep-contract-upload-label';
+              const uploadInput=document.createElement('input');
+              uploadInput.type='file';uploadInput.accept='.pdf,application/pdf';uploadInput.className='ep-contract-upload-input';
+              const uploadBtn=budgetButton('⬆ Subir contrato firmado',async()=>{
+                const file=uploadInput.files?.[0];
+                if(!file){alert('Selecciona primero el PDF firmado.');return;}
+                if(file.size>10*1024*1024||file.size===0||(!file.name.toLowerCase().endsWith('.pdf')&&file.type!=='application/pdf')){
+                  alert('Selecciona un PDF válido de hasta 10 MB.');return;
+                }
+                if(!confirm('¿Quieres enviar este contrato firmado?'))return;
+                uploadBtn.disabled=true;uploadBtn.textContent='Enviando contrato…';
+                let uploadedPath=null;
+                try{
+                  const {data:sessionData,error:sessionError}=await client.auth.getUser();
+                  if(sessionError||sessionData?.user?.id!==user.id)throw new Error('La sesión ha caducado. Vuelve a iniciar sesión.');
+                  // Carpeta por presupuesto; ruta nueva e impredecible, sin sobrescribir documentos.
+                  const nonce=crypto.randomUUID();
+                  uploadedPath=String(p.id)+'/firmado/'+nonce+'.pdf';
+                  const {error:uploadError}=await client.storage.from('ep-contratos').upload(uploadedPath,file,{contentType:'application/pdf',upsert:false});
+                  if(uploadError)throw uploadError;
+                  const {data:updated,error:updateError}=await client.from('ep_contratos')
+                    .update({contrato_firmado_pdf:uploadedPath,estado:'FIRMADO'})
+                    .eq('id',contract.id).eq('cliente_id',user.id).is('contrato_firmado_pdf',null)
+                    .select('id');
+                  if(updateError)throw updateError;
+                  if(!updated?.length)throw new Error('No se pudo registrar el documento. Comprueba los permisos de Supabase.');
+                  alert('Contrato firmado enviado correctamente.');
+                  await loadBudgets();
+                }catch(err){alert('No se pudo enviar el contrato: '+err.message);uploadBtn.disabled=false;uploadBtn.textContent='⬆ Subir contrato firmado';}
+              });
+              card.append(uploadLabel,uploadInput,uploadBtn);
+            }
             accepted.append(card);
           }
         }
