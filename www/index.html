@@ -1068,6 +1068,17 @@ background:
 #epPrivateInner .ep-client-accepted-compact .ep-budget-card h4{
   margin:0 0 5px!important;font-size:.92rem!important;
 }
+
+/* Panel de presupuestos: tarjetas compactas y acciones alineadas */
+.ep-b2 .ep-b2-item{padding:10px 13px!important;margin:7px 0!important}
+.ep-b2 .ep-b2-info h3{font-size:.95rem!important;margin:0 0 2px!important}
+.ep-b2 .ep-b2-info p{font-size:.79rem!important;margin:1px 0!important}
+.ep-b2 .ep-b2-actions{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:9px!important;margin:8px 0!important;flex-wrap:wrap!important}
+.ep-b2 .ep-b2-actions button{margin:0!important;padding:7px 11px!important;min-height:34px!important;line-height:1.2!important}
+.ep-b2 .ep-b2-actions .ep-b2-delete{background:#8f2028!important;border:1px solid #c4434a!important;color:#fff!important;opacity:1!important;box-shadow:none!important}
+.ep-b2 .ep-b2-actions .ep-b2-delete:hover{background:#b42b35!important}
+.ep-b2 .ep-b2-details{margin-top:6px!important;padding-top:4px!important}
+.ep-b2 .ep-b2-month{margin:10px 0!important}
 </style>
 
 <style>
@@ -2074,6 +2085,20 @@ section[hidden]{display:none!important}
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button:not(.active){background:linear-gradient(145deg,#292622,#171719)!important}
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-budget-simple-search{background:#1d1c1d!important}
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-contract-preview{background:linear-gradient(125deg,#211d18,#111112)!important}
+</style>
+<style id="ep-admin-budget-fix-20261109">
+/* Overrides the later theme selectors with matching specificity. */
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-item{padding:9px 12px!important;margin:6px 0!important;border-radius:10px!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-info h3{font-size:.91rem!important;line-height:1.2!important;margin:0 0 2px!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-info p{font-size:.78rem!important;margin:1px 0!important;line-height:1.25!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-actions{display:flex!important;align-items:center!important;gap:10px!important;margin:8px 0 5px!important;flex-wrap:wrap!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-actions button{margin:0!important;padding:7px 11px!important;min-height:34px!important;font-size:.8rem!important;line-height:1.15!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-actions button.ep-b2-delete{background:#a52a32!important;background-image:none!important;color:#fff!important;border:1px solid #e26a6a!important;opacity:1!important;box-shadow:none!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-actions button.ep-b2-delete:hover{background:#c3343e!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-details{margin-top:4px!important;padding-top:4px!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-b2-month{margin:8px 0!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-external-contract-panel,
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-contract-live{margin-top:5px!important;padding:8px 10px!important}
 </style>
 </head>
   
@@ -4502,7 +4527,11 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const preparedIds=new Set(allBudgets.map(p=>String(p.solicitud_id||'')).filter(Boolean));
     const pending=allRequests.filter(r=>!preparedIds.has(String(r.id)));
     const externalBudgets=(externalResult.data||[]).map(p=>({...p,_external:true}));
-    const combinedBudgets=[...allBudgets,...externalBudgets];
+    // Ocultar copias internas generadas para enlazar presupuestos externos con eventos.
+    // Primero usar el puente exacto si la política permite leerlo; si no, no ocultar por coincidencias vagas.
+    const {data:bridgeRows,error:bridgeError}=await client.from('ep_puentes_presupuestos_externos').select('externo_id,presupuesto_id');
+    const bridgedIds=new Set((bridgeError?[]:(bridgeRows||[])).filter(x=>externalBudgets.some(e=>String(e.id)===String(x.externo_id))).map(x=>String(x.presupuesto_id)));
+    const combinedBudgets=[...allBudgets.filter(p=>!bridgedIds.has(String(p.id))),...externalBudgets];
     const waiting=combinedBudgets.filter(p=>p.estado==='PENDIENTE');
     const final=combinedBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
     const root=epEl('div');root.className='ep-b2';
@@ -4563,6 +4592,25 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         await loadAdminBudgets();
       }catch(e){alert('No se ha confirmado la eliminación definitiva del presupuesto. Revisa el mensaje de Supabase. Detalle: '+e.message)}
     };
+    // Borrado de presupuestos externos: no tocar contratos, eventos ni copias internas asociadas.
+    const deleteExternalBudget=async p=>{
+      if(!confirm('¿Eliminar DEFINITIVAMENTE este presupuesto externo? No se podrá recuperar.'))return;
+      try{
+        const [contracts,bridge]=await Promise.all([
+          client.from('ep_contratos_externos').select('id').eq('presupuesto_externo_id',p.id).limit(1),
+          client.from('ep_puentes_presupuestos_externos').select('presupuesto_id').eq('externo_id',p.id).limit(1)
+        ]);
+        if(contracts.error||bridge.error)throw new Error('No se pudieron comprobar las relaciones del presupuesto. No se ha borrado nada.');
+        if((contracts.data||[]).length||(bridge.data||[]).length){
+          alert('Este presupuesto tiene un contrato o un evento vinculado. Por seguridad no se puede eliminar desde aquí: primero hay que gestionar sus relaciones y documentos sin perder información.');return;
+        }
+        if(!confirm('Confirmación final: eliminar el presupuesto externo '+(p.titulo||p.id)+'?'))return;
+        const {data,error}=await client.from('ep_presupuestos_externos').delete().eq('id',p.id).select('id');
+        if(error)throw error;
+        if(!data?.some(x=>String(x.id)===String(p.id)))throw new Error('Supabase no confirmó el borrado. Puede faltar permiso DELETE.');
+        await loadAdminBudgets();
+      }catch(e){alert('No se ha eliminado: '+e.message)}
+    };
     const deleteRequestPermanently=async r=>{
       if(!confirm('¿Eliminar DEFINITIVAMENTE esta solicitud por preparar? Dejará de aparecer también en la cuenta del cliente.'))return;
       if(!confirm('Última confirmación: ¿eliminar la solicitud n.º '+r.id+'?'))return;
@@ -4620,7 +4668,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         if(p.estado==='ACEPTADO'){
           (p._external?epExternalContractPanel(p,true):epContractPanel(p,true)).then(panel=>item.append(panel)).catch(epContractError);
         }
-        if(!p._external){const del=budgetButton('Eliminar definitivamente',()=>deleteBudgetPermanently(p));del.classList.add('ep-b2-delete');a.append(del);}
+        const del=budgetButton('Eliminar definitivamente',()=>p._external?deleteExternalBudget(p):deleteBudgetPermanently(p));del.classList.add('ep-b2-delete');a.append(del);
         parent.append(item);
       };
       waiting.forEach(p=>renderBudget(p,panes[1]));
