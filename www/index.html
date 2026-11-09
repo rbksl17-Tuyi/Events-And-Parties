@@ -2228,6 +2228,77 @@ section[hidden]{display:none!important}
 #epClientHome #epLuxuryMotto span{font-size:clamp(9px,1.2vw,13px)!important;letter-spacing:.22em!important;color:#f9e4b8!important}
 @media(max-width:650px){#epClientHome #epLuxuryMotto{gap:12px;padding:16px!important}#epClientHome #epLuxuryMotto img{width:70px!important;height:70px!important}#epClientHome .ep-home-tile .ep-home-link{right:6px!important;bottom:6px!important}}
 </style>
+
+<style id="ep-ajuste-final-inicio-20261109">
+/* Ajustes exclusivos de inicio: no afectan a las pantallas operativas. */
+#privateDashboard #epClientHome{
+ min-height:0!important;max-width:none!important;
+ padding:9px 10px 8px!important;
+ background:radial-gradient(ellipse at 88% 80%,#a9783424,transparent 55%),#0b0b0e!important;
+}
+#epClientHome .ep-home-intro{
+ min-height:0!important;height:auto!important;
+ padding:12px 20px!important;margin:0 0 9px!important;
+ border-radius:13px!important;
+}
+#epClientHome.ep-is-admin .ep-home-intro{min-height:0!important;}
+#epClientHome .ep-home-intro h1{font-size:clamp(22px,2.7vw,36px)!important;line-height:1.12!important;margin:4px 0!important;}
+#epClientHome .ep-home-intro p{font-size:clamp(10px,1vw,13px)!important;line-height:1.3!important;margin:3px 0!important;}
+#epClientHome .ep-home-grid{gap:9px!important;}
+#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){
+ min-height:clamp(105px,16.5vh,154px)!important;
+ padding:12px 14px!important;
+ border-radius:13px!important;
+}
+#epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){
+ border:1.5px solid #d7a65d!important;
+ box-shadow:inset 0 0 0 1px #ffe1a72b,0 0 13px #b77d3040!important;
+}
+#epClientHome .ep-home-tile .ep-home-copy strong{font-size:clamp(16px,1.8vw,22px)!important;line-height:1.1!important;}
+#epClientHome .ep-home-tile .ep-home-copy small{font-size:clamp(9px,.88vw,11px)!important;line-height:1.2!important;}
+#epClientHome .ep-home-tile .ep-home-link{
+ right:5px!important;bottom:5px!important;
+ width:34px!important;height:34px!important;min-width:34px!important;
+ border-radius:9px!important;
+}
+#epClientHome .ep-home-tile .ep-home-link span{font-size:22px!important;}
+#epClientHome #epLuxuryMotto{
+ display:flex!important;flex-direction:row!important;
+ height:clamp(58px,10vh,84px)!important;min-height:0!important;
+ padding:5px 12px!important;margin:9px 0 0!important;gap:12px!important;
+ border-radius:12px!important;
+ background:linear-gradient(90deg,#08090dd9,#0d0c0c9c 45%,#090a0bd9),url('media/nuevo-fondo-dj.png') center 47% / cover no-repeat!important;
+ box-shadow:inset 0 0 25px #0008,0 0 14px #b7803c38!important;
+}
+#epClientHome #epLuxuryMotto img{width:clamp(40px,6vh,58px)!important;height:clamp(40px,6vh,58px)!important;object-fit:contain!important;}
+#epClientHome #epLuxuryMotto .ep-motto-text{align-items:center!important;gap:2px!important;text-align:center!important;}
+#epClientHome #epLuxuryMotto strong{font-size:clamp(13px,1.65vw,20px)!important;line-height:1.1!important;letter-spacing:.09em!important;}
+#epClientHome #epLuxuryMotto span{font-size:clamp(8px,.8vw,10px)!important;letter-spacing:.14em!important;}
+.private-sidebar .ep-headphones-deco{display:flex;justify-content:center;align-items:center;margin:3px auto 10px;pointer-events:none;}
+.private-sidebar .ep-headphones-deco svg{width:clamp(46px,5.5vw,69px);height:auto;filter:drop-shadow(0 0 8px #c9944566);}
+@media(max-width:850px){
+ #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){min-height:110px!important;}
+ #epClientHome .ep-home-tile .ep-home-link{right:4px!important;bottom:4px!important;}
+}
+@media(max-width:600px){
+ #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){min-height:118px!important;padding:10px!important;}
+ #epClientHome .ep-home-intro{padding:12px!important;}
+ #epClientHome #epLuxuryMotto{height:67px!important;}
+}
+</style>
+<script id="ep-auriculares-dorados-sidebar">
+(function(){
+ function add(){
+  const sidebar=document.querySelector('.private-sidebar');
+  if(!sidebar||sidebar.querySelector('.ep-headphones-deco'))return;
+  const el=document.createElement('div');el.className='ep-headphones-deco';el.setAttribute('aria-hidden','true');
+  el.innerHTML='<svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="epGoldHead" x1="0" y1="0" x2="90" y2="90"><stop stop-color="#fff0b8"/><stop offset=".45" stop-color="#d7a34d"/><stop offset=".75" stop-color="#986322"/><stop offset="1" stop-color="#f7d98a"/></linearGradient></defs><path d="M15 47V39C15 22 28 9 45 9S75 22 75 39V47" stroke="url(#epGoldHead)" stroke-width="7" stroke-linecap="round"/><path d="M15 44H22Q26 44 26 50V68Q26 74 20 74H15Q9 74 9 68V50Q9 44 15 44Z" fill="#20160e" stroke="url(#epGoldHead)" stroke-width="4"/><path d="M68 44H74Q81 44 81 51V67Q81 74 74 74H69Q64 74 64 68V50Q64 44 68 44Z" fill="#20160e" stroke="url(#epGoldHead)" stroke-width="4"/><path d="M73 75Q70 84 54 84" stroke="url(#epGoldHead)" stroke-width="3" stroke-linecap="round"/><rect x="49" y="81" width="12" height="5" rx="2.5" fill="#dfb76c"/></svg>';
+  const first=sidebar.firstElementChild;
+  if(first)first.insertAdjacentElement('afterend',el);else sidebar.prepend(el);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',add,{once:true});else add();
+})();
+</script>
 </head>
   
 <body>
