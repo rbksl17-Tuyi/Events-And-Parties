@@ -2859,6 +2859,54 @@ section[hidden]{display:none!important}
   }
 }
 </style>
+
+<style id="ep-mobile-responsive-only-20261110">
+/* Exclusivo para teléfonos: PC y tablet conservan sus estilos originales. */
+@media screen and (max-width: 700px) {
+ html,body{max-width:100%;overflow-x:hidden!important}
+ .nav,.hero,.section,.gallery,.contact,.footer{max-width:100%;box-sizing:border-box}
+ .hero h1,.hero h2{overflow-wrap:break-word}
+ .nav nav{flex-wrap:wrap;justify-content:center}
+ .cards,.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .gallery img,.gallery video{max-width:100%;height:auto}
+ input,select,textarea{max-width:100%;box-sizing:border-box}
+ /* Las pantallas privadas no heredan dimensiones fijas de escritorio. */
+ #privateDashboard{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain}
+ #privateDashboard .private-top{position:sticky!important;top:0!important;z-index:100!important;display:flex!important;align-items:center!important;gap:8px!important;min-height:58px!important;padding:7px 12px!important;background:#0b0a09f5!important;backdrop-filter:blur(12px)}
+ #privateDashboard .private-top>div{min-width:0!important;gap:7px!important}
+ #privateDashboard .private-top img{width:30px!important;height:30px!important;flex-shrink:0!important}
+ #privateDashboard .private-top strong{font-size:10px!important;line-height:1.3!important;max-width:190px!important;display:block!important;white-space:normal!important}
+ #privateDashboard #privateLogout{flex-shrink:0!important;max-width:88px!important;font-size:11px!important;line-height:1.2!important;padding:9px 8px!important;min-height:39px!important}
+ #privateDashboard #epClientHome:not([hidden]){display:block!important;box-sizing:border-box!important;width:100%!important;min-height:0!important;height:auto!important;max-height:none!important;padding:16px 12px 28px!important;overflow:visible!important}
+ #privateDashboard #epClientHome .ep-home-intro{box-sizing:border-box!important;min-height:118px!important;height:auto!important;margin:0 0 13px!important;padding:17px 16px!important;border-radius:14px!important;background-size:cover!important;background-position:center!important;overflow:hidden!important}
+ #privateDashboard #epClientHome .ep-home-intro h1{font-size:clamp(21px,5.5vw,30px)!important;line-height:1.12!important;margin:5px 0!important;overflow-wrap:break-word!important}
+ #privateDashboard #epClientHome .ep-home-intro p{font-size:11px!important;line-height:1.4!important;margin:5px 0 0!important}
+ #privateDashboard #epClientHome .ep-home-grid,#privateDashboard #epClientHome.ep-is-admin .ep-home-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;align-content:start!important;min-height:0!important;height:auto!important;overflow:visible!important}
+ #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]),#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:124px!important;height:clamp(124px,23dvh,170px)!important;padding:12px!important;border-radius:13px!important;background-size:cover!important;background-position:center!important;display:flex!important;justify-content:flex-end!important;overflow:hidden!important}
+ #privateDashboard #epClientHome .ep-home-copy strong,#privateDashboard #epClientHome.ep-is-admin .ep-home-copy strong{font-size:clamp(13px,3.8vw,17px)!important;line-height:1.15!important;overflow-wrap:break-word!important}
+ #privateDashboard #epClientHome .ep-home-copy small{font-size:10px!important;line-height:1.25!important}
+ #privateDashboard #epClientHome .ep-home-icon{font-size:17px!important}
+ #privateDashboard #epClientHome #epLuxuryMotto{box-sizing:border-box!important;width:100%!important;min-height:88px!important;height:88px!important;margin:13px 0 0!important;padding:8px!important;background-size:cover!important;background-position:center!important;border-radius:13px!important}
+ #privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text strong{font-size:clamp(14px,4vw,19px)!important}
+ #privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text span{font-size:9px!important}
+ /* Vistas interiores: navegación accesible y contenido sin estrechamientos. */
+ #privateDashboard #epPrivateInner:not([hidden]){display:flex!important;flex-direction:column!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-height:0!important;height:auto!important;margin:0!important;padding:8px 10px 24px!important;overflow:visible!important}
+ #privateDashboard #epPrivateInner .private-sidebar{position:relative!important;top:auto!important;left:auto!important;display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;gap:7px!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-height:0!important;height:auto!important;margin:0 0 10px!important;padding:5px 0 9px!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin!important;background:transparent!important}
+ #privateDashboard #epPrivateInner .private-sidebar button:not([hidden]){display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;min-width:46px!important;min-height:42px!important;max-width:none!important;margin:0!important;padding:9px 11px!important;border-radius:11px!important;white-space:nowrap!important;font-size:12px!important}
+ #privateDashboard #epPrivateInner .private-sidebar .ep-headphones-deco,#privateDashboard #epPrivateInner .private-sidebar .ep-lux-brand{display:none!important}
+ #privateDashboard #epPrivateInner .private-panel{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;margin:0!important;padding:14px 11px!important;overflow:visible!important;border-radius:16px!important}
+ #privateDashboard #epPrivateInner #privatePanelBody{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:9px 3px!important;overflow-x:auto!important;overflow-y:visible!important}
+ #privateDashboard #epPrivateInner h1,#privateDashboard #epPrivateInner h2{font-size:clamp(21px,6vw,30px)!important;line-height:1.18!important;overflow-wrap:anywhere!important}
+ #privateDashboard #epPrivateInner button,#privateDashboard #epPrivateInner input,#privateDashboard #epPrivateInner select{touch-action:manipulation}
+ #privateDashboard #epPrivateInner input,#privateDashboard #epPrivateInner select,#privateDashboard #epPrivateInner textarea{max-width:100%!important;box-sizing:border-box!important;font-size:16px!important}
+ #privateDashboard #epPrivateInner table{max-width:none!important}
+}
+@media screen and (max-width:365px){
+ #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){min-height:114px!important;padding:9px!important}
+ #privateDashboard #epClientHome .ep-home-copy strong{font-size:13px!important}
+}
+</style>
+
 </head>
   
 <body>
