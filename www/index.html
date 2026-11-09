@@ -2132,6 +2132,35 @@ section[hidden]{display:none!important}
 #epPrivateInner .ep-b2 .ep-b2-details .ep-contract-live{margin:3px 0 0!important;padding:6px 9px!important;}
 #epPrivateInner .ep-b2 .ep-b2-details button{min-height:29px!important;padding:5px 9px!important;}
 </style>
+<style id="ep-premium-glass-arrows-2026">
+/* Flechas premium de cristal para las tarjetas de inicio: cliente y administrador. */
+#epClientHome .ep-home-tile .ep-home-link,
+#epClientHome.ep-is-admin .ep-home-tile .ep-home-link{
+ position:absolute!important;right:0!important;bottom:0!important;
+ width:48px!important;height:48px!important;min-width:48px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:0!important;margin:0!important;border-radius:13px!important;
+ background:linear-gradient(145deg,rgba(35,30,24,.87),rgba(8,9,10,.83))!important;
+ border:1px solid rgba(225,186,116,.92)!important;
+ box-shadow:inset 0 1px 0 rgba(255,230,181,.16),0 5px 16px rgba(0,0,0,.38)!important;
+ color:#e9c58a!important;font-size:0!important;
+ backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+ transition:background .2s,box-shadow .2s,transform .2s!important;
+}
+#epClientHome .ep-home-tile .ep-home-link span{
+ display:block!important;font-family:Arial,sans-serif!important;
+ font-size:29px!important;font-weight:400!important;line-height:1!important;
+ color:#edcb90!important;transform:translateY(-1px);
+}
+#epClientHome .ep-home-tile:hover .ep-home-link,
+#epClientHome .ep-home-tile:focus-visible .ep-home-link{
+ background:linear-gradient(145deg,rgba(65,49,29,.94),rgba(18,17,16,.96))!important;
+ box-shadow:0 0 17px rgba(220,168,82,.38),inset 0 1px 0 rgba(255,231,182,.2)!important;
+ transform:translate(2px,-2px)!important;
+}
+@media(max-width:600px){#epClientHome .ep-home-tile .ep-home-link{width:43px!important;height:43px!important;min-width:43px!important}}
+@media(prefers-reduced-motion:reduce){#epClientHome .ep-home-tile .ep-home-link{transition:none!important}}
+</style>
 </head>
   
 <body>
@@ -2669,13 +2698,13 @@ tarjeta.addEventListener("touchend", (e) => {
   <main class="ep-client-home" id="epClientHome" hidden>
     <div class="ep-home-intro"><span>MI ESPACIO PERSONAL</span><h1>¡Hola! Bienvenido a tu <span class="ep-gold-word">espacio de eventos</span></h1><p>Todo lo que necesitas para preparar tu celebración, en un solo lugar.</p></div>
     <div class="ep-home-grid">
-      <button type="button" class="ep-home-tile ep-home-events" data-home-destination="Mis eventos"><span class="ep-home-icon">✦</span><span class="ep-home-copy"><strong>Mis eventos</strong><small>Organiza cada detalle de tu celebración</small><span class="ep-home-link">Entrar <span aria-hidden="true">→</span></span></span></button>
-      <button type="button" class="ep-home-tile ep-home-calendar" data-home-destination="Calendario"><span class="ep-home-icon">▦</span><span class="ep-home-copy"><strong>Calendario</strong><small>Consulta las fechas de tus eventos</small><span class="ep-home-link">Entrar <span aria-hidden="true">→</span></span></span></button>
-      <button type="button" class="ep-home-tile ep-home-budgets" data-home-destination="Presupuestos"><span class="ep-home-icon">▤</span><span class="ep-home-copy"><strong>Presupuestos</strong><small>Revisa tus propuestas y confirmaciones</small><span class="ep-home-link">Entrar <span aria-hidden="true">→</span></span></span></button>
-      <button type="button" class="ep-home-tile ep-home-profile" data-home-destination="Mi perfil"><span class="ep-home-icon">♙</span><span class="ep-home-copy"><strong>Perfiles de usuarios</strong><small>Gestiona todos los usuarios registrados</small><span class="ep-home-link">Entrar <span aria-hidden="true">→</span></span></span></button>
-      <button type="button" class="ep-home-tile ep-home-admin ep-admin-home-only" data-home-destination="Administración" hidden><span class="ep-home-icon">✧</span><span class="ep-home-copy"><strong>Administración</strong><small>Gestiona tus eventos, clientes y presupuestos</small><span class="ep-home-link">Entrar →</span></span></button>
-      <button type="button" class="ep-home-tile ep-home-organizers ep-admin-home-only" data-home-destination="Organizadores recibidos" hidden><span class="ep-home-icon">♫</span><span class="ep-home-copy"><strong>Organizadores recibidos</strong><small>Consulta la planificación enviada por tus clientes</small><span class="ep-home-link">Entrar →</span></span></button>
-      <button type="button" class="ep-home-tile ep-home-manage ep-admin-home-only" data-home-destination="Gestionar presupuestos" hidden><span class="ep-home-icon">▤</span><span class="ep-home-copy"><strong>Gestionar presupuestos</strong><small>Crea, revisa y administra propuestas</small><span class="ep-home-link">Entrar →</span></span></button>
+      <button type="button" class="ep-home-tile ep-home-events" data-home-destination="Mis eventos"><span class="ep-home-icon">✦</span><span class="ep-home-copy"><strong>Mis eventos</strong><small>Organiza cada detalle de tu celebración</small><span class="ep-home-link">Entrar <span aria-hidden="true">↗</span></span></span></button>
+      <button type="button" class="ep-home-tile ep-home-calendar" data-home-destination="Calendario"><span class="ep-home-icon">▦</span><span class="ep-home-copy"><strong>Calendario</strong><small>Consulta las fechas de tus eventos</small><span class="ep-home-link">Entrar <span aria-hidden="true">↗</span></span></span></button>
+      <button type="button" class="ep-home-tile ep-home-budgets" data-home-destination="Presupuestos"><span class="ep-home-icon">▤</span><span class="ep-home-copy"><strong>Presupuestos</strong><small>Revisa tus propuestas y confirmaciones</small><span class="ep-home-link">Entrar <span aria-hidden="true">↗</span></span></span></button>
+      <button type="button" class="ep-home-tile ep-home-profile" data-home-destination="Mi perfil"><span class="ep-home-icon">♙</span><span class="ep-home-copy"><strong>Perfiles de usuarios</strong><small>Gestiona todos los usuarios registrados</small><span class="ep-home-link">Entrar <span aria-hidden="true">↗</span></span></span></button>
+      <button type="button" class="ep-home-tile ep-home-admin ep-admin-home-only" data-home-destination="Administración" hidden><span class="ep-home-icon">✧</span><span class="ep-home-copy"><strong>Administración</strong><small>Gestiona tus eventos, clientes y presupuestos</small><span class="ep-home-link">Entrar <span aria-hidden="true">↗</span></span></span></button>
+      <button type="button" class="ep-home-tile ep-home-organizers ep-admin-home-only" data-home-destination="Organizadores recibidos" hidden><span class="ep-home-icon">♫</span><span class="ep-home-copy"><strong>Organizadores recibidos</strong><small>Consulta la planificación enviada por tus clientes</small><span class="ep-home-link">Entrar <span aria-hidden="true">↗</span></span></span></button>
+      <button type="button" class="ep-home-tile ep-home-manage ep-admin-home-only" data-home-destination="Gestionar presupuestos" hidden><span class="ep-home-icon">▤</span><span class="ep-home-copy"><strong>Gestionar presupuestos</strong><small>Crea, revisa y administra propuestas</small><span class="ep-home-link">Entrar <span aria-hidden="true">↗</span></span></span></button>
     </div>
   </main>
   <div class="private-layout" id="epPrivateInner" hidden>
