@@ -2299,6 +2299,22 @@ section[hidden]{display:none!important}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',add,{once:true});else add();
 })();
 </script>
+
+<style id="ep-ajuste-altura-luces-auriculares-v3">
+/* Solo inicio de las areas privadas; no modifica flujos ni pantallas interiores. */
+#privateDashboard #epClientHome{padding-top:22px!important;padding-bottom:20px!important;position:relative!important;}
+#epClientHome .ep-home-intro{padding-top:17px!important;padding-bottom:17px!important;margin-bottom:13px!important;}
+#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){min-height:clamp(125px,19.5vh,178px)!important;}
+#epClientHome .ep-home-grid{gap:12px!important;}
+#epClientHome #epLuxuryMotto{height:clamp(62px,9vh,83px)!important;margin-top:14px!important;margin-bottom:16px!important;}
+/* Dos rayos finos y largos que cruzan la base sin ocultar el fondo oscuro. */
+#privateDashboard #epClientHome::after{content:"";display:block;position:relative;width:100%;height:24px;margin:10px auto 0;pointer-events:none;background:linear-gradient(177deg,transparent 24%,#ffe2a2 35%,#bd7c2c 38%,transparent 44%),linear-gradient(178deg,transparent 58%,#ffedc2 66%,#ac6b24 69%,transparent 75%);filter:drop-shadow(0 0 6px #d39a4c);opacity:.9;}
+#privateDashboard .private-sidebar{position:relative!important;}
+#privateDashboard .private-sidebar .ep-headphones-deco{display:flex!important;visibility:visible!important;opacity:1!important;min-height:70px!important;margin:12px auto 18px!important;position:relative!important;z-index:3!important;}
+#privateDashboard .private-sidebar .ep-headphones-deco svg{display:block!important;width:72px!important;max-width:75%!important;filter:drop-shadow(0 0 10px #d8a25299)!important;}
+@media(min-width:701px){#privateDashboard .private-sidebar::after{content:"";position:absolute;left:6px;right:6px;bottom:48px;height:25px;pointer-events:none;background:linear-gradient(174deg,transparent 36%,#ffdda0 44%,#b67928 48%,transparent 54%),linear-gradient(176deg,transparent 62%,#ffdd9a 68%,transparent 75%);filter:drop-shadow(0 0 7px #e4a44c);opacity:.9;}}
+@media(max-width:700px){#privateDashboard #epClientHome{padding-top:12px!important;}#epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){min-height:120px!important;}#privateDashboard .private-sidebar .ep-headphones-deco{display:none!important;}}
+</style>
 </head>
   
 <body>
