@@ -2734,6 +2734,49 @@ section[hidden]{display:none!important}
 @media(max-width:900px){#privateDashboard #epLuxurySidebar .ep-lux-headphones{height:155px!important;min-height:155px!important}}
 @media(max-width:700px){#privateDashboard #epLuxurySidebar .ep-lux-headphones{height:95px!important;min-height:95px!important}}
 </style>
+
+<style id="ep-ajuste-inicio-sin-desplazamiento-20261110">
+/* Solo el inicio privado: las pantallas internas mantienen desplazamiento para formularios. */
+@media (min-width:701px) and (min-height:570px){
+ html:has(#privateDashboard:not([hidden]) #epClientHome:not([hidden])),
+ body:has(#privateDashboard:not([hidden]) #epClientHome:not([hidden])){height:100%;overflow:hidden!important}
+ #privateDashboard:has(#epClientHome:not([hidden])){height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
+ #privateDashboard #epClientHome:not([hidden]){
+  height:calc(100dvh - 66px)!important;min-height:0!important;max-height:calc(100dvh - 66px)!important;
+  padding:9px 15px 12px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;
+ }
+ #privateDashboard #epClientHome .ep-home-intro{flex:0 0 clamp(100px,17dvh,153px)!important;min-height:0!important;height:auto!important;padding:13px 23px!important;margin:0 0 11px!important}
+ #privateDashboard #epClientHome .ep-home-intro h1{font-size:clamp(24px,3.1vw,40px)!important;line-height:1.05!important}
+ #privateDashboard #epClientHome .ep-home-grid{flex:1 1 auto!important;min-height:0!important;align-content:stretch!important;gap:12px!important;margin:0!important}
+ #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){min-height:0!important;height:100%!important;padding:12px 15px!important}
+ #privateDashboard #epClientHome #epLuxuryMotto{flex:0 0 clamp(72px,13dvh,115px)!important;min-height:0!important;height:auto!important;margin:12px 0 0!important;padding:6px 12px!important}
+ #privateDashboard #epClientHome #epLuxuryMotto>img{width:35px!important;height:35px!important;flex:0 0 35px!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){grid-column:span 2!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]):nth-of-type(4),
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]):nth-of-type(7){grid-column:span 3!important}
+ #privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important}
+ #privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid>.ep-home-tile:not([hidden]){grid-column:auto!important}
+}
+/* Orden fijo de las cuatro tarjetas del cliente: presupuesto, eventos, calendario, perfil. */
+#privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid .ep-home-budgets{order:1!important}
+#privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid .ep-home-events{order:2!important}
+#privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid .ep-home-calendar{order:3!important}
+#privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid .ep-home-profile{order:4!important}
+/* Auriculares actuales: quitar línea luminosa inferior sin cambiar el modelo. */
+#privateDashboard #epLuxurySidebar .ep-lux-headphones{
+ background-color:transparent!important;box-shadow:none!important;filter:none!important;
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 79%,transparent 92%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 79%,transparent 92%)!important;
+}
+#privateDashboard #epLuxurySidebar .ep-lux-headphones::before,
+#privateDashboard #epLuxurySidebar .ep-lux-headphones::after{display:none!important;content:none!important}
+/* En pantallas pequeñas no ocultamos contenido esencial: se permite scroll. */
+@media(max-height:569px), (max-width:700px){
+ #privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto!important}
+ #privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid>.ep-home-tile:not([hidden]){grid-column:auto!important}
+}
+</style>
 </head>
   
 <body>
