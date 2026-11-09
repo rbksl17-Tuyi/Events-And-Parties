@@ -2161,29 +2161,27 @@ section[hidden]{display:none!important}
 @media(max-width:600px){#epClientHome .ep-home-tile .ep-home-link{width:43px!important;height:43px!important;min-width:43px!important}}
 @media(prefers-reduced-motion:reduce){#epClientHome .ep-home-tile .ep-home-link{transition:none!important}}
 </style>
-<style id="ep-home-premium-2026">
-/* EP 2026: Renovación visual SOLO de las pantallas Inicio (cliente y admin).
-   Mantiene fotografías, tarjetas, navegación y funcionalidad existentes. */
-#epClientHome .ep-home-intro{border:1px solid #a47a3d!important;border-radius:20px!important;overflow:hidden;box-shadow:0 12px 36px #0009, inset 0 0 0 1px #e6b86b40!important;margin-bottom:19px!important}
-#epClientHome .ep-home-intro h1{color:#fff8ed!important;text-shadow:0 3px 18px #000!important}
-#epClientHome .ep-home-intro h1 .ep-gold-word{color:#f2c87c!important}
-#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{gap:17px!important}
-#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-#epClientHome .ep-home-tile,#epClientHome.ep-is-admin .ep-home-tile{min-height:225px!important;border:1.5px solid #c99c51!important;border-radius:18px!important;padding:22px!important;box-shadow:0 12px 24px #0008,inset 0 0 0 1px #ffe3a51c!important;transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease!important;overflow:hidden}
-#epClientHome .ep-home-tile::before,#epClientHome.ep-is-admin .ep-home-tile::before{background:linear-gradient(180deg,#0001 8%,#0003 37%,#080604ed 88%,#050403fa 100%)!important}
-#epClientHome .ep-home-tile:hover,#epClientHome .ep-home-tile:focus-visible{transform:translateY(-4px)!important;border-color:#ffda8e!important;box-shadow:0 15px 35px #000b,0 0 16px #d6a34c4d,inset 0 0 0 1px #f2c77855!important}
-#epClientHome .ep-home-copy strong{font-size:clamp(21px,2.1vw,29px)!important;text-shadow:0 2px 10px #000!important}
-#epClientHome .ep-home-copy small{color:#f1e3d0!important;line-height:1.4!important}
-#epClientHome .ep-home-link{width:44px!important;height:44px!important;border:1.5px solid #e5b75e!important;border-radius:12px!important;background:linear-gradient(145deg,#332713e8,#090807e8)!important;color:#ffdf93!important;box-shadow:0 0 12px #dfaa493b!important;transform:none!important}
-#epClientHome .ep-home-link span{font-size:23px!important}
-#epClientHome .ep-home-tile:hover .ep-home-link{background:linear-gradient(145deg,#eac478,#8d6228)!important;color:#17100a!important}
-/* Conservar el azul de selección del menú lateral, tanto en cliente como administrador */
-#epLuxurySidebar button.active{background:linear-gradient(115deg,#2674ae,#174b83)!important;border:1px solid #66baf5!important;box-shadow:inset 0 1px 0 #ffffff33,0 0 14px #2686d45a!important;color:#fff!important}
-#epLuxurySidebar button.active .ep-lux-symbol{color:#f4d08c!important}
-#epLuxurySidebar button:hover:not(.active){background:#1c2330!important}
-@media(max-width:1000px){#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-@media(max-width:600px){#epClientHome .ep-home-grid,#epClientHome.ep-is-admin .ep-home-grid{grid-template-columns:1fr!important}#epClientHome .ep-home-tile,#epClientHome.ep-is-admin .ep-home-tile{min-height:205px!important}}
-@media(prefers-reduced-motion:reduce){#epClientHome .ep-home-tile{transition:none!important}}
+<style id="ep-home-redesign-20261109-v2">
+/* Renovación visible SOLO en la pantalla inicial privada; se conservan imágenes y navegación. */
+#privateDashboard #epClientHome{background:radial-gradient(ellipse at 85% 12%,rgba(183,132,55,.14),transparent 45%),linear-gradient(155deg,#0b0d11,#15110e 52%,#090a0d)!important}
+#epClientHome .ep-home-intro{position:relative!important;padding:24px 28px!important;margin-bottom:18px!important;border:1px solid rgba(225,182,103,.52)!important;border-radius:20px!important;background:linear-gradient(110deg,rgba(14,16,21,.94),rgba(29,22,15,.83))!important;box-shadow:0 12px 34px #0006,inset 0 1px 0 #ffe2a31a!important;overflow:hidden!important}
+#epClientHome .ep-home-intro::after{content:"";position:absolute;top:0;right:0;width:40%;height:3px;background:linear-gradient(90deg,transparent,#f6d994,transparent);box-shadow:0 0 18px #efbf6d77;pointer-events:none}
+#epClientHome .ep-home-intro h1{letter-spacing:-.025em!important;text-shadow:0 3px 15px #0009!important}
+#epClientHome .ep-home-grid{gap:17px!important}
+#epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){border:2px solid rgba(230,181,100,.78)!important;border-radius:20px!important;box-shadow:0 12px 26px #0009,inset 0 0 0 1px #ffe8b02b,0 0 18px #dba95d17!important;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease!important;overflow:hidden!important}
+#epClientHome .ep-home-grid>.ep-home-tile:not([hidden])::before{background:linear-gradient(180deg,rgba(0,0,0,.03) 0%,rgba(4,5,8,.15) 35%,rgba(5,6,9,.91) 100%)!important}
+#epClientHome .ep-home-grid>.ep-home-tile:not([hidden])::after{content:"";position:absolute;z-index:0;inset:0;border-radius:18px;box-shadow:inset 0 1px 0 rgba(255,238,192,.48),inset 0 -35px 65px rgba(0,0,0,.25);pointer-events:none}
+#epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):hover,#epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):focus-visible{transform:translateY(-5px)!important;border-color:#ffe2a2!important;box-shadow:0 18px 38px #000b,0 0 24px #edba6455,inset 0 0 0 1px #fff0c34d!important}
+#epClientHome .ep-home-tile .ep-home-copy{position:relative!important;z-index:2!important;gap:4px!important;max-width:calc(100% - 45px)!important}
+#epClientHome .ep-home-tile .ep-home-copy strong{color:#fff7e8!important;text-shadow:0 2px 10px #000!important}
+#epClientHome .ep-home-tile .ep-home-copy small{color:#f5e9d6!important;text-shadow:0 1px 7px #000!important}
+#epClientHome .ep-home-tile .ep-home-icon{position:relative!important;z-index:2!important;width:43px!important;height:43px!important;border:1px solid #f1ca80a8!important;border-radius:12px!important;background:linear-gradient(145deg,#1f1b1cce,#090b0bcc)!important;color:#f5d493!important;box-shadow:0 5px 14px #0008,inset 0 1px 0 #ffe9b547!important}
+#epClientHome .ep-home-tile .ep-home-link{z-index:3!important;right:17px!important;bottom:17px!important;border-radius:12px!important;background:linear-gradient(145deg,rgba(64,51,37,.94),rgba(12,15,20,.96))!important;border:1.5px solid #f4ce88!important;box-shadow:0 4px 16px #000b,inset 0 1px 0 #fff1c859!important}
+#epClientHome .ep-home-tile .ep-home-link span{color:#ffe2a6!important;font-size:29px!important}
+#epClientHome .ep-home-tile:hover .ep-home-link{background:linear-gradient(145deg,#f7d58c,#bd8739)!important}
+#epClientHome .ep-home-tile:hover .ep-home-link span{color:#18110b!important}
+@media(max-width:650px){#epClientHome .ep-home-intro{padding:18px!important}#epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){border-radius:16px!important}#epClientHome .ep-home-tile .ep-home-link{right:12px!important;bottom:12px!important}}
+@media(prefers-reduced-motion:reduce){#epClientHome .ep-home-grid>.ep-home-tile{transition:none!important}}
 </style>
 </head>
   
