@@ -1046,6 +1046,28 @@ background:
 .ep-contract-live-actions{display:flex;gap:9px;flex-wrap:wrap}
 .ep-contract-live-actions button{padding:10px 14px;border:1px solid #bd9557;border-radius:9px;background:linear-gradient(145deg,#302314,#14110d);color:#fbe6bb;cursor:pointer;font:600 .88rem system-ui,sans-serif}
 .ep-contract-live-actions button:hover,.ep-contract-live-actions button:focus-visible{background:linear-gradient(125deg,#087fca,#08c8f0);border-color:#55e5ff;color:#fff;box-shadow:0 0 15px #08c8f055}
+
+/* Tarjetas compactas solo en Presupuestos aceptados del cliente. */
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card{
+  padding:12px 15px!important;margin:9px 0!important;
+  border-radius:11px!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card h3{
+  margin:0 0 5px!important;font-size:1.02rem!important;line-height:1.3!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card p{
+  margin:3px 0!important;font-size:.88rem!important;line-height:1.35!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card button{
+  padding:7px 11px!important;font-size:.83rem!important;margin:4px 5px 3px 0!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card .ep-contract-live,
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card .ep-external-contract-panel{
+  margin-top:8px!important;padding:9px 11px!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card h4{
+  margin:0 0 5px!important;font-size:.92rem!important;
+}
 </style>
 
 <style>
@@ -4285,11 +4307,22 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false}),
       client.from('ep_presupuestos_externos').select('*').ilike('email',user.email||'__sin_correo__').order('id',{ascending:false})
     ]);
+    // La versión interna de un presupuesto externo sirve únicamente como puente
+    // para eventos. No se debe mostrar como un segundo presupuesto al cliente.
+    const internalCopiesOfExternal=new Set();
+    if(!externalResult.error){
+      for(const ext of (externalResult.data||[]).filter(p=>p.estado==='ACEPTADO')){
+        const linked=await client.rpc('ep_preparar_evento_externo',{p_externo_id:ext.id});
+        if(!linked.error && linked.data!=null)internalCopiesOfExternal.add(String(linked.data));
+        else if(linked.error)console.warn('No se pudo identificar el puente del presupuesto externo:',linked.error.message);
+      }
+    }
     if(eventTitle.textContent!=='Presupuestos')return;
     eventBody.replaceChildren();
     const panes=['Nuevo','Solicitados','Recibidos','Aceptados'].map(()=>document.createElement('section'));
     panes.forEach((pane,i)=>{pane.className='ep-client-budget-pane';pane.hidden=i!==0});
     const newRequest=panes[0],requested=panes[1],received=panes[2],accepted=panes[3];
+    accepted.classList.add('ep-client-accepted-compact');
     newRequest.append(epRequestForm());
     requested.append(budgetNode('h3','Presupuestos solicitados'));
     if(requestResult.error)requested.append(budgetNode('p','No se pudieron consultar las solicitudes: '+requestResult.error.message));
@@ -4334,7 +4367,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     accepted.append(budgetNode('h3','Presupuestos aceptados'));
     if(budgetResult.error){received.append(budgetNode('p','No se pudieron consultar los presupuestos: '+budgetResult.error.message));accepted.append(budgetNode('p','No se pudieron consultar los presupuestos.'))}
     else {
-      const budgets=budgetResult.data||[];
+      const budgets=(budgetResult.data||[]).filter(p=>!internalCopiesOfExternal.has(String(p.id)));
       const incoming=budgets.filter(p=>p.estado!=='ACEPTADO');
       const approved=budgets.filter(p=>p.estado==='ACEPTADO');
       if(!incoming.length&&!externalBudgets.some(p=>p.estado!=='ACEPTADO'))received.append(budgetNode('p','No tienes presupuestos recibidos pendientes o rechazados.'));
