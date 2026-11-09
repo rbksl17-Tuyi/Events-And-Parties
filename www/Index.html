@@ -1038,6 +1038,47 @@ background:
 @media(max-width:700px){.ep-mis-premium .ep-mis-resumen{grid-template-columns:repeat(2,minmax(0,1fr))}.ep-mis-premium .ep-mis-card{grid-template-columns:95px minmax(0,1fr);gap:12px;padding:12px!important}.ep-mis-premium .ep-mis-photo{min-height:130px}.ep-mis-premium .ep-mis-actions>button{padding:10px!important}.ep-mis-premium .ep-mis-stat{padding-left:48px}.ep-mis-premium .ep-mis-stat-icon{left:13px}}
 @media(max-width:420px){.ep-mis-premium .ep-mis-card{grid-template-columns:1fr}.ep-mis-premium .ep-mis-photo{grid-column:1;grid-row:auto;height:145px}.ep-mis-premium .ep-mis-card>:not(.ep-mis-photo){grid-column:1}}
 
+
+/* Contratos de eventos · negro y dorado, selección azul */
+.ep-contract-live{margin-top:15px;padding:18px;border:1px solid #aa844c;border-radius:14px;background:linear-gradient(145deg,#171513,#090909);color:#f7f0e5;box-shadow:inset 0 1px 0 #e7bd6433,0 8px 22px #0005}
+.ep-contract-live h4{margin:0 0 8px;color:#f4d18b;font-size:1.05rem}
+.ep-contract-live-status{margin:0 0 12px;color:#ddd1bb;font-size:.9rem}
+.ep-contract-live-actions{display:flex;gap:9px;flex-wrap:wrap}
+.ep-contract-live-actions button{padding:10px 14px;border:1px solid #bd9557;border-radius:9px;background:linear-gradient(145deg,#302314,#14110d);color:#fbe6bb;cursor:pointer;font:600 .88rem system-ui,sans-serif}
+.ep-contract-live-actions button:hover,.ep-contract-live-actions button:focus-visible{background:linear-gradient(125deg,#087fca,#08c8f0);border-color:#55e5ff;color:#fff;box-shadow:0 0 15px #08c8f055}
+
+/* Tarjetas compactas solo en Presupuestos aceptados del cliente. */
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card{
+  padding:12px 15px!important;margin:9px 0!important;
+  border-radius:11px!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card h3{
+  margin:0 0 5px!important;font-size:1.02rem!important;line-height:1.3!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card p{
+  margin:3px 0!important;font-size:.88rem!important;line-height:1.35!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card button{
+  padding:7px 11px!important;font-size:.83rem!important;margin:4px 5px 3px 0!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card .ep-contract-live,
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card .ep-external-contract-panel{
+  margin-top:8px!important;padding:9px 11px!important;
+}
+#epPrivateInner .ep-client-accepted-compact .ep-budget-card h4{
+  margin:0 0 5px!important;font-size:.92rem!important;
+}
+
+/* Panel de presupuestos: tarjetas compactas y acciones alineadas */
+.ep-b2 .ep-b2-item{padding:10px 13px!important;margin:7px 0!important}
+.ep-b2 .ep-b2-info h3{font-size:.95rem!important;margin:0 0 2px!important}
+.ep-b2 .ep-b2-info p{font-size:.79rem!important;margin:1px 0!important}
+.ep-b2 .ep-b2-actions{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:9px!important;margin:8px 0!important;flex-wrap:wrap!important}
+.ep-b2 .ep-b2-actions button{margin:0!important;padding:7px 11px!important;min-height:34px!important;line-height:1.2!important}
+.ep-b2 .ep-b2-actions .ep-b2-delete{background:#8f2028!important;border:1px solid #c4434a!important;color:#fff!important;opacity:1!important;box-shadow:none!important}
+.ep-b2 .ep-b2-actions .ep-b2-delete:hover{background:#b42b35!important}
+.ep-b2 .ep-b2-details{margin-top:6px!important;padding-top:4px!important}
+.ep-b2 .ep-b2-month{margin:10px 0!important}
 </style>
 
 <style>
@@ -1572,6 +1613,478 @@ section[hidden]{display:none!important}
 #epPrivateInner .ep-hour-controls{display:none!important}
 @media(max-width:700px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:90px minmax(0,1fr)!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:130px!important;min-height:130px!important}}
 @media(max-width:520px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:1fr!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:120px!important;min-height:120px!important}#epPrivateInner .ep-mis-premium .ep-mis-stat{padding-left:37px!important}}
+</style>
+
+<style id="ep-correccion-real-20261107">
+/* Mantener el lateral fuera del flujo: elimina el gran hueco negro superior. */
+#privateDashboard #epLuxurySidebar{position:fixed!important;top:0!important;bottom:0!important;left:0!important;height:100dvh!important;margin:0!important;z-index:23!important;overflow-y:auto!important}
+#privateDashboard .private-top{margin-top:0!important;top:0!important}
+#epPrivateInner.private-layout{margin-top:0!important;padding-top:12px!important}
+/* Mantener destellos suaves en vez de dos líneas rectas. */
+#epLuxurySidebar:before{content:""!important;position:absolute!important;left:-25px!important;bottom:65px!important;width:175px!important;height:100px!important;background:radial-gradient(ellipse at 30% 70%,#e7a94c70,transparent 69%)!important;filter:blur(12px)!important;transform:none!important;opacity:.75!important;pointer-events:none!important}
+#epLuxurySidebar:after{content:""!important;position:absolute!important;left:-15px!important;bottom:58px!important;width:155px!important;height:70px!important;background:radial-gradient(ellipse at 15% 75%,#ffdb9450,transparent 70%)!important;filter:blur(16px)!important;transform:none!important;opacity:.7!important;pointer-events:none!important}
+/* Estado seleccionado en azul petróleo, manteniendo el dorado en acciones. */
+#epLuxurySidebar #epLuxLinks button.active,#epLuxurySidebar #epLuxLinks button:first-child.active{background:linear-gradient(110deg,#285d68,#132e37)!important;color:#f4fcff!important;border:1px solid #69a6ad!important;box-shadow:inset 0 1px #ffffff25,0 0 13px #347b8550!important}
+/* Reducir las fichas sin alterar sus datos ni sus botones. */
+#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:108px minmax(0,1fr)!important;gap:12px!important;padding:11px!important;margin:10px 0!important;min-height:0!important}
+#epPrivateInner .ep-mis-premium .ep-mis-photo{height:125px!important;min-height:125px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-actions{gap:7px!important;margin-top:8px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-actions>button,#epPrivateInner .ep-mis-premium .ep-mis-more summary{padding:8px 10px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-progress{margin-top:5px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card h3,#epPrivateInner .ep-mis-premium .ep-mis-card h4{font-size:21px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-resumen{margin:9px 0!important}
+/* Hora nativa visible y utilizable, sin el selector superpuesto. */
+#epPrivateInner input[type="time"],#epPrivateInner input[type="time"].ep-hour-original{position:relative!important;display:block!important;visibility:visible!important;opacity:1!important;clip-path:none!important;pointer-events:auto!important;overflow:visible!important;width:100%!important;max-width:290px!important;height:44px!important;min-height:44px!important;padding:9px 12px!important;color:#fff3df!important;background:#211b17!important;border:1px solid #b58a4e!important;border-radius:9px!important;color-scheme:dark!important}
+#epPrivateInner .ep-hour-controls{display:none!important}
+@media(max-width:700px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:88px minmax(0,1fr)!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:112px!important;min-height:112px!important}}
+@media(max-width:520px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:1fr!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{height:105px!important;min-height:105px!important}}
+</style>
+
+<style id="ep-ajuste-final-distribucion-20261107">
+/* Solo presentación: se conservan los datos, formularios, botones y lógica de Supabase. */
+#privateDashboard:not([hidden]) {
+  display:block !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+#privateDashboard .private-top {
+  position:fixed !important;
+  top:0 !important;
+  right:0 !important;
+  left:205px !important;
+  width:auto !important;
+  height:57px !important;
+  margin:0 !important;
+  padding:8px 18px !important;
+  z-index:40 !important;
+  box-sizing:border-box !important;
+}
+#privateDashboard #epClientHome,
+#privateDashboard #epPrivateInner.private-layout {
+  margin-top:57px !important;
+  margin-left:205px !important;
+  width:calc(100% - 205px) !important;
+  box-sizing:border-box !important;
+}
+#privateDashboard #epPrivateInner.private-layout {
+  padding:12px 17px 28px !important;
+  min-height:0 !important;
+}
+#privateDashboard #epClientHome {
+  min-height:0 !important;
+}
+#privateDashboard #epLuxurySidebar {
+  border-right:0 !important;
+  box-shadow:none !important;
+  background:linear-gradient(180deg,#080808,#11100d) !important;
+}
+#epLuxurySidebar::before {
+  left:0 !important;
+  bottom:120px !important;
+  width:165px !important;
+  height:95px !important;
+  background:radial-gradient(ellipse at 25% 65%,#f1bd6570,transparent 70%) !important;
+  filter:blur(10px) !important;
+}
+#epLuxurySidebar::after {
+  left:0 !important;
+  bottom:105px !important;
+  width:155px !important;
+  height:85px !important;
+  background:radial-gradient(ellipse at 25% 75%,#d79a3e55,transparent 70%) !important;
+  filter:blur(15px) !important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-card {
+  grid-template-columns:104px minmax(0,1fr) !important;
+  gap:12px !important;
+  padding:12px !important;
+  min-height:0 !important;
+  height:auto !important;
+  align-items:start !important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-photo {
+  width:104px !important;
+  height:124px !important;
+  min-height:0 !important;
+  max-height:124px !important;
+  object-fit:cover !important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-card > :not(.ep-mis-photo) {
+  min-height:0 !important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-actions {
+  margin-top:8px !important;
+  margin-bottom:0 !important;
+  gap:7px !important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-actions button,
+#epPrivateInner .ep-mis-premium .ep-mis-more summary {
+  min-height:34px !important;
+  padding:7px 10px !important;
+}
+/* Horas y minutos en dos desplegables sencillos, sin reloj emergente. */
+#epPrivateInner input[type="time"].ep-hour-original {
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  min-height:0 !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  clip-path:inset(50%) !important;
+}
+#epPrivateInner .ep-hour-controls {
+  display:flex !important;
+  max-width:260px !important;
+}
+#epPrivateInner .ep-hour-controls select {
+  cursor:pointer !important;
+  min-height:42px !important;
+}
+@media(max-width:900px) {
+  #privateDashboard .private-top {left:68px !important;}
+  #privateDashboard #epClientHome,
+  #privateDashboard #epPrivateInner.private-layout {
+    margin-left:68px !important;
+    width:calc(100% - 68px) !important;
+  }
+}
+@media(max-width:600px) {
+  #epPrivateInner .ep-mis-premium .ep-mis-card {
+    grid-template-columns:80px minmax(0,1fr) !important;
+  }
+  #epPrivateInner .ep-mis-premium .ep-mis-photo {
+    width:80px !important;
+    height:105px !important;
+  }
+}
+</style>
+
+<style id="ep-tarjetas-compactas-final">
+#epPrivateInner .ep-mis-premium .ep-mis-card{
+ display:grid!important;grid-template-columns:142px minmax(0,1fr)!important;
+ grid-template-rows:auto!important;gap:14px!important;
+ padding:14px!important;margin:10px 0!important;align-items:start!important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-photo{
+ grid-column:1!important;grid-row:1!important;
+ width:142px!important;height:172px!important;min-height:0!important;max-height:172px!important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body{
+ display:block!important;grid-column:2!important;grid-row:1!important;min-width:0!important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body>*{margin-top:0!important;margin-bottom:7px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body .ep-mis-actions{
+ display:flex!important;gap:7px!important;margin-top:9px!important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body h3,
+#epPrivateInner .ep-mis-premium .ep-mis-card-body h4{font-size:21px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-progress{margin:6px 0!important}
+#epPrivateInner .ep-mis-premium .ep-mis-missing{line-height:1.3!important}
+#epPrivateInner .ep-hour-controls{display:flex!important;align-items:center!important;gap:7px!important}
+#epPrivateInner .ep-hour-controls select{
+ appearance:auto!important;background:#211b17!important;color:#fff2d9!important;
+ border:1px solid #bc955b!important;border-radius:8px!important;
+ padding:9px!important;min-height:40px!important;font-size:15px!important;
+}
+@media(max-width:600px){
+ #epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:94px minmax(0,1fr)!important;gap:9px!important;padding:9px!important}
+ #epPrivateInner .ep-mis-premium .ep-mis-photo{width:94px!important;height:125px!important;max-height:125px!important}
+}
+</style>
+<style id="ep-final-consistencia-visual">
+#epPrivateInner input[type="time"].ep-hour-original{position:absolute!important;visibility:hidden!important;display:block!important;width:1px!important;height:1px!important;min-height:0!important;max-width:1px!important;padding:0!important;opacity:0!important;pointer-events:none!important;clip-path:inset(50%)!important}
+#epPrivateInner .ep-hour-controls{max-width:310px!important;display:flex!important;gap:8px!important;align-items:center!important}
+#epPrivateInner .ep-hour-controls select{min-width:100px!important;min-height:45px!important;flex:1!important;cursor:pointer!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card{display:grid!important;grid-template-columns:185px minmax(0,1fr)!important;align-items:start!important;gap:14px!important;min-height:0!important;height:auto!important;padding:12px!important;margin:9px 0!important}
+#epPrivateInner .ep-mis-premium .ep-mis-photo{width:185px!important;height:155px!important;min-height:155px!important;max-height:155px!important;grid-column:1!important;grid-row:1!important;background-size:cover!important;background-position:center!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body{grid-column:2!important;grid-row:1!important;min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body>*{margin:0!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body .ep-mis-actions{margin-top:7px!important;display:flex!important;gap:6px!important;flex-wrap:wrap!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body .ep-mis-actions button{min-height:33px!important;padding:6px 11px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body .ep-mis-progress-line{max-width:550px!important}
+#epPrivateInner .ep-mis-premium .ep-mis-card-body .ep-mis-missing{font-size:12px!important;line-height:1.3!important}
+/* Acciones coherentes en todas las pantallas privadas, sin alterar sus manejadores. */
+#epPrivateInner button[class*="danger"],#epPrivateInner .ep-mis-danger{background:linear-gradient(120deg,#662629,#9d3439)!important;border-color:#df7b80!important;color:#fff!important}
+#epPrivateInner button[class*="primary"],#epPrivateInner .ep-mis-actions button:first-child{border-color:#e8ba66!important;box-shadow:0 2px 12px #d8a44835!important}
+#epPrivateInner button:not(:disabled){transition:background-color .18s,border-color .18s,box-shadow .18s,transform .18s}
+#epPrivateInner button:not(:disabled):hover{filter:brightness(1.12)}
+@media(max-width:640px){#epPrivateInner .ep-mis-premium .ep-mis-card{grid-template-columns:105px minmax(0,1fr)!important;gap:9px!important;padding:9px!important}#epPrivateInner .ep-mis-premium .ep-mis-photo{width:105px!important;height:135px!important;min-height:135px!important;max-height:135px!important}#epPrivateInner .ep-mis-premium .ep-mis-card-body .ep-mis-actions button{font-size:11px!important}}
+<style id="ep-foto-altura-tarjeta-07nov">
+/* La imagen ocupa toda la altura real de la ficha, sin aumentar el recuadro. */
+#epPrivateInner .ep-mis-premium .ep-mis-card{
+  align-items:stretch!important;
+  grid-template-rows:auto!important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-card>.ep-mis-photo{
+  align-self:stretch!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  border-radius:10px!important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-card>.ep-mis-card-body{
+  align-self:start!important;
+}
+@media(max-width:420px){
+  #epPrivateInner .ep-mis-premium .ep-mis-card>.ep-mis-photo{min-height:130px!important;}
+}
+</style>
+</style>
+
+<style id="ep-final-azul-destellos-20261107">
+/* Solo cambios visuales: indicadores de estado y destellos laterales. */
+#epPrivateInner .ep-mis-premium .ep-mis-stat.ep-mis-stat-active,
+#epPrivateInner .ep-mis-premium .ep-mis-stat.ep-mis-stat-active:hover,
+#epPrivateInner .ep-mis-premium .ep-mis-stat.ep-mis-stat-active:focus-visible {
+  background:linear-gradient(112deg,#087dbd 0%,#00a8e8 55%,#0663a9 100%) !important;
+  border:1px solid #5bd5ff !important;
+  color:#fff !important;
+  box-shadow:inset 0 1px 0 #ffffff66,0 0 0 1px #43c8ff66,0 0 16px #009ee977 !important;
+}
+#epPrivateInner .ep-mis-premium .ep-mis-stat.ep-mis-stat-active strong,
+#epPrivateInner .ep-mis-premium .ep-mis-stat.ep-mis-stat-active span,
+#epPrivateInner .ep-mis-premium .ep-mis-stat.ep-mis-stat-active .ep-mis-stat-icon {
+  color:#fff !important;
+}
+/* Dos trazos de luz dorada en el lateral, sin cambiar su menú ni su selección azul. */
+#privateDashboard #epLuxurySidebar {isolation:isolate !important;overflow:hidden auto !important;}
+#privateDashboard #epLuxurySidebar::before,
+#privateDashboard #epLuxurySidebar::after {
+  content:"" !important;
+  position:absolute !important;
+  display:block !important;
+  border:0 !important;
+  border-radius:100% !important;
+  height:2px !important;
+  width:175px !important;
+  left:-9px !important;
+  bottom:100px !important;
+  background:linear-gradient(90deg,transparent 0%,#c68c32 18%,#fff1b5 50%,#d49632 76%,transparent 100%) !important;
+  box-shadow:0 0 7px 1px #edb450aa,0 0 17px #dba04966 !important;
+  filter:none !important;
+  opacity:.95 !important;
+  transform:rotate(-12deg) !important;
+  pointer-events:none !important;
+  z-index:0 !important;
+}
+#privateDashboard #epLuxurySidebar::after {
+  bottom:84px !important;
+  left:-16px !important;
+  width:184px !important;
+  opacity:.75 !important;
+  transform:rotate(-8deg) !important;
+}
+#epLuxurySidebar .ep-lux-brand,#epLuxurySidebar #epLuxLinks,#epLuxurySidebar .ep-lux-bottom {position:relative;z-index:1;}
+@media(max-width:850px){
+  #privateDashboard #epLuxurySidebar::before,#privateDashboard #epLuxurySidebar::after{width:90px!important;left:-15px!important;}
+}
+</style>
+
+<style id="ep-calendar-cinematic-premium-2026">
+/* Rediseño exclusivamente visual del calendario. No modifica datos ni Supabase. */
+#epPrivateInner[data-ep-section="Calendario"] .private-panel{
+  position:relative!important;isolation:isolate;
+  background:radial-gradient(ellipse at 90% 8%,rgba(16,80,116,.16),transparent 38%),
+    radial-gradient(ellipse at 9% 65%,rgba(168,110,30,.12),transparent 44%),
+    linear-gradient(130deg,#080c12 0%,#080b0e 55%,#0b1119 100%)!important;
+  border:1px solid rgba(213,161,70,.58)!important;border-radius:20px!important;
+  box-shadow:inset 0 1px 0 rgba(255,221,156,.13),0 18px 45px rgba(0,0,0,.24)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .private-panel::after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;right:0;top:190px;
+  width:min(75%,850px);height:145px;opacity:.8;
+  background:
+    radial-gradient(ellipse at 61% 38%,rgba(255,218,132,.82) 0%,rgba(236,164,51,.27) 5%,transparent 15%),
+    linear-gradient(168deg,transparent 38%,rgba(217,151,47,.05) 41%,rgba(255,198,91,.7) 43%,rgba(255,210,122,.12) 45%,transparent 49%),
+    linear-gradient(174deg,transparent 48%,rgba(229,169,69,.22) 49%,transparent 51%);
+  filter:drop-shadow(0 0 12px rgba(242,165,55,.45));
+}
+#epPrivateInner[data-ep-section="Calendario"] #privatePanelTitle{
+  color:#fff3d6!important;text-shadow:0 0 16px rgba(226,158,59,.34)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-head,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-layout{position:relative;z-index:1}
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-main,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-aside{
+  background:linear-gradient(145deg,rgba(23,29,38,.96),rgba(7,12,19,.98))!important;
+  border:1px solid #c79643!important;border-radius:20px!important;
+  box-shadow:inset 0 1px 0 rgba(255,222,158,.13),0 12px 32px rgba(0,0,0,.23)!important;
+  position:relative;overflow:hidden;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-main:after,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-aside:after{
+  content:"";position:absolute;bottom:0;right:0;width:54%;height:55px;
+  background:linear-gradient(170deg,transparent 38%,rgba(255,190,73,.7) 41%,rgba(240,163,45,.1) 44%,transparent 49%);
+  filter:drop-shadow(0 0 8px rgba(255,179,54,.55));pointer-events:none;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-visible-month,
+#epPrivateInner[data-ep-section="Calendario"] .ep-admin-cal-aside h3{
+  color:#fff!important;text-shadow:0 2px 15px rgba(224,171,82,.22);
+  font-family:system-ui,sans-serif!important;font-weight:800!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{
+  border:1px solid #e0b052!important;border-radius:11px!important;
+  background:linear-gradient(145deg,#edc46e 0%,#c5902e 53%,#966517 100%)!important;
+  color:#fff!important;text-shadow:0 1px 2px #6c450c!important;
+  box-shadow:inset 0 1px 1px rgba(255,247,202,.6),0 2px 8px rgba(0,0,0,.2)!important;
+  transition:filter .18s,transform .18s,box-shadow .18s!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day:hover{
+  transform:translateY(-2px);filter:brightness(1.1);
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event:not(.selected):not([aria-selected="true"]){
+  background:linear-gradient(145deg,#28cf7a,#008d4e)!important;
+  border-color:#66e9a6!important;box-shadow:0 0 15px rgba(17,206,111,.32),inset 0 1px rgba(255,255,255,.32)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-request:not(.has-event):not(.selected):not([aria-selected="true"]){
+  background:linear-gradient(145deg,#f2a94c,#bb5d15)!important;border-color:#ffbb73!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"]{
+  background:linear-gradient(145deg,#13e4ff,#087cdb)!important;
+  border-color:#6af1ff!important;box-shadow:0 0 17px rgba(0,194,255,.7),inset 0 1px rgba(255,255,255,.4)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button[aria-pressed="true"]{
+  background:linear-gradient(145deg,#06d7ff,#0873d4)!important;color:#fff!important;
+  border-color:#66e9ff!important;box-shadow:0 0 14px rgba(0,189,255,.52)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button{
+  border:1px solid #cda454!important;border-radius:12px!important;
+  box-shadow:inset 0 1px rgba(255,230,171,.12),0 3px 12px rgba(0,0,0,.3)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item{
+  border:1px solid rgba(221,168,77,.8)!important;border-left:5px solid #2fd284!important;
+  border-radius:13px!important;background:linear-gradient(120deg,#27354a,#111a29)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.1)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item.pending{border-left-color:#ed9838!important}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming{
+  background:linear-gradient(120deg,#263247,#101720)!important;
+  border:1px solid #d0a255!important;border-radius:14px!important;
+  box-shadow:0 0 13px rgba(222,162,58,.12)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming button{
+  background:linear-gradient(145deg,#d7a44d,#a16a1e)!important;
+  color:#fff!important;border:1px solid #f4cc7c!important;
+  border-radius:9px!important;font-weight:700;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-summary>div{
+  border-radius:11px!important;box-shadow:inset 0 1px rgba(255,255,255,.08)!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-legend-gold{color:#55e4a2!important}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-legend-blue{color:#ffad54!important}
+@media(max-width:760px){
+  #epPrivateInner[data-ep-section="Calendario"] .private-panel::after{width:95%;top:155px;opacity:.45}
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{border-radius:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{transition:none!important}
+}
+</style>
+
+
+<style id="ep-budgets-premium-2026">
+/* Gestión de presupuestos: estética coordinada con Eventos y Calendario */
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .private-panel{
+  position:relative;isolation:isolate;overflow:hidden;
+  background:radial-gradient(ellipse at 94% 8%,rgba(45,110,158,.13),transparent 38%),
+  radial-gradient(ellipse at 3% 72%,rgba(216,160,62,.09),transparent 42%),#101114;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .private-panel:before{
+  content:"";position:absolute;top:110px;right:-90px;width:380px;height:2px;
+  transform:rotate(-19deg);background:linear-gradient(90deg,transparent,#f7d98d,transparent);
+  box-shadow:0 0 14px #f2c86b;opacity:.65;pointer-events:none;z-index:-1;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2{
+  position:relative;padding:clamp(12px,2.5vw,25px);border:1px solid #8c6c3c;
+  border-radius:20px;background:linear-gradient(150deg,#1b1b21 0%,#111216 65%,#1a1611 100%);
+  box-shadow:0 14px 45px #0007,inset 0 1px #f9d58a33;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2:before{
+  content:"";position:absolute;top:0;left:12%;right:12%;height:2px;
+  background:linear-gradient(90deg,transparent,#f6d489,transparent);
+  box-shadow:0 0 13px #e6b44eaa;pointer-events:none;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-top button{
+  border:1px solid #e5c17d!important;border-radius:12px!important;
+  background:linear-gradient(125deg,#ffe5a0,#bd842d,#f3cc77)!important;
+  color:#20160b!important;box-shadow:0 0 17px #e8b14b42,inset 0 1px #fff8!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+  background:transparent!important;border:0!important;padding:0!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button{
+  min-height:62px;white-space:normal!important;
+  background:linear-gradient(155deg,#292b33,#1c1e25)!important;
+  border:1px solid #9c8055!important;border-radius:13px!important;
+  color:#f7f2e8!important;box-shadow:inset 0 1px #ffffff20!important;
+  transition:transform .15s,box-shadow .15s;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button.active{
+  background:linear-gradient(125deg,#05d8f1,#08a8ec 56%,#136fd0)!important;
+  border:1px solid #92efff!important;color:#fff!important;
+  box-shadow:0 0 18px #06cfff80,inset 0 1px #ffffffa0!important;
+  text-shadow:0 1px 2px #08506d;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button:hover{transform:translateY(-1px)}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-budget-simple-search{
+  display:block;width:100%;margin:13px 0 18px;padding:14px 16px;
+  background:#30323e!important;color:white!important;border:1px solid #a3a4b5!important;
+  border-radius:12px!important;box-shadow:inset 0 2px 8px #0003;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-item{
+  background:linear-gradient(120deg,#303343,#262937)!important;
+  border:1px solid #9a7a4d!important;border-radius:16px!important;
+  padding:17px 19px!important;box-shadow:inset 0 1px #ffffff1c,0 8px 20px #0004;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-info h3{color:#fff7e9!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-info p{color:#ded9d3!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-actions button{
+  border:1px solid #d9b877!important;background:linear-gradient(140deg,#8e6328,#e1b55c)!important;
+  color:#21170b!important;border-radius:10px!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-actions button:hover{filter:brightness(1.13)}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-delete{
+  background:#542b2d!important;color:#fff!important;border-color:#d48a8a!important;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-details{
+  border-top-color:#7c6a51!important;color:#eee8dc;
+}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-month-title{color:#f7d58c}
+.ep-contract-preview{
+  margin-top:12px;padding:13px 15px;border:1px solid #85734f;border-radius:12px;
+  background:linear-gradient(125deg,#242938,#191d28);color:#f6efe1;
+}
+.ep-contract-preview strong{display:block;color:#f5d18b;margin-bottom:5px}
+.ep-contract-preview p{font-size:13px;margin:5px 0!important;color:#e1d8c7}
+.ep-contract-preview .ep-contract-status{
+  display:inline-block;margin-top:7px;padding:4px 9px;border:1px solid #ad9768;
+  border-radius:999px;color:#e9d29e;font-size:12px;
+}
+@media(max-width:650px){
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs{gap:5px}
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button{
+  font-size:11px!important;min-height:66px;padding:8px 4px!important}
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2{padding:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button{transition:none}
+}
+</style>
+
+<style id="ep-budget-black-finish">
+/* Acabado negro premium; azul solo para seleccion */
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .private-panel{background:radial-gradient(ellipse at 88% 8%,rgba(195,143,51,.09),transparent 38%),#090909!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2{background:linear-gradient(145deg,#191714,#0c0c0d 65%,#14110e)!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-item{background:linear-gradient(120deg,#252321,#171719)!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2-tabs button:not(.active){background:linear-gradient(145deg,#292622,#171719)!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-budget-simple-search{background:#1d1c1d!important}
+#epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-contract-preview{background:linear-gradient(125deg,#211d18,#111112)!important}
 </style>
 </head>
   
@@ -2944,6 +3457,19 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
             }));
             details.append(epBtn('Historial de versiones',()=>epVersionsAdmin(o.id)));
           }
+          if(status==='papelera'){
+            const purge=epBtn('Eliminar definitivamente',async()=>{
+              if(!confirm('¿Eliminar DEFINITIVAMENTE este evento? No podrá restaurarse y desaparecerá de la cuenta del cliente.'))return;
+              if(!confirm('Confirmación final: se borrará el presupuesto y sus datos asociados cuando la base de datos lo permita. ¿Continuar?'))return;
+              try{
+                const {data,error}=await client.from('ep_presupuestos').delete().eq('id',b.id).select('id');
+                if(error)throw error;
+                if(!data?.length)throw new Error('La base de datos no confirmó el borrado. Comprueba los permisos de administrador.');
+                await epAdminAcceptedEvents();
+              }catch(err){epShowError(new Error('No se ha podido borrar definitivamente. Puede haber organizaciones o eventos vinculados, o faltar permisos en Supabase. '+err.message))}
+            });
+            purge.classList.add('ep-mis-danger');details.append(purge);
+          }
           if(status!=='papelera')details.append(epBtn('Enviar a la papelera (también se oculta al cliente)',async()=>{
             if(!confirm('¿Enviar este evento a la papelera? Dejará de aparecer al cliente y se podrá restaurar.'))return;
             try{await epCall(client.from('ep_presupuestos').update({eliminado_en:new Date().toISOString()}).eq('id',b.id).select('id').single());await epAdminAcceptedEvents()}catch(err){epShowError(err)}
@@ -2959,7 +3485,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
             });
             remove.classList.add('ep-mis-danger');actions.append(remove);
           }
-          actions.append(details);c.append(actions);content.append(c);
+          actions.append(details);c.append(actions);
+          // Agrupar el contenido en una sola columna para evitar tarjetas excesivamente altas.
+          while(c.children.length>2)detailsBody.append(c.children[2]);
+          content.append(c);
         }
       }
       show('pendientes');
@@ -2973,6 +3502,22 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     box.append(budgetNode('h3','Crear evento desde un presupuesto aceptado'));
     const {data:{user},error:authError}=await client.auth.getUser();
     if(authError||!user){box.append(budgetNode('p','Inicia sesión para continuar.'));eventBody.append(box);return}
+    // Convertir de forma segura los presupuestos externos aceptados a la
+    // referencia interna que ya utilizan eventos, calendario y organizaciones.
+    // El RPC es idempotente: no crea duplicados al recargar la pantalla.
+    try {
+      await client.rpc('ep_vincular_presupuestos_externos');
+      const ext=await client.from('ep_presupuestos_externos')
+        .select('id').eq('estado','ACEPTADO').ilike('email',user.email||'__sin_correo__');
+      if(ext.error)throw ext.error;
+      for(const item of (ext.data||[])){
+        const linked=await client.rpc('ep_preparar_evento_externo',{p_externo_id:item.id});
+        if(linked.error)throw linked.error;
+      }
+    }catch(linkError){
+      box.append(budgetNode('p','No se pudo conectar el presupuesto externo con los eventos: '+linkError.message));
+      eventBody.append(box);return;
+    }
     const [br,er]=await Promise.all([
       client.from('ep_presupuestos').select('id,titulo,descripcion,estado,cliente_id').eq('cliente_id',user.id).eq('estado','ACEPTADO').is('eliminado_en',null),
       client.from('ep_eventos').select('presupuesto_id').eq('cliente_id',user.id)
@@ -3536,6 +4081,182 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   const budgetButton=(txt,fn)=>{const b=budgetNode('button',txt);b.type='button';b.addEventListener('click',fn);return b};
   const euro=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(n));
   const budgetCard=p=>{const card=budgetNode('article');card.className='ep-budget-card';card.append(budgetNode('h3',p.titulo),budgetNode('p',p.descripcion||'Sin descripción'),budgetNode('p','Importe: '+euro(p.importe)),budgetNode('p','Estado: '+p.estado));if(p.pdf_path){const open=budgetButton('📄 Ver / descargar PDF',async()=>{open.disabled=true;try{const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}catch(e){alert('No se pudo abrir el PDF: '+e.message)}finally{open.disabled=false}});card.append(open)}return card};
+  // Contratos: documentos privados asociados al presupuesto aceptado.
+  const epContractBucket='ep-contratos';
+  const epContractError=e=>{alert('No se ha podido completar la operación del contrato: '+e.message+'\nComprueba la configuración de ep_contratos, el bucket privado y las políticas RLS de Supabase.');};
+  const epContractPanel=async(p,admin)=>{
+    const box=budgetNode('section');box.className='ep-contract-live';
+    box.append(budgetNode('h4','✦ Contrato del evento'));
+    const status=budgetNode('p','Consultando el contrato...');status.className='ep-contract-live-status';box.append(status);
+    const buttons=budgetNode('div');buttons.className='ep-contract-live-actions';box.append(buttons);
+    // Elegir el registro más reciente sin eliminar el historial de contratos.
+    const {data,error}=await client.from('ep_contratos').select('*').eq('presupuesto_id',p.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
+    const hasHistory=!!(data && data.length>1);
+    if(error){status.textContent='No se pudo consultar el contrato: '+error.message+'. Comprueba los permisos de Supabase.';return box;}
+    const contract=data?.[0]||null;
+    // Abrir contratos privados comprobando que el archivo realmente existe.
+    // Las URLs firmadas pueden generarse incluso cuando la ruta apunta a un archivo inexistente.
+    const openFile=async(rawPath)=>{
+      const storage=client.storage.from(epContractBucket);
+      let path=String(rawPath||'').trim().replace(/^\/+/, '').replace(/^ep-contratos\//,'');
+      if(!path){alert('Este contrato no tiene una ruta de archivo registrada.');return}
+      const openPdf=async(filePath)=>{
+        const {data,error}=await storage.download(filePath);
+        if(error)throw error;
+        if(!data || !data.size)throw new Error('El PDF está vacío o no se pudo descargar.');
+        const pdfUrl=URL.createObjectURL(new Blob([data],{type:'application/pdf'}));
+        const tab=window.open(pdfUrl,'_blank','noopener,noreferrer');
+        if(!tab){const link=document.createElement('a');link.href=pdfUrl;link.download='contrato-evento.pdf';document.body.append(link);link.click();link.remove()}
+        setTimeout(()=>URL.revokeObjectURL(pdfUrl),120000);
+      };
+      try{await openPdf(path)}catch(firstError){
+        // Recuperar únicamente una ruta antigua si hay una coincidencia inequívoca
+        // del mismo identificador de archivo, en la carpeta de ESTE presupuesto.
+        const folder=String(p.id)+'/original';
+        const filename=path.split('/').pop()||'';
+        const uuid=filename.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
+        if(path.startsWith(folder+'/') && uuid){
+          const {data:files,error:listError}=await storage.list(folder,{limit:100});
+          if(!listError){
+            const matches=(files||[]).filter(f=>f.name?.toLowerCase().startsWith(uuid.toLowerCase()) && f.name.toLowerCase().endsWith('.pdf'));
+            if(matches.length===1){
+              const corrected=folder+'/'+matches[0].name;
+              try{await openPdf(corrected);return}catch(e){firstError=e}
+            }
+          }
+        }
+        alert('No se pudo abrir el contrato PDF.\nRuta registrada: '+path+'\nMotivo: '+(firstError?.message||'archivo no disponible')+'\nComprueba que la ruta y el nombre coinciden exactamente en Storage → ep-contratos.');
+      }
+    };
+    const upload=async(kind,file)=>{
+      if(!file)return;
+      if((kind==='original'&&!admin)||(kind==='firmado'&&admin)){alert('No tienes permiso para esta operación.');return;}
+      if(file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){alert('Selecciona un archivo PDF.');return}
+      if(file.size>15*1024*1024){alert('El PDF no puede superar 15 MB.');return}
+      const {data:{user},error:userError}=await client.auth.getUser();if(userError||!user){alert('Inicia sesión para continuar.');return}
+      const path=p.id+'/'+kind+'/'+user.id+'-'+Date.now()+'.pdf';
+      const {error:storageError}=await client.storage.from(epContractBucket).upload(path,file,{contentType:'application/pdf',upsert:false});
+      if(storageError){epContractError(storageError);return}
+      const changes=kind==='original'?{presupuesto_id:p.id,cliente_id:p.cliente_id,contrato_pdf:path,estado:'PENDIENTE_FIRMA'}:{contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'};
+      const query=contract?client.from('ep_contratos').update(changes).eq('id',contract.id):client.from('ep_contratos').insert(changes);
+      // Verificar que la operación afectó realmente a una fila: UPDATE con RLS
+      // puede devolver error=null y cero filas actualizadas.
+      const {data:savedRows,error:dbError}=await query.select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf');
+      if(dbError||!savedRows?.length){
+        await client.storage.from(epContractBucket).remove([path]);
+        epContractError(dbError||new Error('Supabase no confirmó ningún registro actualizado. Revisa los permisos UPDATE/INSERT de ep_contratos.'));
+        return;
+      }
+      if(kind==='original' && (String(savedRows[0].presupuesto_id)!==String(p.id) || savedRows[0].contrato_pdf!==path)){
+        epContractError(new Error('El contrato no quedó asociado al presupuesto esperado. Comprueba ep_contratos antes de volver a subirlo.'));
+        return;
+      }
+      alert(kind==='original'?'Contrato registrado y vinculado al presupuesto correctamente.':'Contrato firmado registrado correctamente.');
+      if(admin)loadAdminBudgets();else loadBudgets();
+    };
+    const picker=(label,kind)=>{const input=budgetNode('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;input.addEventListener('change',()=>upload(kind,input.files?.[0]));const b=budgetButton(label,()=>input.click());buttons.append(b,input)};
+    if(!contract||!contract.contrato_pdf){status.textContent=admin?'Todavía no has enviado un contrato.':'El administrador todavía no ha enviado el contrato.';if(admin)picker('Adjuntar y enviar contrato PDF','original');return box}
+    const states={PENDIENTE_FIRMA:'Pendiente de firma del cliente',PENDIENTE_VALIDACION:'Firmado · pendiente de validación',VALIDADO:'Contrato firmado y validado'};
+    status.textContent=(states[contract.estado]||'Contrato disponible')+(hasHistory?' · Se muestra el registro más reciente; existen versiones anteriores conservadas.':'');
+    buttons.append(budgetButton('Ver contrato PDF',()=>openFile(contract.contrato_pdf)));
+    if(admin){
+      if(contract.contrato_firmado_pdf){buttons.append(budgetButton('Ver PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
+        if(contract.estado!=='VALIDADO')buttons.append(budgetButton('Validar contrato',async()=>{if(!confirm('¿Confirmas que has revisado el contrato firmado?'))return;const {error}=await client.from('ep_contratos').update({estado:'VALIDADO'}).eq('id',contract.id);if(error)epContractError(error);else loadAdminBudgets()}));
+      }
+      if(contract.estado==='PENDIENTE_FIRMA')picker('Sustituir contrato PDF','original');
+    }else{
+      if(contract.contrato_firmado_pdf)buttons.append(budgetButton('Ver mi PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
+      if(!contract.contrato_firmado_pdf && (contract.estado==='PENDIENTE_FIRMA'||!contract.estado))picker('Subir contrato firmado PDF','firmado');
+    }
+    return box;
+  };
+  const epExternalContractPanel=async(p,admin)=>{
+    const box=budgetNode('section');box.className='ep-contract-live';
+    if(!p.cliente_id){box.textContent='El presupuesto aún no está vinculado a una cuenta de cliente. El cliente debe iniciar sesión con su correo confirmado.';return box;}
+    box.append(budgetNode('h4','✦ Contrato del evento'));
+    const status=budgetNode('p','Consultando el contrato...');status.className='ep-contract-live-status';box.append(status);
+    const buttons=budgetNode('div');buttons.className='ep-contract-live-actions';box.append(buttons);
+    // Elegir el registro más reciente sin eliminar el historial de contratos.
+    const {data,error}=await client.from('ep_contratos_externos').select('*').eq('presupuesto_externo_id',p.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
+    const hasHistory=!!(data && data.length>1);
+    if(error){status.textContent='No se pudo consultar el contrato: '+error.message+'. Comprueba los permisos de Supabase.';return box;}
+    const contract=data?.[0]||null;
+    // Abrir contratos privados comprobando que el archivo realmente existe.
+    // Las URLs firmadas pueden generarse incluso cuando la ruta apunta a un archivo inexistente.
+    const openFile=async(rawPath)=>{
+      const storage=client.storage.from(epContractBucket);
+      let path=String(rawPath||'').trim().replace(/^\/+/, '').replace(/^ep-contratos\//,'');
+      if(!path){alert('Este contrato no tiene una ruta de archivo registrada.');return}
+      const openPdf=async(filePath)=>{
+        const {data,error}=await storage.download(filePath);
+        if(error)throw error;
+        if(!data || !data.size)throw new Error('El PDF está vacío o no se pudo descargar.');
+        const pdfUrl=URL.createObjectURL(new Blob([data],{type:'application/pdf'}));
+        const tab=window.open(pdfUrl,'_blank','noopener,noreferrer');
+        if(!tab){const link=document.createElement('a');link.href=pdfUrl;link.download='contrato-evento.pdf';document.body.append(link);link.click();link.remove()}
+        setTimeout(()=>URL.revokeObjectURL(pdfUrl),120000);
+      };
+      try{await openPdf(path)}catch(firstError){
+        // Recuperar únicamente una ruta antigua si hay una coincidencia inequívoca
+        // del mismo identificador de archivo, en la carpeta de ESTE presupuesto.
+        const folder='externos/'+String(p.id)+'/original';
+        const filename=path.split('/').pop()||'';
+        const uuid=filename.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
+        if(path.startsWith(folder+'/') && uuid){
+          const {data:files,error:listError}=await storage.list(folder,{limit:100});
+          if(!listError){
+            const matches=(files||[]).filter(f=>f.name?.toLowerCase().startsWith(uuid.toLowerCase()) && f.name.toLowerCase().endsWith('.pdf'));
+            if(matches.length===1){
+              const corrected=folder+'/'+matches[0].name;
+              try{await openPdf(corrected);return}catch(e){firstError=e}
+            }
+          }
+        }
+        alert('No se pudo abrir el contrato PDF.\nRuta registrada: '+path+'\nMotivo: '+(firstError?.message||'archivo no disponible')+'\nComprueba que la ruta y el nombre coinciden exactamente en Storage → ep-contratos.');
+      }
+    };
+    const upload=async(kind,file)=>{
+      if(!file)return;
+      if((kind==='original'&&!admin)||(kind==='firmado'&&admin)){alert('No tienes permiso para esta operación.');return;}
+      if(file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){alert('Selecciona un archivo PDF.');return}
+      if(file.size>15*1024*1024){alert('El PDF no puede superar 15 MB.');return}
+      const {data:{user},error:userError}=await client.auth.getUser();if(userError||!user){alert('Inicia sesión para continuar.');return}
+      const path='externos/'+p.id+'/'+kind+'/'+user.id+'-'+Date.now()+'.pdf';
+      const {error:storageError}=await client.storage.from(epContractBucket).upload(path,file,{contentType:'application/pdf',upsert:false});
+      if(storageError){epContractError(storageError);return}
+      const changes=kind==='original'?{presupuesto_externo_id:p.id,cliente_id:p.cliente_id,contrato_pdf:path,estado:'PENDIENTE_FIRMA'}:{contrato_firmado_pdf:path,estado:'PENDIENTE_VALIDACION'};
+      const query=contract?client.from('ep_contratos_externos').update(changes).eq('id',contract.id):client.from('ep_contratos_externos').insert(changes);
+      // Verificar que la operación afectó realmente a una fila: UPDATE con RLS
+      // puede devolver error=null y cero filas actualizadas.
+      const {data:savedRows,error:dbError}=await query.select('id,presupuesto_externo_id,cliente_id,contrato_pdf,contrato_firmado_pdf');
+      if(dbError||!savedRows?.length){
+        await client.storage.from(epContractBucket).remove([path]);
+        epContractError(dbError||new Error('Supabase no confirmó ningún registro actualizado. Revisa los permisos UPDATE/INSERT de ep_contratos.'));
+        return;
+      }
+      if(kind==='original' && (String(savedRows[0].presupuesto_externo_id)!==String(p.id) || savedRows[0].contrato_pdf!==path)){
+        epContractError(new Error('El contrato no quedó asociado al presupuesto esperado. Comprueba ep_contratos antes de volver a subirlo.'));
+        return;
+      }
+      alert(kind==='original'?'Contrato registrado y vinculado al presupuesto correctamente.':'Contrato firmado registrado correctamente.');
+      if(admin)loadAdminBudgets();else loadBudgets();
+    };
+    const picker=(label,kind)=>{const input=budgetNode('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;input.addEventListener('change',()=>upload(kind,input.files?.[0]));const b=budgetButton(label,()=>input.click());buttons.append(b,input)};
+    if(!contract||!contract.contrato_pdf){status.textContent=admin?'Todavía no has enviado un contrato.':'El administrador todavía no ha enviado el contrato.';if(admin)picker('Adjuntar y enviar contrato PDF','original');return box}
+    const states={PENDIENTE_FIRMA:'Pendiente de firma del cliente',PENDIENTE_VALIDACION:'Firmado · pendiente de validación',VALIDADO:'Contrato firmado y validado'};
+    status.textContent=(states[contract.estado]||'Contrato disponible')+(hasHistory?' · Se muestra el registro más reciente; existen versiones anteriores conservadas.':'');
+    buttons.append(budgetButton('Ver contrato PDF',()=>openFile(contract.contrato_pdf)));
+    if(admin){
+      if(contract.contrato_firmado_pdf){buttons.append(budgetButton('Ver PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
+        if(contract.estado!=='VALIDADO')buttons.append(budgetButton('Validar contrato',async()=>{if(!confirm('¿Confirmas que has revisado el contrato firmado?'))return;const {error}=await client.from('ep_contratos_externos').update({estado:'VALIDADO'}).eq('id',contract.id);if(error)epContractError(error);else loadAdminBudgets()}));
+      }
+      if(contract.estado==='PENDIENTE_FIRMA')picker('Sustituir contrato PDF','original');
+    }else{
+      if(contract.contrato_firmado_pdf)buttons.append(budgetButton('Ver mi PDF firmado',()=>openFile(contract.contrato_firmado_pdf)));
+      if(!contract.contrato_firmado_pdf && (contract.estado==='PENDIENTE_FIRMA'||!contract.estado))picker('Subir contrato firmado PDF','firmado');
+    }
+    return box;
+  };
   const epFormField=(form,label,name,type='text',required=true)=>{const wrap=budgetNode('label',label);const input=budgetNode(type==='textarea'?'textarea':type==='select'?'select':'input');if(type!=='textarea'&&type!=='select')input.type=type;input.name=name;input.required=required;wrap.append(input);form.append(wrap);return input};
   const epServices=['DJ y música','Sonido','Iluminación','Ceremonia','Animación y juegos','Montaje técnico','Otros'];
   const epRequestForm=()=>{
@@ -3591,15 +4312,28 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     eventBody.textContent='Cargando presupuestos…';
     const {data:{user}}=await client.auth.getUser();
     if(!user){eventBody.textContent='Inicia sesión.';return}
-    const [budgetResult,requestResult]=await Promise.all([
+    try{await client.rpc('ep_vincular_presupuestos_externos')}catch(e){console.warn('Vinculación de presupuestos externos:',e)}
+    const [budgetResult,requestResult,externalResult]=await Promise.all([
       client.from('ep_presupuestos').select('*').eq('cliente_id',user.id).is('eliminado_en',null).order('creado_en',{ascending:false}),
-      client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false})
+      client.from('ep_solicitudes_presupuesto').select('*').eq('cliente_id',user.id).order('creado_en',{ascending:false}),
+      client.from('ep_presupuestos_externos').select('*').ilike('email',user.email||'__sin_correo__').order('id',{ascending:false})
     ]);
+    // La versión interna de un presupuesto externo sirve únicamente como puente
+    // para eventos. No se debe mostrar como un segundo presupuesto al cliente.
+    const internalCopiesOfExternal=new Set();
+    if(!externalResult.error){
+      for(const ext of (externalResult.data||[]).filter(p=>p.estado==='ACEPTADO')){
+        const linked=await client.rpc('ep_preparar_evento_externo',{p_externo_id:ext.id});
+        if(!linked.error && linked.data!=null)internalCopiesOfExternal.add(String(linked.data));
+        else if(linked.error)console.warn('No se pudo identificar el puente del presupuesto externo:',linked.error.message);
+      }
+    }
     if(eventTitle.textContent!=='Presupuestos')return;
     eventBody.replaceChildren();
     const panes=['Nuevo','Solicitados','Recibidos','Aceptados'].map(()=>document.createElement('section'));
     panes.forEach((pane,i)=>{pane.className='ep-client-budget-pane';pane.hidden=i!==0});
     const newRequest=panes[0],requested=panes[1],received=panes[2],accepted=panes[3];
+    accepted.classList.add('ep-client-accepted-compact');
     newRequest.append(epRequestForm());
     requested.append(budgetNode('h3','Presupuestos solicitados'));
     if(requestResult.error)requested.append(budgetNode('p','No se pudieron consultar las solicitudes: '+requestResult.error.message));
@@ -3615,15 +4349,42 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         budgetNode('p','Detalles: '+(r.detalles||'Sin detalles')));
       requested.append(card);
     });
+    // Presupuestos externos vinculados al correo verificado del usuario.
+    // No se duplican ni alteran registros de ep_presupuestos.
+    const externalBudgets=externalResult.data||[];
+    const externalCard=p=>{
+      const card=budgetNode('article');card.className='ep-budget-card';
+      card.append(budgetNode('h3',p.titulo||'Presupuesto externo'),budgetNode('p',p.descripcion||'Sin descripción'),budgetNode('p','Importe: '+euro(p.importe)),budgetNode('p','Estado: '+(p.estado||'PENDIENTE')));
+      if(p.pdf_path)card.append(budgetButton('📄 Ver / descargar PDF',async()=>{
+        const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);
+        if(error){alert('No se pudo abrir el PDF: '+error.message);return}
+        window.open(data.signedUrl,'_blank','noopener,noreferrer');
+      }));
+      if(p.estado==='PENDIENTE'){
+        const actions=budgetNode('div');actions.className='ep-budget-actions';
+        for(const estado of ['ACEPTADO','RECHAZADO'])actions.append(budgetButton(estado==='ACEPTADO'?'Aceptar':'Rechazar',async()=>{
+          if(!confirm('¿Confirmas tu decisión?'))return;
+          const {data,error}=await client.from('ep_presupuestos_externos').update({estado}).eq('id',p.id).eq('estado','PENDIENTE').select('id,estado');
+          if(error||!data?.length){alert('No se pudo actualizar el presupuesto: '+(error?.message||'Sin filas modificadas'));return}
+          loadBudgets();
+        }));
+        card.append(actions);
+      }
+      if(p.estado==='ACEPTADO'){epExternalContractPanel(p,false).then(panel=>card.append(panel)).catch(epContractError);}
+      return card;
+    };
+    if(externalResult.error)received.append(budgetNode('p','No se pudieron consultar presupuestos externos: '+externalResult.error.message));
     received.append(budgetNode('h3','Presupuestos recibidos'));
     accepted.append(budgetNode('h3','Presupuestos aceptados'));
     if(budgetResult.error){received.append(budgetNode('p','No se pudieron consultar los presupuestos: '+budgetResult.error.message));accepted.append(budgetNode('p','No se pudieron consultar los presupuestos.'))}
     else {
-      const budgets=budgetResult.data||[];
+      const budgets=(budgetResult.data||[]).filter(p=>!internalCopiesOfExternal.has(String(p.id)));
       const incoming=budgets.filter(p=>p.estado!=='ACEPTADO');
       const approved=budgets.filter(p=>p.estado==='ACEPTADO');
-      if(!incoming.length)received.append(budgetNode('p','No tienes presupuestos recibidos pendientes o rechazados.'));
-      if(!approved.length)accepted.append(budgetNode('p','Todavía no tienes presupuestos aceptados.'));
+      if(!incoming.length&&!externalBudgets.some(p=>p.estado!=='ACEPTADO'))received.append(budgetNode('p','No tienes presupuestos recibidos pendientes o rechazados.'));
+      if(!approved.length&&!externalBudgets.some(p=>p.estado==='ACEPTADO'))accepted.append(budgetNode('p','Todavía no tienes presupuestos aceptados.'));
+      externalBudgets.filter(p=>p.estado!=='ACEPTADO').forEach(p=>received.append(externalCard(p)));
+      externalBudgets.filter(p=>p.estado==='ACEPTADO').forEach(p=>accepted.append(externalCard(p)));
       incoming.forEach(p=>{
         const card=budgetCard(p);
         if(p.estado==='PENDIENTE'){
@@ -3639,7 +4400,86 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         card.append(budgetButton('Solicitar modificación',()=>{const msg=prompt('Indica qué quieres modificar del presupuesto:');if(msg?.trim()){const title='Modificación de presupuesto #'+p.id;window.location.href='mailto:perezrobeta@gmail.com?subject='+encodeURIComponent(title)+'&body='+encodeURIComponent(msg.trim())}}));
         received.append(card);
       });
-      approved.forEach(p=>accepted.append(budgetCard(p)));
+      approved.forEach(p=>{
+        const card=budgetCard(p);
+        accepted.append(card);
+        // Contrato visible de inmediato, sin depender de una respuesta silenciosa.
+        const contractSlot=budgetNode('section');
+        contractSlot.className='ep-contract-live ep-client-contract-slot';
+        const heading=budgetNode('h4','✦ Contrato del presupuesto #'+p.id);
+        const message=budgetNode('p','Consultando el contrato enviado por administración…');
+        message.className='ep-contract-live-status';
+        const actions=budgetNode('div');actions.className='ep-contract-live-actions';
+        const view=budgetButton('Ver contrato PDF',()=>openClientContract('original'));
+        const signed=budgetButton('Subir contrato firmado PDF',()=>openClientContract('firmado'));
+        const signedView=budgetButton('Ver mi PDF firmado',()=>openClientContract('ver_firmado'));
+        signedView.hidden=true;
+        actions.append(view,signed,signedView);
+        contractSlot.append(heading,message,actions);
+        card.append(contractSlot);
+        let currentContract=null;
+        const refreshClientContract=async()=>{
+          const result=await client.from('ep_contratos').select('id,presupuesto_id,cliente_id,contrato_pdf,contrato_firmado_pdf,estado,created_at').eq('presupuesto_id',p.id).eq('cliente_id',p.cliente_id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(2);
+          if(result.error){message.textContent='No se puede consultar el contrato: '+result.error.message+'. Comprueba los permisos de lectura de ep_contratos.';return}
+          const hasHistory=!!(result.data && result.data.length>1);
+          currentContract=result.data?.[0]||null;
+          if(!currentContract?.contrato_pdf){
+            // Diferenciar la ausencia de una fila de una fila sin PDF y
+            // detectar desajustes de identidad sin revelar datos de terceros.
+            const {data:sessionData,error:sessionError}=await client.auth.getUser();
+            if(sessionError||!sessionData?.user){message.textContent='Tu sesión ha caducado. Cierra sesión y vuelve a entrar para consultar el contrato.';return}
+            if(String(p.cliente_id)!==String(sessionData.user.id)){
+              message.textContent='Este presupuesto no está asociado al usuario con el que has iniciado sesión. Contacta con administración.';return;
+            }
+            message.textContent=currentContract
+              ? 'El registro del contrato existe, pero no tiene PDF original asociado. Administración debe comprobar el campo contrato_pdf.'
+              : 'No se encuentra un contrato visible para este presupuesto (#'+p.id+'). Si administración ya lo subió, comprueba que el registro sigue existiendo y que la política de lectura permite verlo con esta sesión.';
+            return;
+          }
+          message.textContent=(currentContract.contrato_firmado_pdf?'Contrato firmado recibido · '+(currentContract.estado||'pendiente de revisión'):'Contrato disponible · pendiente de firma')+(hasHistory?' · Se muestra el registro más reciente; hay versiones anteriores.':'');
+          signed.hidden=!!currentContract.contrato_firmado_pdf;
+          signedView.hidden=!currentContract.contrato_firmado_pdf;
+        };
+        const openClientContract=async(kind)=>{
+          if(!currentContract?.contrato_pdf){await refreshClientContract();if(!currentContract?.contrato_pdf){alert('Todavía no hay un contrato accesible para este presupuesto. '+message.textContent);return}}
+          if(kind==='firmado'){
+            if(currentContract.contrato_firmado_pdf){alert('Ya hay un contrato firmado registrado.');return}
+            const input=document.createElement('input');input.type='file';input.accept='.pdf,application/pdf';input.hidden=true;
+            input.addEventListener('change',async()=>{
+              const file=input.files?.[0];if(!file)return;
+              if(!file.name.toLowerCase().endsWith('.pdf')||file.size>15*1024*1024){alert('Selecciona un PDF de 15 MB como máximo.');return}
+              const {data:{user},error:authError}=await client.auth.getUser();
+              if(authError||!user){alert('Debes iniciar sesión.');return}
+              signed.disabled=true;message.textContent='Subiendo el contrato firmado…';
+              const path=p.id+'/firmado/'+user.id+'-'+Date.now()+'.pdf';
+              const uploaded=await client.storage.from('ep-contratos').upload(path,file,{contentType:'application/pdf',upsert:false});
+              if(uploaded.error){message.textContent='No se pudo subir el PDF: '+uploaded.error.message;signed.disabled=false;return}
+              // Guardar primero la ruta. Separar el estado permite identificar si
+              // el rechazo viene de RLS o de una restricción sobre el estado.
+              const saved=await client.from('ep_contratos').update({contrato_firmado_pdf:path}).eq('id',currentContract.id).eq('cliente_id',user.id).select('id,contrato_firmado_pdf');
+              if(saved.error||!saved.data?.some(row=>row.contrato_firmado_pdf===path)){
+                // No borrar el archivo: puede faltar la política DELETE de Storage.
+                // Conservar la ruta facilita recuperar el PDF sin volver a subirlo.
+                message.textContent='El PDF está en Storage, pero no se pudo vincular al contrato #'+currentContract.id+'. Ruta: '+path+'. Motivo: '+(saved.error?.message||'UPDATE no modificó ninguna fila; revisar política UPDATE de ep_contratos.');
+                signed.disabled=false;return;
+              }
+              const stateResult=await client.from('ep_contratos').update({estado:'PENDIENTE_VALIDACION'}).eq('id',currentContract.id).eq('cliente_id',user.id).select('id');
+              signed.disabled=false;await refreshClientContract();
+              if(stateResult.error||!stateResult.data?.length){
+                message.textContent='PDF firmado registrado. El estado sigue pendiente de actualizar por administración.';
+                alert('El contrato firmado se ha guardado. Administración debe revisar el estado del contrato.');
+              }else alert('Contrato firmado recibido correctamente.');
+            },{once:true});contractSlot.append(input);input.click();return;
+          }
+          const path=kind==='ver_firmado'?currentContract.contrato_firmado_pdf:currentContract.contrato_pdf;
+          if(!path){alert('Ese PDF todavía no está disponible.');return}
+          const result=await client.storage.from('ep-contratos').download(String(path).replace(/^\/+/, '').replace(/^ep-contratos\//,''));
+          if(result.error){alert('No se pudo descargar el contrato: '+result.error.message);return}
+          const url=URL.createObjectURL(new Blob([result.data],{type:'application/pdf'}));
+          const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer';link.download=kind==='ver_firmado'?'contrato-firmado.pdf':'contrato.pdf';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);
+        };
+        refreshClientContract().catch(err=>{message.textContent='Error al consultar el contrato: '+err.message});
+      });
     }
     const tabs=epClientTabs([
       ['Solicita nuevo presupuesto',()=>panes.forEach((p,i)=>p.hidden=i!==0)],
@@ -3661,9 +4501,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   const loadAdminBudgets=async()=>{
     if(!isAdmin){eventBody.textContent='Acceso no autorizado.';return}
     eventBody.textContent='Cargando presupuestos…';
-    const [budgetResult,requestResult,profileResult]=await Promise.all([
+    const [budgetResult,requestResult,externalResult,profileResult]=await Promise.all([
       client.from('ep_presupuestos').select('*').order('creado_en',{ascending:false}),
       client.from('ep_solicitudes_presupuesto').select('*').order('creado_en',{ascending:false}).limit(100),
+      client.from('ep_presupuestos_externos').select('*').order('creado_en',{ascending:false}),
       loadClientProfiles().then(data=>({data})).catch(error=>({error}))
     ]);
     if(eventTitle.textContent!=='Gestionar presupuestos')return;
@@ -3671,8 +4512,14 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     const requestById=new Map(allRequests.map(r=>[String(r.id),r]));
     const preparedIds=new Set(allBudgets.map(p=>String(p.solicitud_id||'')).filter(Boolean));
     const pending=allRequests.filter(r=>!preparedIds.has(String(r.id)));
-    const waiting=allBudgets.filter(p=>p.estado==='PENDIENTE');
-    const final=allBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
+    const externalBudgets=(externalResult.data||[]).map(p=>({...p,_external:true}));
+    // Ocultar copias internas generadas para enlazar presupuestos externos con eventos.
+    // Primero usar el puente exacto si la política permite leerlo; si no, no ocultar por coincidencias vagas.
+    const {data:bridgeRows,error:bridgeError}=await client.from('ep_puentes_presupuestos_externos').select('externo_id,presupuesto_id');
+    const bridgedIds=new Set((bridgeError?[]:(bridgeRows||[])).filter(x=>externalBudgets.some(e=>String(e.id)===String(x.externo_id))).map(x=>String(x.presupuesto_id)));
+    const combinedBudgets=[...allBudgets.filter(p=>!bridgedIds.has(String(p.id))),...externalBudgets];
+    const waiting=combinedBudgets.filter(p=>p.estado==='PENDIENTE');
+    const final=combinedBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
     const root=epEl('div');root.className='ep-b2';
     const top=epEl('div');top.className='ep-b2-top';
     top.append(budgetButton('✉ Crear presupuesto · Nuevo cliente',()=>createExternalBudget()));root.append(top);
@@ -3711,6 +4558,55 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(subtitle)addText(info,'p',subtitle,'ep-b2-sub');head.append(info);item.append(head);return item;
     };
     const actions=item=>{const el=epEl('div');el.className='ep-budget-actions ep-b2-actions';item.append(el);return el};
+    // Borrado comprobado: nunca anunciar éxito sin confirmación de Supabase.
+    // Si hay dependencias protegidas, se detiene y se conserva toda la información.
+    const deleteBudgetPermanently=async p=>{
+      if(!confirm('¿Eliminar DEFINITIVAMENTE este presupuesto? Desaparecerá también del área del cliente si Supabase permite el borrado. Esta acción no se puede deshacer.'))return;
+      if(!confirm('Última confirmación: ¿quieres eliminar el presupuesto n.º '+p.id+'?'))return;
+      try{
+        const {data,error}=await client.rpc('ep_eliminar_presupuesto_definitivo',{
+          p_presupuesto_id:p.id,
+          p_confirmar:true
+        });
+        if(error)throw error;
+        if(!(data===true || (data && data.eliminado===true && String(data.presupuesto_id)===String(p.id))))throw new Error('Supabase no confirmó la eliminación definitiva del presupuesto.');
+        // El PDF se retira después de confirmar la eliminación del registro.
+        if(p.pdf_path){
+          const {error:fileError}=await client.storage.from('ep-presupuestos').remove([p.pdf_path]);
+          if(fileError)alert('El presupuesto se ha eliminado, pero el archivo PDF requiere limpieza en Storage: '+fileError.message);
+        }
+        await loadAdminBudgets();
+      }catch(e){alert('No se ha confirmado la eliminación definitiva del presupuesto. Revisa el mensaje de Supabase. Detalle: '+e.message)}
+    };
+    // Borrado de presupuestos externos: no tocar contratos, eventos ni copias internas asociadas.
+    const deleteExternalBudget=async p=>{
+      if(!confirm('¿Eliminar DEFINITIVAMENTE este presupuesto externo? No se podrá recuperar.'))return;
+      try{
+        const [contracts,bridge]=await Promise.all([
+          client.from('ep_contratos_externos').select('id').eq('presupuesto_externo_id',p.id).limit(1),
+          client.from('ep_puentes_presupuestos_externos').select('presupuesto_id').eq('externo_id',p.id).limit(1)
+        ]);
+        if(contracts.error||bridge.error)throw new Error('No se pudieron comprobar las relaciones del presupuesto. No se ha borrado nada.');
+        if((contracts.data||[]).length||(bridge.data||[]).length){
+          alert('Este presupuesto tiene un contrato o un evento vinculado. Por seguridad no se puede eliminar desde aquí: primero hay que gestionar sus relaciones y documentos sin perder información.');return;
+        }
+        if(!confirm('Confirmación final: eliminar el presupuesto externo '+(p.titulo||p.id)+'?'))return;
+        const {data,error}=await client.from('ep_presupuestos_externos').delete().eq('id',p.id).select('id');
+        if(error)throw error;
+        if(!data?.some(x=>String(x.id)===String(p.id)))throw new Error('Supabase no confirmó el borrado. Puede faltar permiso DELETE.');
+        await loadAdminBudgets();
+      }catch(e){alert('No se ha eliminado: '+e.message)}
+    };
+    const deleteRequestPermanently=async r=>{
+      if(!confirm('¿Eliminar DEFINITIVAMENTE esta solicitud por preparar? Dejará de aparecer también en la cuenta del cliente.'))return;
+      if(!confirm('Última confirmación: ¿eliminar la solicitud n.º '+r.id+'?'))return;
+      try{
+        const {data,error}=await client.from('ep_solicitudes_presupuesto').delete().eq('id',r.id).select('id');
+        if(error)throw error;
+        if(!data?.some(row=>String(row.id)===String(r.id)))throw new Error('Supabase no confirmó la eliminación. Comprueba la política DELETE del administrador.');
+        await loadAdminBudgets();
+      }catch(e){alert('No se ha eliminado la solicitud. Comprueba los permisos DELETE o sus relaciones con otros registros: '+e.message)}
+    };
     const openPdf=p=>async()=>{
       try{const {data,error}=await client.storage.from('ep-presupuestos').createSignedUrl(p.pdf_path,120);if(error)throw error;window.open(data.signedUrl,'_blank','noopener,noreferrer')}
       catch(e){alert('No se pudo abrir el PDF: '+e.message)}
@@ -3726,6 +4622,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       const item=card((r.tipo||'Evento')+' · '+(r.nombre||'Cliente'),showDate(r.fecha)+' · '+(r.lugar||'Lugar sin concretar'),clientLabel(r.cliente_id,profiles));
       const a=actions(item);
       a.append(budgetButton('Preparar presupuesto',()=>createBudget(r.cliente_id,r.id)));
+      const removeRequest=budgetButton('Eliminar definitivamente',()=>deleteRequestPermanently(r));removeRequest.classList.add('ep-b2-delete');a.append(removeRequest);
       const d=details(item,[['Servicios',Array.isArray(r.servicios)?r.servicios.join(', '):r.servicios],['Horario',r.horario],['Invitados',r.invitados],['Observaciones',r.detalles]]);
       const row=epEl('div');row.className='ep-b2-status';const label=budgetNode('label','Estado');const sel=budgetNode('select');
       [['PENDIENTE','Pendiente'],['EN_PREPARACION','En preparación']].forEach(([v,t])=>{const opt=budgetNode('option',t);opt.value=v;sel.append(opt)});
@@ -3740,35 +4637,31 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       });row.append(label,save);d.append(row);panes[0].append(item);
     });
     if(budgetResult.error){panes[1].append(budgetNode('p','No se pudieron cargar los presupuestos: '+budgetResult.error.message));panes[2].append(budgetNode('p','No se pudieron cargar los presupuestos: '+budgetResult.error.message))}
+    if(externalResult.error){panes[1].append(budgetNode('p','No se pudieron cargar los presupuestos externos: '+externalResult.error.message));panes[2].append(budgetNode('p','No se pudieron cargar los presupuestos externos: '+externalResult.error.message))}
     else{
       if(!waiting.length)addText(panes[1],'p','No hay presupuestos esperando respuesta.');
       if(!final.length)addText(panes[2],'p','Todavía no hay presupuestos finalizados.');
       const renderBudget=(p,parent)=>{
         const r=requestById.get(String(p.solicitud_id||''));
-        const date=r?.fecha||p.fecha_evento||p.fecha||p.creado_en;
+        const date=r?.fecha||p.fecha_inicio||p.fecha_evento||p.fecha||p.creado_en;
         const title=p.titulo||r?.tipo||'Presupuesto';
         const state=p.estado==='ACEPTADO'?'Aceptado':p.estado==='RECHAZADO'?'Rechazado':'Esperando respuesta';
-        const item=card(title,clientLabel(p.cliente_id,profiles)+' · '+euro(p.importe),showDate(date)+(r?.fecha?' · Fecha del evento':' · Fecha del presupuesto'));
+        const item=card(title,(p._external?(p.nombre||'Cliente')+' · '+p.email:clientLabel(p.cliente_id,profiles))+' · '+euro(p.importe),showDate(date)+((r?.fecha||p.fecha_inicio)?' · Fecha del evento':' · Fecha del presupuesto'));
         const tag=epEl('span',state);tag.className='ep-b2-state '+(p.estado==='ACEPTADO'?'ok':p.estado==='RECHAZADO'?'no':'wait');item.querySelector('.ep-b2-head').append(tag);
         const a=actions(item);
         if(p.pdf_path)a.append(budgetButton('Ver / descargar PDF',openPdf(p)));
-        const d=details(item,[['Descripción',p.descripcion],['Estado',state],['Evento',r?.tipo],['Lugar',r?.lugar],['Fecha del evento',r?.fecha?showDate(r.fecha):null]]);
-        if(p.estado!=='PENDIENTE'){
-          const del=budgetButton('Eliminar presupuesto',async()=>{
-            if(!confirm('¿Seguro que deseas eliminar definitivamente este presupuesto del historial? Esta acción no se puede deshacer.'))return;
-            const {error}=await client.from('ep_presupuestos').delete().eq('id',p.id);
-            if(error){alert('No se pudo eliminar: '+error.message);return}
-            if(p.pdf_path){const {error:storageError}=await client.storage.from('ep-presupuestos').remove([p.pdf_path]);if(storageError)alert('Presupuesto eliminado, pero no se pudo borrar el PDF: '+storageError.message)}
-            loadAdminBudgets();
-          });del.classList.add('ep-b2-delete');d.append(del);
+        const d=details(item,[['Descripción',p.descripcion],['Estado',state],['Origen',p._external?'Presupuesto enviado por correo':null],['Correo',p._external?p.email:null],['Teléfono',p._external?p.telefono:null],['Evento',r?.tipo||p.tipo],['Lugar',r?.lugar||p.lugar],['Fecha del evento',(r?.fecha||p.fecha_inicio)?showDate(r?.fecha||p.fecha_inicio):null]]);
+        if(p.estado==='ACEPTADO'){
+          (p._external?epExternalContractPanel(p,true):epContractPanel(p,true)).then(panel=>item.append(panel)).catch(epContractError);
         }
+        const del=budgetButton('Eliminar definitivamente',()=>p._external?deleteExternalBudget(p):deleteBudgetPermanently(p));del.classList.add('ep-b2-delete');a.append(del);
         parent.append(item);
       };
       waiting.forEach(p=>renderBudget(p,panes[1]));
       // Historial agrupado por meses: fecha del evento cuando está disponible.
       const grouped=new Map();
       final.forEach(p=>{
-        const r=requestById.get(String(p.solicitud_id||''));const d=safeDate(r?.fecha||p.fecha_evento||p.fecha||p.creado_en);
+        const r=requestById.get(String(p.solicitud_id||''));const d=safeDate(r?.fecha||p.fecha_inicio||p.fecha_evento||p.fecha||p.creado_en);
         const key=d?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'):'sin-fecha';
         if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(p);
       });
@@ -3787,7 +4680,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     if(!isAdmin)return;
     const wrap=budgetNode('section');wrap.className='ep-budget-card ep-external-budget';
     const heading=budgetNode('h3','Crear presupuesto · Nuevo cliente');
-    const description=budgetNode('p','Prepara y envía un presupuesto a una persona sin cuenta. Al aceptarlo, recibirá instrucciones para registrarse.');
+    const description=budgetNode('p','Prepara y envía un presupuesto a una persona sin cuenta. El presupuesto se enviará por correo. Para que aparezca en el área privada, super-function debe guardarlo también en ep_presupuestos_externos.');
     const form=budgetNode('form');form.className='ep-budget-form';
     const field=(label,name,type='text',required=true)=>{
       const l=budgetNode('label',label),i=budgetNode(type==='textarea'?'textarea':'input');
@@ -3828,7 +4721,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     field('Descripción y servicios incluidos','descripcion','textarea');
     field('Importe (€)','importe','number');
     const pdf=field('Adjuntar PDF del presupuesto (obligatorio)','pdf','file');pdf.accept='application/pdf';
-    const hint=budgetNode('p','PDF de hasta 5 MB. Se enviará un correo con el enlace privado y el presupuesto adjunto. Remitente de contacto: perezrobeta@gmail.com.');
+    const hint=budgetNode('p','PDF de hasta 5 MB. Se enviará un correo con el presupuesto adjunto. Remitente de contacto: perezrobeta@gmail.com.');
     const status=budgetNode('p');status.setAttribute('role','status');
     const submit=budgetNode('button','Enviar presupuesto por correo');submit.type='submit';
     form.append(hint,submit,status);
@@ -3851,12 +4744,12 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         payload.fecha=payload.fecha_inicio; // compatibilidad con la fecha usada anteriormente
         payload.duracion_minutos=Math.round((endDate-startDate)/60000);
         payload.importe=Number(fd.get('importe'));payload.pdf_base64=btoa(binary);payload.pdf_filename=file.name;
-        const {data,error}=await client.functions.invoke('ep-external-budgets',{body:{action:'create',payload}});
+        const {data,error}=await client.functions.invoke('super-function',{body:{action:'create',payload}});
         if(error)throw new Error(error.message||'Error en el servicio de envío');
         if(!data?.ok)throw new Error(data?.error||'El servicio no confirmó el envío');
-        status.textContent='Presupuesto enviado correctamente. El cliente recibirá el PDF y un enlace privado.';
+        status.textContent='Presupuesto enviado correctamente. El cliente recibirá el PDF adjunto.';
         form.reset();
-      }catch(err){status.textContent='No se ha confirmado el envío: '+err.message+' Comprueba que la función ep-external-budgets y el correo estén configurados en Supabase.'}
+      }catch(err){status.textContent='No se ha confirmado el envío: '+err.message+' Comprueba la función super-function y la configuración de Resend en Supabase.'}
       finally{submit.disabled=false}
     });
     wrap.append(heading,description,form);
@@ -4081,7 +4974,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  const links=sidebar.querySelector('#epLuxLinks');
  const specs=[['Inicio','⌂',null],['Presupuestos','▤','Presupuestos'],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],['Mi perfil','♙','Mi perfil'],['Organizaciones recibidas','♧','Organizadores recibidos'],['Gestión de presupuestos','▤','Gestionar presupuestos'],['Perfiles de usuario','♙','Mi perfil']];
  const buttons=specs.map(([label,icon,dest])=>{const b=document.createElement('button');b.type='button';b.innerHTML='<span class="ep-lux-symbol">'+icon+'</span><span class="ep-lux-label">'+label+'</span>';b.title=label;b.dataset.dest=dest||'Inicio';b.onclick=()=>{if(!dest){document.getElementById('epBackHome').click();return}if(dest==='Mi perfil'&&home.classList.contains('ep-is-admin')){openProfiles();return}const t=home.querySelector('[data-home-destination="'+dest+'"]');if(t)t.click();else{const tab=[...inner.querySelectorAll('[data-private-tab]')].find(x=>x.dataset.privateTab===dest);if(tab){home.hidden=true;inner.hidden=false;tab.click()}}};links.append(b);return b});
- const motto=document.createElement('div');motto.id='epLuxuryMotto';motto.innerHTML='<img src="media/logo.png" alt="Logo Events and Parties"><strong>EVENTS AND PARTIES</strong><span>MÚSICA · EMOCIONES · PASIÓN</span>';home.append(motto);
+ /* Portada original conservada: se omite el panel decorativo epLuxuryMotto. */
  const grid=home.querySelector('.ep-home-grid');
  const sync=()=>{const admin=home.classList.contains('ep-is-admin');sidebar.hidden=dash.hidden;buttons.forEach((b,i)=>{b.hidden=admin?![0,2,3,5,6,7].includes(i):i>4});const current=home.hidden?(inner.querySelector('#privatePanelTitle')?.textContent||''):'Inicio';buttons.forEach(b=>b.classList.toggle('active',b.dataset.dest===current||(current==='Inicio'&&b.dataset.dest==='Inicio')));
  const normal=grid.querySelector('.ep-home-budgets'),profile=grid.querySelector('.ep-home-profile'),manage=grid.querySelector('.ep-home-manage'),adminTile=grid.querySelector('.ep-home-admin'),org=grid.querySelector('.ep-home-organizers');
@@ -4164,11 +5057,32 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
   minutes.innerHTML='<option value="">Min.</option>'+[0,15,30,45].map(i=>`<option value="${pad(i)}">${pad(i)}</option>`).join('');
   const colon=document.createElement('span');colon.textContent=':';wrap.append(hours,colon,minutes);
   input.classList.add('ep-hour-original');input.insertAdjacentElement('afterend',wrap);
-  function sync(){const v=input.value||'';const parts=v.split(':');hours.value=parts[0]||'';let minute=parts[1]||'';
-   if(minute&&!Array.from(minutes.options).some(o=>o.value===minute)){const op=document.createElement('option');op.value=minute;op.textContent=minute;minutes.append(op)}
-   minutes.value=minute;hours.disabled=minutes.disabled=input.disabled;hours.required=minutes.required=input.required;}
-  function update(){input.value=hours.value&&minutes.value?hours.value+':'+minutes.value:'';input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));}
-  hours.addEventListener('change',update);minutes.addEventListener('change',update);input.addEventListener('change',sync);input.addEventListener('input',sync);sync();
+  let editing=false;
+  function sync(){
+   if(editing)return;
+   const parts=(input.value||'').split(':');
+   hours.value=parts[0]||'';
+   const minute=parts[1]||'';
+   if(minute&&!Array.from(minutes.options).some(o=>o.value===minute)){
+    const op=document.createElement('option');op.value=minute;op.textContent=minute;minutes.append(op);
+   }
+   minutes.value=minute;
+   hours.disabled=minutes.disabled=input.disabled;
+   hours.required=minutes.required=input.required;
+  }
+  function update(){
+   editing=true;
+   // Guardar la hora escogida sin borrar la selección parcial mientras se eligen los minutos.
+   if(hours.value&&minutes.value){
+    input.value=hours.value+':'+minutes.value;
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+   }
+   editing=false;
+  }
+  hours.addEventListener('change',update);
+  minutes.addEventListener('change',update);
+  input.addEventListener('change',sync);input.addEventListener('input',sync);sync();
  }
  let openPopup=null;
  function enhanceDate(input){
@@ -4198,8 +5112,158 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
  }
  document.addEventListener('pointerdown',e=>{if(openPopup&&!openPopup.parentElement.contains(e.target)){openPopup.hidden=true;openPopup=null}});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&openPopup){openPopup.hidden=true;openPopup=null}});
- function scan(){root.querySelectorAll('input[type="date"]').forEach(enhanceDate)}
+ function scan(){
+  root.querySelectorAll('input[type="date"]').forEach(enhanceDate);
+  root.querySelectorAll('input[type="time"]').forEach(enhanceTime);
+}
  let pending=false;new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;scan()})}).observe(root,{childList:true,subtree:true});scan();
+})();
+</script>
+
+
+<style id="ep-calendario-azul-premium-2026">
+/* Calendario: actualización exclusivamente visual. Se conservan eventos, solicitudes,
+   navegación, agenda, acciones y consultas Supabase existentes. */
+#epPrivateInner[data-ep-section="Calendario"]{
+  --ep-cal-blue:#078bd1;
+  --ep-cal-blue-bright:#12b9f5;
+}
+#epPrivateInner[data-ep-section="Calendario"] .private-panel{
+  background:linear-gradient(150deg,#161412,#0b0b0d 70%)!important;
+  border:1px solid #a57c42!important;
+  border-radius:19px!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-main,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-aside,
+#epPrivateInner[data-ep-section="Calendario"] .ep-calendar-main,
+#epPrivateInner[data-ep-section="Calendario"] .ep-calendar-aside{
+  background:linear-gradient(140deg,#302b2b,#19191d 85%)!important;
+  border:1px solid #a88756!important;
+  border-radius:17px!important;
+  box-shadow:inset 0 1px 0 #ffffff1a,0 8px 22px #0005!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button{
+  border-radius:11px!important;
+  border:1px solid #a88957!important;
+  color:#f8ead0!important;
+  background:linear-gradient(180deg,#302821,#181716)!important;
+  box-shadow:inset 0 1px #ffffff1b!important;
+  font-weight:700!important;
+  transition:filter .18s,box-shadow .18s,background .18s!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button[aria-pressed="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button[aria-selected="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button[aria-pressed="true"]{
+  background:linear-gradient(112deg,#087dbd,#00a8e8 55%,#0663a9)!important;
+  border-color:#5bd5ff!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px #c9f4ff66,0 0 14px #00b6f65c!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day{
+  border-radius:10px!important;
+  transition:filter .18s,box-shadow .18s!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-pressed="true"]{
+  background:linear-gradient(112deg,#087dbd,#00a8e8 55%,#0663a9)!important;
+  color:#fff!important;
+  border:2px solid #5bd5ff!important;
+  outline:none!important;
+  box-shadow:inset 0 1px #c9f4ff77,0 0 17px #00b6f67a!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected *,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"] *{
+  color:#fff!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day:not(.selected):hover,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button:hover,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button:hover{
+  filter:brightness(1.17);
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming{
+  border-radius:12px!important;
+  background:linear-gradient(115deg,#292525,#19191c)!important;
+  border-color:#9c7845!important;
+  box-shadow:inset 0 1px #ffffff10!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-agenda-item:focus-visible,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-upcoming button:focus-visible{
+  outline:2px solid #39c6ff!important;
+  outline-offset:2px;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-detail{
+  border-radius:15px!important;
+  border-color:#a88756!important;
+}
+@media(max-width:700px){
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-nav button,
+  #epPrivateInner[data-ep-section="Calendario"] .ep-cal-view-controls button{
+    padding:9px 10px!important;
+  }
+}
+</style>
+
+
+<style id="ep-calendario-estados-verde-2026">
+/* Estados visuales: verde = evento, naranja = solicitud, azul = selección. */
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event:not(.selected):not([aria-selected="true"]):not([aria-pressed="true"]){
+  background:linear-gradient(145deg,#23895b,#12553c)!important;
+  color:#fff!important;border:2px solid #65d7a0!important;
+  box-shadow:inset 0 1px 0 #ffffff33,0 0 12px #21956555!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-request:not(.has-event):not(.selected):not([aria-selected="true"]):not([aria-pressed="true"]){
+  background:linear-gradient(145deg,#d8892c,#935018)!important;
+  color:#fff!important;border:2px solid #ffc17b!important;
+  box-shadow:0 0 10px #dd8a3a44!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event.has-request:not(.selected):not([aria-selected="true"]):not([aria-pressed="true"]){
+  background:linear-gradient(135deg,#23895b 0 50%,#c77b27 50% 100%)!important;
+  color:#fff!important;border:2px solid #d4b77a!important;
+}
+/* El día elegido sigue siendo azul, aunque tenga evento o solicitud. */
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.selected,
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-selected="true"],
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day[aria-pressed="true"]{
+  background:linear-gradient(112deg,#087dbd,#00a8e8 55%,#0663a9)!important;
+  color:#fff!important;border:2px solid #5bd5ff!important;
+  box-shadow:inset 0 1px #c9f4ff77,0 0 17px #00b6f67a!important;
+}
+/* Mantener visible el indicador de evento verde incluso al seleccionar la fecha. */
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event::after{
+  background:#4ce09a!important;box-shadow:0 0 0 2px #0e4932,0 0 7px #2ee69b!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-event .ep-cal-dot{
+  background:#4ce09a!important;box-shadow:0 0 0 1px #14553c,0 0 6px #39d998!important;
+}
+#epPrivateInner[data-ep-section="Calendario"] .ep-cal-day.has-request:not(.has-event) .ep-cal-dot{
+  background:#ffbd71!important;
+}
+</style>
+
+<!-- Acceso directo desde el botón del correo de presupuestos. -->
+<script>
+(function () {
+  function abrirAccesoDesdeCorreo() {
+    if (window.location.hash !== '#acceso') return;
+    const bienvenida = document.getElementById('splash');
+    if (bienvenida) {
+      bienvenida.classList.add('hidden');
+      bienvenida.setAttribute('aria-hidden', 'true');
+      bienvenida.remove();
+    }
+    document.documentElement.style.overflow = '';
+    const enlace = document.getElementById('openPrivate');
+    if (enlace) enlace.click();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', abrirAccesoDesdeCorreo, {once: true});
+  } else {
+    abrirAccesoDesdeCorreo();
+  }
+  window.addEventListener('hashchange', abrirAccesoDesdeCorreo);
 })();
 </script>
 
