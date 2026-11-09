@@ -2436,6 +2436,99 @@ section[hidden]{display:none!important}
 @media(max-width:700px){#privateDashboard #epClientHome:not([hidden]){margin-left:64px!important;width:calc(100% - 64px)!important;padding:14px 10px!important}#privateDashboard #epClientHome .ep-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){min-height:130px!important}#privateDashboard #epClientHome #epLuxuryMotto{height:150px!important;min-height:150px!important}#privateDashboard #epLuxurySidebar .ep-lux-headphones{height:70px!important}}
 @media(max-width:440px){#privateDashboard #epClientHome .ep-home-grid{grid-template-columns:1fr!important}#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){min-height:118px!important}}
 </style>
+
+<style id="ep-correccion-paneles-20261110">
+/* Ajustes visuales compartidos: cliente y administrador. No se cambia la lógica. */
+#privateDashboard #epClientHome:not([hidden]){
+  padding-top:82px!important;
+  padding-bottom:54px!important;
+  overflow:visible!important;
+}
+#privateDashboard #epClientHome .ep-home-intro{
+  margin-top:0!important;
+  margin-bottom:24px!important;
+  min-height:155px!important;
+  padding:25px 28px!important;
+  overflow:visible!important;
+  background-position:center center!important;
+}
+#privateDashboard #epClientHome .ep-home-grid{
+  margin-top:8px!important;
+  gap:19px!important;
+  flex:0 0 auto!important;
+}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){
+  min-height:175px!important;
+  background-position:center center!important;
+  background-size:cover!important;
+}
+#privateDashboard #epClientHome #epLuxuryMotto{
+  height:108px!important;
+  min-height:108px!important;
+  margin:48px 0 0!important;
+  padding:8px 18px!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex-direction:column!important;
+}
+#privateDashboard #epClientHome #epLuxuryMotto>img{
+  width:28px!important;height:28px!important;
+  margin:0 auto 1px!important;
+  mix-blend-mode:screen!important;
+}
+#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text strong{
+  font-size:clamp(17px,2.1vw,27px)!important;
+}
+#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text span{
+  font-size:clamp(9px,.9vw,12px)!important;
+}
+#privateDashboard #epLuxurySidebar .ep-lux-brand{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#privateDashboard #epLuxurySidebar .ep-lux-brand img{
+  mix-blend-mode:screen!important;
+  -webkit-mask-image:radial-gradient(ellipse 65% 65% at center,#000 55%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 65% 65% at center,#000 55%,transparent 100%)!important;
+  border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+  filter:contrast(1.13) brightness(1.14)!important;
+}
+#privateDashboard #epLuxurySidebar .ep-lux-headphones{
+  background-size:contain!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  -webkit-mask-image:radial-gradient(ellipse 48% 47% at center,#000 47%,rgba(0,0,0,.7) 69%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 48% 47% at center,#000 47%,rgba(0,0,0,.7) 69%,transparent 100%)!important;
+  mix-blend-mode:screen!important;
+  opacity:.91!important;
+  filter:drop-shadow(0 0 8px rgba(238,181,77,.33))!important;
+}
+#privateDashboard #epClientHome::after{
+  height:38px!important;
+  margin-top:15px!important;
+  background:linear-gradient(177deg,transparent 28%,#fff4c3 39%,#ffc45b 44%,transparent 51%),
+             linear-gradient(183deg,transparent 53%,#fff1a9 61%,#d38b27 67%,transparent 75%)!important;
+  filter:drop-shadow(0 0 10px #ffd16a) drop-shadow(0 0 5px #f8a931)!important;
+}
+@media(max-width:900px){
+ #privateDashboard #epClientHome:not([hidden]){padding-top:78px!important}
+ #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){min-height:145px!important}
+}
+@media(max-width:700px){
+ #privateDashboard #epClientHome:not([hidden]){padding-top:70px!important;padding-bottom:35px!important}
+ #privateDashboard #epClientHome .ep-home-intro{min-height:130px!important;padding:17px!important;margin-bottom:17px!important}
+ #privateDashboard #epClientHome .ep-home-grid{margin-top:7px!important;gap:12px!important}
+ #privateDashboard #epClientHome #epLuxuryMotto{height:90px!important;min-height:90px!important;margin-top:30px!important;padding:7px!important}
+ #privateDashboard #epClientHome #epLuxuryMotto>img{width:22px!important;height:22px!important}
+ #privateDashboard #epClientHome::after{height:24px!important}
+}
+</style>
+
 </head>
   
 <body>
