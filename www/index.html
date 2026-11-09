@@ -2100,6 +2100,20 @@ section[hidden]{display:none!important}
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-external-contract-panel,
 #epPrivateInner[data-ep-section="Gestionar presupuestos"] .ep-b2 .ep-contract-live{margin-top:5px!important;padding:8px 10px!important}
 </style>
+<style id="ep-admin-budget-final-layout">
+/* Gestión de presupuestos: versión compacta, independiente del atributo data-ep-section */
+.ep-b2 .ep-b2-item{padding:9px 12px!important;margin:7px 0!important;border-radius:10px!important}
+.ep-b2 .ep-b2-info h3{font-size:14px!important;margin:0 0 2px!important;line-height:1.25!important}
+.ep-b2 .ep-b2-info p{font-size:12px!important;margin:1px 0!important;line-height:1.3!important}
+.ep-b2 .ep-b2-actions{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:9px!important;margin:7px 0!important}
+.ep-b2 .ep-b2-actions button{margin:0!important;min-height:34px!important;padding:7px 12px!important;font-size:12px!important;line-height:1.2!important;position:static!important;transform:none!important}
+.ep-b2 .ep-b2-actions .ep-b2-delete{background:#b32635!important;background-image:none!important;color:#fff!important;border:1px solid #e66b78!important;opacity:1!important;box-shadow:none!important}
+.ep-b2 .ep-b2-details{margin:5px 0!important;padding-top:4px!important}
+.ep-b2 .ep-b2-details:not([open]){padding-bottom:0!important}
+.ep-b2 .ep-b2-item>section,.ep-b2 .ep-b2-item>div{max-width:100%}
+.ep-b2 .ep-b2-month{margin:9px 0!important}
+@media(max-width:600px){.ep-b2 .ep-b2-actions{gap:7px!important}.ep-b2 .ep-b2-actions button{font-size:11px!important;padding:7px 9px!important}}
+</style>
 </head>
   
 <body>
@@ -4531,7 +4545,23 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
     // Primero usar el puente exacto si la política permite leerlo; si no, no ocultar por coincidencias vagas.
     const {data:bridgeRows,error:bridgeError}=await client.from('ep_puentes_presupuestos_externos').select('externo_id,presupuesto_id');
     const bridgedIds=new Set((bridgeError?[]:(bridgeRows||[])).filter(x=>externalBudgets.some(e=>String(e.id)===String(x.externo_id))).map(x=>String(x.presupuesto_id)));
-    const combinedBudgets=[...allBudgets.filter(p=>!bridgedIds.has(String(p.id))),...externalBudgets];
+    // Compatibilidad con puentes cuya lectura esté restringida por RLS.
+    // Solo ocultamos la copia interna cuando coinciden cliente, título, importe y
+    // aceptación. Nunca borramos ni alteramos registros reales de Supabase.
+    const normalizedTitle=v=>String(v||'').trim().toLocaleLowerCase('es').replace(/\s+/g,' ');
+    const matchingExternal=internal=>externalBudgets.filter(ex=>
+      ex.estado==='ACEPTADO' && internal.estado==='ACEPTADO' &&
+      ex.cliente_id && internal.cliente_id && String(ex.cliente_id)===String(internal.cliente_id) &&
+      normalizedTitle(ex.titulo)===normalizedTitle(internal.titulo) &&
+      Number(ex.importe)===Number(internal.importe)
+    );
+    const visibleInternal=allBudgets.filter(p=>{
+      if(bridgedIds.has(String(p.id)))return false;
+      // El enlace exacto prevalece; la coincidencia de respaldo solo se usa si
+      // hay un único presupuesto externo compatible, para evitar falsos positivos.
+      return matchingExternal(p).length!==1;
+    });
+    const combinedBudgets=[...visibleInternal,...externalBudgets];
     const waiting=combinedBudgets.filter(p=>p.estado==='PENDIENTE');
     const final=combinedBudgets.filter(p=>p.estado==='ACEPTADO'||p.estado==='RECHAZADO');
     const root=epEl('div');root.className='ep-b2';
@@ -4578,6 +4608,10 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
       if(!confirm('¿Eliminar DEFINITIVAMENTE este presupuesto? Desaparecerá también del área del cliente si Supabase permite el borrado. Esta acción no se puede deshacer.'))return;
       if(!confirm('Última confirmación: ¿quieres eliminar el presupuesto n.º '+p.id+'?'))return;
       try{
+        const linked=await client.from('ep_puentes_presupuestos_externos').select('externo_id').eq('presupuesto_id',p.id).limit(1);
+        if(!linked.error && linked.data?.length){
+          alert('Este presupuesto es la copia técnica de uno externo. No se puede borrar por separado: sostiene la creación del evento. Se muestra únicamente el original para evitar duplicados.');return;
+        }
         const {data,error}=await client.rpc('ep_eliminar_presupuesto_definitivo',{
           p_presupuesto_id:p.id,
           p_confirmar:true
@@ -4602,7 +4636,7 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
         ]);
         if(contracts.error||bridge.error)throw new Error('No se pudieron comprobar las relaciones del presupuesto. No se ha borrado nada.');
         if((contracts.data||[]).length||(bridge.data||[]).length){
-          alert('Este presupuesto tiene un contrato o un evento vinculado. Por seguridad no se puede eliminar desde aquí: primero hay que gestionar sus relaciones y documentos sin perder información.');return;
+          alert('No se puede eliminar definitivamente: este presupuesto tiene un contrato o un evento asociado. Borrarlo rompería la reserva o la organización. Los registros se han conservado.');return;
         }
         if(!confirm('Confirmación final: eliminar el presupuesto externo '+(p.titulo||p.id)+'?'))return;
         const {data,error}=await client.from('ep_presupuestos_externos').delete().eq('id',p.id).select('id');
