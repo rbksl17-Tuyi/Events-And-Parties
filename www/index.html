@@ -3404,6 +3404,47 @@ section[hidden]{display:none!important}
 }
 </style>
 
+<style id="ep-mobile-stable-layout-20261110">
+/* Corrección aislada para teléfonos; escritorio y tablet sin cambios. */
+@media screen and (max-width:700px){
+ html:has(#privateDashboard:not([hidden])),body:has(#privateDashboard:not([hidden])){height:100%!important;overflow:hidden!important}
+ #privateDashboard[hidden],#epClientHome[hidden],#epPrivateInner[hidden],#epLuxurySidebar[hidden],#epLuxurySidebar button[hidden],#epClientHome .ep-home-tile[hidden]{display:none!important}
+ #privateDashboard:not([hidden]){position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;display:block!important;padding:0!important;margin:0!important;touch-action:pan-y!important}
+ #privateDashboard .private-top{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:76px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:10px 12px!important;margin:0!important}
+ #privateDashboard .private-top>div{min-width:0!important;flex:1!important;gap:7px!important}
+ #privateDashboard .private-top strong{font-size:clamp(10px,2.7vw,13px)!important;line-height:1.25!important;overflow-wrap:anywhere!important}
+ #privateDashboard .private-top #privateLogout{flex:0 0 auto!important;max-width:105px!important;white-space:normal!important}
+ #privateDashboard #epClientHome:not([hidden]),#privateDashboard #epPrivateInner:not([hidden]){position:relative!important;inset:auto!important;display:block!important;float:none!important;transform:none!important;translate:none!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:16px 14px 100px!important;box-sizing:border-box!important}
+ #privateDashboard #epClientHome .ep-home-intro{position:relative!important;inset:auto!important;transform:none!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;min-width:0!important;max-width:100%!important;min-height:0!important;height:auto!important;padding:20px 16px!important;margin:0 0 15px!important;overflow:hidden!important;box-sizing:border-box!important;text-align:left!important}
+ #privateDashboard #epClientHome .ep-home-intro h1{font-size:clamp(23px,6.2vw,31px)!important;line-height:1.12!important;white-space:normal!important;overflow-wrap:break-word!important;width:100%!important;margin:8px 0!important}
+ #privateDashboard #epClientHome .ep-home-intro p{font-size:clamp(11px,3vw,14px)!important;line-height:1.35!important;overflow-wrap:anywhere!important;margin:3px 0!important}
+ #privateDashboard #epClientHome .ep-home-grid,#privateDashboard #epClientHome.ep-is-admin .ep-home-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:none!important;grid-auto-flow:row!important;grid-auto-rows:clamp(135px,37vw,170px)!important;gap:12px!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;max-height:none!important;overflow:visible!important;padding:0!important;margin:0!important}
+ #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){position:relative!important;grid-area:auto!important;grid-column:auto!important;grid-row:auto!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:flex-start!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;height:100%!important;min-height:0!important;max-height:none!important;padding:12px!important;margin:0!important;overflow:hidden!important;transform:none!important;background-size:cover!important;background-position:center!important}
+ #privateDashboard #epClientHome .ep-home-copy{position:relative!important;z-index:2!important;min-width:0!important;width:100%!important;max-width:100%!important;gap:4px!important}
+ #privateDashboard #epClientHome .ep-home-copy strong{font-size:clamp(14px,3.8vw,18px)!important;line-height:1.13!important;overflow-wrap:anywhere!important;white-space:normal!important}
+ #privateDashboard #epClientHome .ep-home-copy small{font-size:clamp(9px,2.45vw,11px)!important;line-height:1.25!important;overflow-wrap:anywhere!important;white-space:normal!important}
+ #privateDashboard #epClientHome .ep-home-icon,#privateDashboard #epClientHome .ep-home-link{display:none!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-events:not([hidden]){grid-area:1 / 1!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-calendar:not([hidden]){grid-area:1 / 2!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-organizers:not([hidden]){grid-area:2 / 1!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-manage:not([hidden]){grid-area:2 / 2!important}
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){grid-area:3 / 1 / 4 / 3!important;width:calc((100% - 12px)/2)!important;max-width:calc((100% - 12px)/2)!important;justify-self:center!important}
+ #privateDashboard #epLuxuryMotto{display:flex!important;width:100%!important;max-width:100%!important;min-width:0!important;height:clamp(88px,23vw,120px)!important;min-height:0!important;max-height:none!important;margin:15px 0 0!important;overflow:hidden!important;box-sizing:border-box!important}
+ #privateDashboard #epLuxurySidebar:not([hidden]){position:fixed!important;inset:auto 0 0 0!important;width:100%!important;max-width:100%!important;min-width:0!important;height:64px!important;min-height:64px!important;max-height:64px!important;display:block!important;overflow:hidden!important;padding:3px 6px!important;margin:0!important;z-index:10050!important;background:#080808!important;border-top:1px solid #a77a39!important;transform:none!important}
+ #privateDashboard #epLuxurySidebar .ep-lux-brand,#privateDashboard #epLuxurySidebar .ep-lux-headphones,#privateDashboard #epLuxurySidebar .ep-lux-bottom{display:none!important}
+ #privateDashboard #epLuxurySidebar #epLuxLinks{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;gap:3px!important;width:100%!important;height:100%!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important}
+ #privateDashboard #epLuxurySidebar #epLuxLinks button:not([hidden]){display:flex!important;position:relative!important;flex:1 0 0!important;min-width:40px!important;max-width:75px!important;width:auto!important;height:52px!important;min-height:52px!important;max-height:52px!important;padding:5px!important;margin:0!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important}
+ #privateDashboard #epLuxurySidebar #epLuxLinks button[hidden]{display:none!important}
+ #privateDashboard #epLuxurySidebar #epLuxLinks .ep-lux-label{display:none!important}
+ #privateDashboard #epLuxurySidebar #epLuxLinks .ep-lux-symbol{font-size:23px!important;line-height:1!important}
+ #privateDashboard #epPrivateInner.private-layout{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}
+ #privateDashboard #epPrivateInner .private-panel{width:100%!important;max-width:100%!important;min-width:0!important;overflow:visible!important;margin:0!important;padding:15px 12px!important;box-sizing:border-box!important}
+ #privateDashboard #epPrivateInner #privatePanelBody{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:auto!important;box-sizing:border-box!important}
+ #privateDashboard #epPrivateInner :is(input,select,textarea,button){max-width:100%!important;box-sizing:border-box!important}
+ #privateDashboard #epPrivateInner :is(.ep-budget-tabs,.ep-event-tabs,.private-tabs){display:flex!important;flex-wrap:wrap!important;gap:7px!important}
+ #privateDashboard #epPrivateInner table{display:block!important;max-width:100%!important;overflow-x:auto!important}
+}
+</style>
 </head>
   
 <body>
@@ -6609,52 +6650,155 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 
 <script id="ep-fix-motto-once">(function(){function fix(){const m=document.getElementById('epLuxuryMotto');if(!m)return;const imgs=[...m.querySelectorAll('img')];const image=imgs.find(x=>x.getAttribute('src')==='media/logo.png')||imgs[0]||document.createElement('img');image.src='media/logo.png';image.alt='Logo Events and Parties';const text=document.createElement('div');text.className='ep-motto-text';const title=document.createElement('strong');title.textContent='EVENTS AND PARTIES';const tagline=document.createElement('span');tagline.textContent='MÚSICA · EMOCIONES · PASIÓN';text.append(title,tagline);m.replaceChildren(image,text)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();})();</script>
 
-
-<style id="ep-mobile-consolidated-20261110">
-/* Una única disposición móvil para los dos roles. Sin cambios en escritorio/tablet. */
+<style id="ep-mobile-visual-repair-20261110-v2">
 @media screen and (max-width:700px){
- html,body{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
- body:has(#privateDashboard:not([hidden])){overflow:hidden!important;height:100dvh!important}
- #privateDashboard[hidden],#epClientHome[hidden],#epPrivateInner[hidden],#epClientHome .ep-home-tile[hidden]{display:none!important}
- #privateDashboard:not([hidden]){position:fixed!important;inset:0!important;z-index:10000!important;display:block!important;width:100%!important;max-width:100%!important;height:100dvh!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;padding:0!important;margin:0!important;background:#080706!important;-webkit-overflow-scrolling:touch!important}
- #privateDashboard .private-top{position:relative!important;inset:auto!important;width:100%!important;min-height:85px!important;height:auto!important;padding:13px 14px!important;margin:0!important;display:flex!important;align-items:center!important;gap:9px!important;box-sizing:border-box!important}
- #privateDashboard .private-top>div{min-width:0!important;flex:1 1 auto!important;gap:7px!important}
- #privateDashboard .private-top strong{font-size:clamp(11px,3vw,14px)!important;line-height:1.25!important;overflow-wrap:anywhere!important}
- #privateDashboard .private-top img{width:34px!important;height:34px!important;object-fit:contain!important;flex-shrink:0!important}
- #privateDashboard #privateLogout{flex:0 0 auto!important;max-width:112px!important;font-size:12px!important;padding:10px!important}
- #privateDashboard #epLuxurySidebar,#privateDashboard #epLuxurySidebar:not([hidden]){display:none!important;visibility:hidden!important;pointer-events:none!important}
- #privateDashboard #epClientHome:not([hidden]),#privateDashboard #epPrivateInner:not([hidden]){display:block!important;position:relative!important;inset:auto!important;transform:none!important;float:none!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:16px 14px 38px!important;box-sizing:border-box!important}
- #privateDashboard #epClientHome .ep-home-intro{width:100%!important;max-width:100%!important;min-height:0!important;height:auto!important;margin:0 0 16px!important;padding:22px 16px!important;overflow:hidden!important;box-sizing:border-box!important;text-align:left!important}
- #privateDashboard #epClientHome .ep-home-intro h1{font-size:clamp(24px,6.5vw,34px)!important;line-height:1.16!important;letter-spacing:0!important;overflow-wrap:anywhere!important;white-space:normal!important}
- #privateDashboard #epClientHome .ep-home-intro p{font-size:13px!important;line-height:1.4!important;overflow-wrap:anywhere!important}
- #privateDashboard #epClientHome .ep-home-grid,#privateDashboard #epClientHome.ep-is-admin .ep-home-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:none!important;grid-auto-rows:auto!important;grid-auto-flow:row!important;gap:12px!important;width:100%!important;max-width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]),#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){position:relative!important;grid-area:auto!important;grid-column:auto!important;grid-row:auto!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;min-width:0!important;width:100%!important;max-width:100%!important;height:clamp(145px,40vw,190px)!important;min-height:0!important;max-height:none!important;margin:0!important;padding:12px!important;overflow:hidden!important;box-sizing:border-box!important;transform:none!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile[hidden]{display:none!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-events{order:1!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-calendar{order:2!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-organizers{order:3!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-manage{order:4!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-budgets{order:0!important}
- #privateDashboard #epClientHome .ep-home-grid>.ep-home-profile{order:5!important}
- #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-events:not([hidden]){grid-area:1 / 1!important}
- #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-calendar:not([hidden]){grid-area:1 / 2!important}
- #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-organizers:not([hidden]){grid-area:2 / 1!important}
- #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-manage:not([hidden]){grid-area:2 / 2!important}
- #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){grid-area:3 / 1 / 4 / 3!important;grid-column:1 / -1!important;justify-self:center!important;width:calc((100% - 12px)/2)!important;max-width:calc((100% - 12px)/2)!important}
- #privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid>.ep-home-profile:not([hidden]){grid-area:auto!important;grid-column:auto!important;justify-self:stretch!important;width:100%!important;max-width:100%!important}
- #privateDashboard #epClientHome .ep-home-copy{position:relative!important;inset:auto!important;transform:none!important;z-index:2!important;display:flex!important;flex-direction:column!important;gap:4px!important;min-width:0!important;width:100%!important;max-width:100%!important;text-align:left!important}
- #privateDashboard #epClientHome .ep-home-copy strong{font-size:clamp(13px,3.65vw,18px)!important;line-height:1.16!important;white-space:normal!important;overflow-wrap:anywhere!important}
- #privateDashboard #epClientHome .ep-home-copy small{font-size:clamp(9px,2.5vw,11px)!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:anywhere!important}
- #privateDashboard #epClientHome .ep-home-icon,#privateDashboard #epClientHome .ep-home-link{display:none!important}
- #privateDashboard #epClientHome #epLuxuryMotto{position:relative!important;inset:auto!important;display:flex!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:95px!important;margin:15px auto 0!important;padding:12px!important;overflow:hidden!important;box-sizing:border-box!important}
- #privateDashboard #epPrivateInner.private-layout{display:block!important;grid-template-columns:minmax(0,1fr)!important}
- #privateDashboard #epPrivateInner .private-sidebar{display:none!important}
- #privateDashboard #epPrivateInner .private-panel{position:relative!important;inset:auto!important;display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;max-height:none!important;margin:0!important;padding:15px 12px!important;overflow:visible!important;box-sizing:border-box!important}
- #privateDashboard #epPrivateInner #privatePanelBody{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:auto!important}
- #privateDashboard #epPrivateInner :is(input,select,textarea,button){max-width:100%!important;box-sizing:border-box!important}
- #privateDashboard #epPrivateInner :is(.ep-budget-tabs,.ep-event-tabs,.private-tabs){display:flex!important;flex-wrap:wrap!important;gap:7px!important}
- #privateDashboard #epPrivateInner table{display:block!important;max-width:100%!important;overflow-x:auto!important}
- #privateDashboard #epPrivateInner .ep-back-home{display:inline-flex!important}
+/* El selector :has detecta el administrador incluso si la clase ep-is-admin no se aplica. */
+#privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid,
+#privateDashboard #epClientHome.ep-is-admin .ep-home-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ grid-template-rows:repeat(3,132px)!important;grid-auto-rows:132px!important;
+ grid-auto-flow:row!important;gap:11px!important;align-items:stretch!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ width:100%!important;overflow:visible!important;
+}
+#privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-tile:not([hidden]){
+ position:relative!important;display:flex!important;grid-area:auto!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:132px!important;min-height:132px!important;max-height:132px!important;
+ padding:10px!important;margin:0!important;box-sizing:border-box!important;
+ align-self:stretch!important;justify-self:stretch!important;overflow:hidden!important;
+}
+#privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-events:not([hidden]){grid-area:1 / 1 / 2 / 2!important}
+#privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-calendar:not([hidden]){grid-area:1 / 2 / 2 / 3!important}
+#privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-organizers:not([hidden]){grid-area:2 / 1 / 3 / 2!important}
+#privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-manage:not([hidden]){grid-area:2 / 2 / 3 / 3!important}
+#privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-profile:not([hidden]){
+ grid-area:3 / 1 / 4 / 3!important;width:calc((100% - 11px)/2)!important;
+ max-width:calc((100% - 11px)/2)!important;justify-self:center!important;
+}
+/* Evitar títulos duplicados por capas decorativas antiguas. */
+#privateDashboard #epClientHome .ep-home-tile .ep-home-link,
+#privateDashboard #epClientHome .ep-home-tile .ep-home-icon{display:none!important}
+#privateDashboard #epClientHome .ep-home-tile .ep-home-copy{position:relative!important;inset:auto!important;transform:none!important;display:flex!important;flex-direction:column!important;gap:3px!important;width:100%!important;min-width:0!important;max-width:100%!important;z-index:4!important}
+#privateDashboard #epClientHome .ep-home-tile .ep-home-copy strong{font-size:clamp(12px,3.4vw,16px)!important;line-height:1.15!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#privateDashboard #epClientHome .ep-home-tile .ep-home-copy small{font-size:10px!important;line-height:1.2!important;overflow-wrap:anywhere!important}
+/* La navegación se organiza en una sola barra horizontal sin iconos sueltos. */
+#privateDashboard #epLuxurySidebar:not([hidden]){position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;height:62px!important;min-height:62px!important;max-height:62px!important;padding:3px 5px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;z-index:10001!important}
+#privateDashboard #epLuxurySidebar #epLuxLinks{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-around!important;flex-wrap:nowrap!important;gap:2px!important;width:100%!important;height:100%!important;min-height:0!important;overflow-x:auto!important;overflow-y:hidden!important}
+#privateDashboard #epLuxurySidebar #epLuxLinks button{position:relative!important;flex:1 1 0!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;max-width:none!important;width:auto!important;height:48px!important;min-height:48px!important;margin:0!important;padding:5px 2px!important}
+#privateDashboard #epLuxurySidebar .ep-lux-brand,#privateDashboard #epLuxurySidebar .ep-lux-headphones,#privateDashboard #epLuxurySidebar .ep-lux-bottom{display:none!important}
+#privateDashboard #epClientHome:not([hidden]),#privateDashboard #epPrivateInner:not([hidden]){padding-bottom:90px!important}
+#privateDashboard #epClientHome .ep-home-intro{margin-top:0!important}
+}
+</style>
+
+<style id="ep-mobile-layout-final-20261110">
+/* Corrección exclusiva para móvil. No modifica PC ni conexiones JavaScript/Supabase. */
+@media screen and (max-width:700px) {
+ html, body {max-width:100%!important;overflow-x:clip!important;}
+ body:has(#privateDashboard:not([hidden])) {overflow-y:auto!important;height:auto!important;position:static!important;}
+ #privateDashboard:not([hidden]) {
+   position:relative!important;inset:auto!important;display:block!important;
+   width:100%!important;max-width:100%!important;height:auto!important;
+   min-height:100dvh!important;max-height:none!important;
+   overflow:visible!important;overflow-x:clip!important;
+   padding:0!important;margin:0!important;
+ }
+ #privateDashboard .private-top {
+   position:relative!important;left:auto!important;top:auto!important;
+   width:100%!important;max-width:100%!important;margin:0!important;
+   min-height:100px!important;height:auto!important;padding:15px 16px!important;
+   display:flex!important;align-items:center!important;justify-content:space-between!important;
+   gap:10px!important;box-sizing:border-box!important;
+ }
+ #privateDashboard .private-top strong {font-size:clamp(12px,3.3vw,16px)!important;line-height:1.25!important;}
+ #privateDashboard .private-top img {width:34px!important;height:34px!important;object-fit:contain!important;}
+ #privateDashboard #privateLogout {flex:0 0 auto!important;font-size:12px!important;padding:10px!important;}
+ #privateDashboard #epClientHome:not([hidden]) {
+   display:block!important;position:relative!important;left:auto!important;top:auto!important;
+   width:100%!important;max-width:100%!important;margin:0!important;
+   min-height:0!important;height:auto!important;max-height:none!important;
+   padding:18px 14px 30px!important;overflow:visible!important;
+   box-sizing:border-box!important;transform:none!important;
+ }
+ #privateDashboard #epClientHome .ep-home-intro {
+   width:100%!important;max-width:100%!important;margin:0 0 16px!important;
+   padding:22px 17px!important;box-sizing:border-box!important;overflow:hidden!important;
+ }
+ #privateDashboard #epClientHome .ep-home-intro h1 {
+   font-size:clamp(25px,7vw,35px)!important;line-height:1.14!important;
+   overflow-wrap:break-word!important;letter-spacing:0!important;
+ }
+ #privateDashboard #epClientHome .ep-home-intro p {font-size:13px!important;line-height:1.4!important;}
+ #privateDashboard #epClientHome .ep-home-grid,
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid,
+ #privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid {
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   grid-template-rows:none!important;grid-auto-rows:auto!important;
+   grid-auto-flow:row!important;gap:12px!important;
+   width:100%!important;max-width:100%!important;height:auto!important;
+   min-height:0!important;max-height:none!important;margin:0!important;
+   overflow:visible!important;align-items:stretch!important;
+ }
+ #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]),
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]),
+ #privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-tile:not([hidden]) {
+   position:relative!important;grid-area:auto!important;grid-column:auto!important;
+   display:flex!important;flex-direction:column!important;justify-content:flex-end!important;
+   width:100%!important;max-width:100%!important;min-width:0!important;
+   height:158px!important;min-height:158px!important;max-height:none!important;
+   margin:0!important;padding:12px!important;box-sizing:border-box!important;
+   overflow:hidden!important;transform:none!important;
+ }
+ #privateDashboard #epClientHome .ep-home-grid>.ep-home-profile:not([hidden]),
+ #privateDashboard #epClientHome:has(.ep-home-organizers:not([hidden])) .ep-home-grid>.ep-home-profile:not([hidden]) {
+   grid-column:1 / -1!important;justify-self:center!important;
+   width:calc((100% - 12px)/2)!important;max-width:calc((100% - 12px)/2)!important;
+ }
+ #privateDashboard #epClientHome .ep-home-copy {
+   position:relative!important;inset:auto!important;transform:none!important;
+   width:100%!important;min-width:0!important;max-width:100%!important;
+   display:flex!important;flex-direction:column!important;gap:4px!important;
+   text-align:left!important;z-index:2!important;
+ }
+ #privateDashboard #epClientHome .ep-home-copy strong {
+   font-size:clamp(13px,3.7vw,17px)!important;line-height:1.2!important;
+   white-space:normal!important;overflow-wrap:anywhere!important;
+ }
+ #privateDashboard #epClientHome .ep-home-copy small {
+   font-size:10px!important;line-height:1.3!important;
+   white-space:normal!important;overflow-wrap:anywhere!important;
+ }
+ #privateDashboard #epLuxurySidebar:not([hidden]) {
+   display:none!important;visibility:hidden!important;
+   position:static!important;width:0!important;height:0!important;
+   min-height:0!important;padding:0!important;margin:0!important;
+ }
+ #privateDashboard #epLuxuryMotto:not([hidden]) {
+   position:relative!important;inset:auto!important;transform:none!important;
+   display:flex!important;width:100%!important;max-width:100%!important;
+   height:auto!important;min-height:95px!important;margin:15px auto 0!important;
+   padding:12px!important;overflow:hidden!important;
+ }
+ #privateDashboard #epPrivateInner:not([hidden]) {
+   display:block!important;position:relative!important;left:auto!important;top:auto!important;
+   width:100%!important;max-width:100%!important;margin:0!important;
+   height:auto!important;min-height:0!important;max-height:none!important;
+   padding:12px!important;overflow:visible!important;box-sizing:border-box!important;
+ }
+ #privateDashboard #epPrivateInner .private-sidebar {display:none!important;}
+ #privateDashboard #epPrivateInner .private-panel {
+   display:block!important;position:relative!important;left:auto!important;
+   width:100%!important;max-width:100%!important;min-width:0!important;
+   height:auto!important;max-height:none!important;margin:0!important;
+   padding:14px!important;overflow:visible!important;box-sizing:border-box!important;
+ }
+ #privateDashboard #epPrivateInner .private-panel * {max-width:100%;box-sizing:border-box;}
+ #privateDashboard #epPrivateInner .private-panel input,
+ #privateDashboard #epPrivateInner .private-panel select,
+ #privateDashboard #epPrivateInner .private-panel textarea {min-width:0;}
+ #privateDashboard #epPrivateInner .private-panel table {display:block;overflow-x:auto;max-width:100%;}
+ #privateDashboard #epPrivateInner .ep-back-home {display:inline-flex!important;position:relative!important;}
 }
 </style>
 
