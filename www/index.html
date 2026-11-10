@@ -6753,141 +6753,152 @@ c.append(epBtn('Descargar PDF de la organización actual',()=>epExportPdf(o.cont
 }
 </style>
 
-<style id="ep-mobile-scroll-and-shortcuts-20261111">
-@media screen and (max-width:700px){
+<style id="ep-mobile-home-restoration-20261111">
+@media(max-width:700px){
+ /* Prioridad absoluta al estado real de navegación. */
+ #privateDashboard #epClientHome[hidden],
+ #privateDashboard #epPrivateInner[hidden],
+ #privateDashboard #epLuxurySidebar,
+ #privateDashboard #epLuxurySidebar[hidden],
+ #privateDashboard .private-sidebar,
+ #privateDashboard .ep-mobile-shortcuts[hidden]{
+   display:none!important;visibility:hidden!important;
+ }
  #privateDashboard:not([hidden]){
    position:fixed!important;inset:0!important;
    height:100dvh!important;max-height:100dvh!important;
-   overflow:hidden!important;display:block!important;
-   padding:0!important;touch-action:auto!important;
+   overflow:hidden!important;padding:0!important;
+   display:flex!important;flex-direction:column!important;
  }
  #privateDashboard>.private-top{
-   position:absolute!important;top:0!important;left:0!important;right:0!important;
-   bottom:auto!important;height:82px!important;min-height:82px!important;
-   margin:0!important;z-index:5!important;display:flex!important;
-   padding:12px 14px!important;background:#050505!important;
+   position:relative!important;inset:auto!important;
+   flex:0 0 auto!important;height:auto!important;min-height:82px!important;
+   z-index:2!important;width:100%!important;padding:12px 14px!important;
+   background:#030303!important;
  }
  #privateDashboard #epClientHome:not([hidden]),
  #privateDashboard #epPrivateInner:not([hidden]){
-   position:absolute!important;top:82px!important;left:0!important;
-   right:0!important;bottom:0!important;
-   display:block!important;width:100%!important;max-width:none!important;
+   position:relative!important;inset:auto!important;transform:none!important;
+   flex:1 1 auto!important;display:block!important;
    height:auto!important;min-height:0!important;max-height:none!important;
-   overflow-y:auto!important;overflow-x:hidden!important;
-   -webkit-overflow-scrolling:touch!important;
-   overscroll-behavior-y:contain!important;touch-action:pan-y!important;
-   padding:18px 14px 30px!important;margin:0!important;
-   transform:none!important;contain:none!important;
- }
- #privateDashboard #epLuxurySidebar{display:none!important}
- #privateDashboard #epClientHome .ep-home-grid,
- #privateDashboard #epClientHome.ep-is-admin .ep-home-grid{
-   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-   grid-auto-flow:row!important;grid-template-rows:none!important;
-   gap:12px!important;height:auto!important;max-height:none!important;
-   overflow:visible!important;
- }
- #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){
-   grid-area:3 / 1 / 4 / 3!important;grid-column:1/-1!important;
    width:100%!important;max-width:100%!important;
-   min-height:145px!important;height:145px!important;justify-self:stretch!important;
-   background-position:center 42%!important;
+   padding:18px 14px 35px!important;margin:0!important;
+   overflow-y:auto!important;overflow-x:hidden!important;
+   overscroll-behavior:contain!important;
+   -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
+ }
+ #privateDashboard #epClientHome .ep-home-grid{
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   grid-template-rows:none!important;grid-auto-flow:row!important;
+   gap:12px!important;height:auto!important;min-height:0!important;
+   max-height:none!important;overflow:visible!important;
  }
  #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){
-   min-height:154px!important;height:154px!important;max-height:none!important;
-   overflow:hidden!important;justify-content:flex-end!important;
+   width:100%!important;min-width:0!important;max-width:100%!important;
+   height:156px!important;min-height:156px!important;
+   display:flex!important;justify-content:flex-end!important;
+   padding:11px!important;overflow:hidden!important;
+ }
+ #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){
+   grid-column:1/-1!important;grid-row:auto!important;
+   width:100%!important;max-width:100%!important;
+   height:148px!important;min-height:148px!important;
+   justify-self:stretch!important;background-position:center!important;
+ }
+ #privateDashboard #epClientHome .ep-home-intro{
+   position:relative!important;inset:auto!important;transform:none!important;
+   display:block!important;margin:0 0 20px!important;
  }
  #privateDashboard #epClientHome .ep-home-copy{
-   position:relative!important;z-index:3!important;inset:auto!important;
-   transform:none!important;display:flex!important;flex-direction:column!important;
-   gap:3px!important;
+   position:relative!important;inset:auto!important;transform:none!important;
+   display:flex!important;flex-direction:column!important;
+   gap:4px!important;z-index:2!important;
  }
  #privateDashboard #epClientHome .ep-home-copy strong{
-   font-size:clamp(13px,3.6vw,18px)!important;line-height:1.16!important;
+   font-size:clamp(13px,3.8vw,19px)!important;line-height:1.15!important;
  }
  #privateDashboard #epClientHome .ep-home-copy small{
-   font-size:11px!important;line-height:1.23!important;
+   font-size:11px!important;line-height:1.2!important;
  }
- #privateDashboard #epClientHome #epLuxuryMotto{
+ #privateDashboard #epClientHome #epLuxuryMotto:not([hidden]){
    position:relative!important;inset:auto!important;
-   width:100%!important;max-width:100%!important;
-   height:110px!important;min-height:110px!important;
+   display:block!important;width:100%!important;max-width:100%!important;
+   height:105px!important;min-height:105px!important;
    margin:18px 0 0!important;
  }
+ #privateDashboard .ep-mobile-shortcuts{
+   position:relative!important;inset:auto!important;
+   width:100%!important;max-width:100%!important;
+   margin:16px 0 10px!important;
+   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+   gap:8px!important;padding:12px!important;
+   border:1px solid #a47b3f!important;border-radius:14px!important;
+   background:#0b0906!important;
+ }
+ #privateDashboard .ep-mobile-shortcuts button{
+   position:relative!important;display:flex!important;flex-direction:column!important;
+   justify-content:center!important;align-items:center!important;
+   width:100%!important;min-width:0!important;min-height:68px!important;
+   border:1px solid #846333!important;border-radius:10px!important;
+   background:#19130c!important;color:#efd09a!important;
+   font:600 11px/1.2 system-ui,sans-serif!important;
+   text-align:center!important;padding:7px 3px!important;
+ }
  #privateDashboard #epPrivateInner .private-panel{
-   position:relative!important;min-height:0!important;height:auto!important;
-   max-height:none!important;overflow:visible!important;
-   padding:16px 12px!important;
+   position:relative!important;inset:auto!important;
+   height:auto!important;min-height:0!important;max-height:none!important;
+   overflow:visible!important;
  }
  #privateDashboard #epPrivateInner #privatePanelBody{
    height:auto!important;max-height:none!important;overflow:visible!important;
  }
- #privateDashboard .ep-mobile-shortcuts{
-   position:relative!important;display:grid!important;
-   grid-template-columns:repeat(3,minmax(0,1fr))!important;
-   gap:8px!important;width:100%!important;max-width:100%!important;
-   margin:18px 0 12px!important;padding:13px 9px!important;
-   border:1px solid #8e6938!important;border-radius:14px!important;
-   background:linear-gradient(145deg,#17120b,#080808)!important;
-   box-shadow:0 7px 25px #0009!important;z-index:2!important;
- }
- #privateDashboard .ep-mobile-shortcuts button{
-   display:flex!important;flex-direction:column!important;align-items:center!important;
-   justify-content:center!important;gap:5px!important;min-height:66px!important;
-   min-width:0!important;width:100%!important;padding:7px 3px!important;
-   border:1px solid #8d6b3c!important;border-radius:10px!important;
-   background:#19140e!important;color:#f5d99b!important;
-   font:600 10px/1.2 system-ui,sans-serif!important;
-   text-align:center!important;white-space:normal!important;
-   overflow-wrap:anywhere!important;cursor:pointer!important;
- }
- #privateDashboard .ep-mobile-shortcuts button .ep-mobile-symbol{
-   font-size:22px!important;line-height:1!important;
+}
+</style>
+<script id="ep-mobile-navigation-home-restore">
+(function(){
+const dash=document.getElementById('privateDashboard');
+const home=document.getElementById('epClientHome');
+const inner=document.getElementById('epPrivateInner');
+if(!dash||!home||!inner)return;
+function createNav(parent){
+ let nav=parent.querySelector('.ep-mobile-shortcuts');
+ if(!nav){nav=document.createElement('nav');nav.className='ep-mobile-shortcuts';nav.setAttribute('aria-label','Accesos directos');parent.appendChild(nav)}
+ return nav;
+}
+const homeNav=createNav(home),innerNav=createNav(inner);
+function render(){
+ const admin=home.classList.contains('ep-is-admin');
+ const items=admin?[
+  ['Inicio','⌂',null],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],
+  ['Organizaciones recibidas','♧','Organizadores recibidos'],
+  ['Gestión de presupuestos','▤','Gestionar presupuestos'],
+  ['Perfiles de usuarios','♙','Perfiles de usuario']
+ ]:[
+  ['Inicio','⌂',null],['Presupuestos','▤','Presupuestos'],
+  ['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],
+  ['Mi perfil','♙','Mi perfil']
+ ];
+ for(const nav of [homeNav,innerNav]){
+  if(nav.dataset.role===(admin?'admin':'client'))continue;
+  nav.dataset.role=admin?'admin':'client';
+  nav.replaceChildren();
+  for(const [name,icon,dest] of items){
+   const b=document.createElement('button');b.type='button';
+   const symbol=document.createElement('span');symbol.style.fontSize='22px';symbol.textContent=icon;
+   const label=document.createElement('span');label.textContent=name;b.append(symbol,label);
+   b.addEventListener('click',()=>{
+    if(dest===null){document.getElementById('epBackHome')?.click();return}
+    const tile=home.querySelector('[data-home-destination="'+dest+'"]');
+    if(tile){tile.click();return}
+    const tab=inner.querySelector('[data-private-tab="'+dest+'"]');
+    if(tab)tab.click();
+   });
+   nav.appendChild(b);
+  }
  }
 }
-@media(min-width:701px){#privateDashboard .ep-mobile-shortcuts{display:none!important}}
-</style>
-<script id="ep-mobile-shortcuts-controller-20261111">
-(function(){
- const dash=document.getElementById('privateDashboard');
- const home=document.getElementById('epClientHome');
- const inner=document.getElementById('epPrivateInner');
- if(!dash||!home||!inner)return;
- function build(host){
-   let bar=host.querySelector('.ep-mobile-shortcuts');
-   if(!bar){bar=document.createElement('nav');bar.className='ep-mobile-shortcuts';bar.setAttribute('aria-label','Accesos directos');host.appendChild(bar)}
-   return bar;
- }
- const homeBar=build(home),innerBar=build(inner);
- const specsClient=[['Inicio','⌂',null],['Presupuestos','▤','Presupuestos'],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],['Mi perfil','♙','Mi perfil']];
- const specsAdmin=[['Inicio','⌂',null],['Mis eventos','♧','Mis eventos'],['Calendario','▦','Calendario'],['Organizaciones recibidas','♧','Organizadores recibidos'],['Gestión de presupuestos','▤','Gestionar presupuestos'],['Perfiles de usuario','♙','Mi perfil']];
- function render(){
-  const admin=home.classList.contains('ep-is-admin');
-  const items=admin?specsAdmin:specsClient;
-  [homeBar,innerBar].forEach(bar=>{
-   const key=admin?'admin':'client';
-   if(bar.dataset.mode===key)return;
-   bar.dataset.mode=key;
-   bar.replaceChildren();
-   items.forEach(([label,symbol,dest])=>{
-    const b=document.createElement('button');b.type='button';
-    const ico=document.createElement('span');ico.className='ep-mobile-symbol';ico.textContent=symbol;
-    const txt=document.createElement('span');txt.textContent=label;
-    b.append(ico,txt);
-    b.addEventListener('click',()=>{
-     if(!dest){document.getElementById('epBackHome')?.click();return}
-     const original=[...document.querySelectorAll('#epLuxLinks button')].find(x=>x.title===label);
-     if(original){original.click();return}
-     const tile=home.querySelector('[data-home-destination="'+dest+'"]');
-     if(tile)tile.click();
-    });
-    bar.append(b);
-   });
-  });
- }
- const obs=new MutationObserver(render);
- obs.observe(home,{attributes:true,attributeFilter:['class']});
- render();
+new MutationObserver(render).observe(home,{attributes:true,attributeFilter:['class']});
+render();
 })();
 </script>
 
