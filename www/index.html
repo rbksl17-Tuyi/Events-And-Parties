@@ -2907,6 +2907,129 @@ section[hidden]{display:none!important}
 }
 </style>
 
+
+<style id="ep-mobile-reparacion-final-20261110">
+/* SOLO teléfonos. Las reglas de escritorio y tablet permanecen intactas. */
+@media screen and (max-width:700px){
+  #privateDashboard #epClientHome:not([hidden]){
+    padding:92px 11px 30px!important;
+    margin:0!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    overflow:visible!important;
+  }
+  #privateDashboard #epClientHome .ep-home-intro{
+    position:relative!important;
+    flex:0 0 auto!important;
+    display:flex!important;flex-direction:column!important;justify-content:center!important;
+    min-height:170px!important;height:auto!important;max-height:none!important;
+    padding:19px 16px!important;margin:0 0 15px!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #privateDashboard #epClientHome .ep-home-intro>span,
+  #privateDashboard #epClientHome .ep-home-intro h1,
+  #privateDashboard #epClientHome .ep-home-intro p{
+    position:relative!important;z-index:3!important;
+    max-width:100%!important;
+    transform:none!important;
+    overflow-wrap:normal!important;word-break:normal!important;
+  }
+  #privateDashboard #epClientHome .ep-home-intro>span{
+    font-size:9px!important;line-height:1.35!important;
+    margin-bottom:7px!important;
+  }
+  #privateDashboard #epClientHome .ep-home-intro h1{
+    font-size:clamp(21px,5.6vw,29px)!important;
+    line-height:1.12!important;
+    margin:0 0 8px!important;
+    max-height:none!important;
+  }
+  #privateDashboard #epClientHome .ep-home-intro p{
+    font-size:11px!important;line-height:1.4!important;margin:0!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid,
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid,
+  #privateDashboard #epClientHome:not(.ep-is-admin) .ep-home-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto!important;
+    gap:11px!important;
+    align-content:start!important;
+    height:auto!important;min-height:0!important;
+    overflow:visible!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]),
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]),
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]):nth-of-type(4),
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]):nth-of-type(7){
+    grid-column:auto!important;grid-row:auto!important;
+    min-width:0!important;width:100%!important;
+    min-height:132px!important;height:132px!important;max-height:none!important;
+    padding:11px!important;
+    display:flex!important;justify-content:flex-end!important;
+    background-position:center!important;background-size:cover!important;
+    overflow:hidden!important;
+  }
+  #privateDashboard #epClientHome .ep-home-copy{
+    position:relative!important;z-index:2!important;
+    display:flex!important;flex-direction:column!important;
+    max-width:100%!important;min-width:0!important;
+    overflow:visible!important;
+  }
+  #privateDashboard #epClientHome .ep-home-copy strong{
+    font-size:clamp(12px,3.6vw,16px)!important;
+    line-height:1.14!important;white-space:normal!important;
+    overflow-wrap:break-word!important;
+  }
+  #privateDashboard #epClientHome .ep-home-copy small{
+    font-size:9px!important;line-height:1.25!important;
+    white-space:normal!important;overflow-wrap:break-word!important;
+  }
+  #privateDashboard #epClientHome #epLuxuryMotto{
+    display:flex!important;grid-column:1/-1!important;
+    width:100%!important;min-height:90px!important;height:90px!important;
+    margin:13px 0 0!important;
+  }
+  /* Pantallas internas: conservar toda la funcionalidad y hacerla legible. */
+  #privateDashboard #epPrivateInner:not([hidden]){
+    padding:75px 9px 30px!important;
+    width:100%!important;max-width:100%!important;
+    min-width:0!important;box-sizing:border-box!important;
+    overflow:visible!important;
+  }
+  #privateDashboard #epPrivateInner .private-panel{
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    padding:15px 11px!important;margin:0!important;
+    overflow:visible!important;
+  }
+  #privateDashboard #epPrivateInner #privatePanelBody{
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    padding:8px 0!important;overflow-x:auto!important;
+  }
+  #privateDashboard #epPrivateInner button,
+  #privateDashboard #epPrivateInner input,
+  #privateDashboard #epPrivateInner select,
+  #privateDashboard #epPrivateInner textarea{
+    max-width:100%!important;box-sizing:border-box!important;
+  }
+  #privateDashboard #epPrivateInner h1,
+  #privateDashboard #epPrivateInner h2,
+  #privateDashboard #epPrivateInner #privatePanelTitle{
+    font-size:clamp(22px,6vw,29px)!important;
+    line-height:1.15!important;overflow-wrap:break-word!important;
+  }
+  #privateDashboard #epPrivateInner .private-panel :is(.tabs,.tab-buttons,.filters,.actions,.toolbar){
+    max-width:100%!important;flex-wrap:wrap!important;gap:8px!important;
+  }
+  #privateDashboard #epPrivateInner table{display:block!important;max-width:100%!important;overflow-x:auto!important}
+}
+@media screen and (max-width:380px){
+  #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]),
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-tile:not([hidden]){
+    height:119px!important;min-height:119px!important;padding:9px!important;
+  }
+}
+</style>
 </head>
   
 <body>
