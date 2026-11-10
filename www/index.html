@@ -6953,34 +6953,91 @@ render();
   #privateDashboard .ep-section-return{display:none!important}
 }
 </style>
-<script id="ep-mobile-polish-navigation">
-(function(){
-  const inner=document.getElementById('epPrivateInner');
-  const home=document.getElementById('epClientHome');
-  const dash=document.getElementById('privateDashboard');
-  if(!inner||!home||!dash)return;
-  const panel=inner.querySelector('.private-panel');
-  if(panel&&!panel.querySelector('.ep-section-return')){
-    const back=document.createElement('button');
-    back.type='button';back.className='ep-section-return';
-    back.textContent='← Inicio';
-    back.addEventListener('click',()=>document.getElementById('epBackHome')?.click());
-    panel.prepend(back);
+
+
+
+<style id="ep-mobile-clean-interface-20261111">
+@media(max-width:700px){
+  /* Header and welcome: keep all content inside its gold frame. */
+  #privateDashboard #epClientHome .ep-home-intro{
+    box-sizing:border-box!important;overflow:hidden!important;
+    width:100%!important;max-width:100%!important;
+    padding:16px 15px!important;border-radius:20px!important;
   }
-  function resetScroll(){
-    if(!home.hidden)home.scrollTop=0;
-    if(!inner.hidden)inner.scrollTop=0;
+  #privateDashboard #epClientHome .ep-home-intro h1{
+    font-size:clamp(25px,7vw,36px)!important;line-height:1.12!important;
+    margin:12px 0!important;overflow-wrap:break-word!important;
   }
-  let oldHome=home.hidden,oldInner=inner.hidden;
-  const obs=new MutationObserver(()=>{
-    if(oldHome!==home.hidden||oldInner!==inner.hidden){
-      oldHome=home.hidden;oldInner=inner.hidden;resetScroll();
-    }
-  });
-  obs.observe(home,{attributes:true,attributeFilter:['hidden']});
-  obs.observe(inner,{attributes:true,attributeFilter:['hidden']});
-})();
-</script>
+  #privateDashboard #epClientHome .ep-home-intro p{
+    font-size:12px!important;line-height:1.35!important;margin:8px 0 0!important;
+  }
+  /* Photographs on top, clear information underneath: never overlay text. */
+  #privateDashboard #epClientHome .ep-home-grid{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:12px!important;align-items:stretch!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile:not([hidden]){
+    box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+    justify-content:flex-end!important;align-items:stretch!important;
+    height:202px!important;min-height:202px!important;max-height:none!important;
+    padding:0!important;overflow:hidden!important;
+    background-size:100% 64%!important;background-repeat:no-repeat!important;
+    background-position:center top!important;background-color:#100c09!important;
+    border-radius:17px!important;transform:none!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile::before,
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile::after{
+    content:none!important;display:none!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile .ep-home-icon,
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile .ep-home-link{
+    display:none!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile .ep-home-copy{
+    box-sizing:border-box!important;position:relative!important;inset:auto!important;
+    display:flex!important;flex-direction:column!important;justify-content:center!important;
+    width:100%!important;min-height:73px!important;max-height:none!important;
+    padding:8px 10px!important;margin:0!important;gap:3px!important;
+    background:#110d0b!important;opacity:1!important;transform:none!important;
+    text-align:left!important;z-index:2!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile .ep-home-copy strong{
+    font:600 clamp(14px,3.8vw,18px)/1.15 Georgia,serif!important;
+    color:#f6e7cf!important;text-shadow:none!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid .ep-home-tile .ep-home-copy small{
+    display:block!important;font:400 11px/1.2 system-ui,sans-serif!important;
+    color:#d7c6ac!important;text-shadow:none!important;
+  }
+  /* Admin profile is a horizontal, full-width card. */
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid .ep-home-profile:not([hidden]){
+    grid-column:1/-1!important;width:100%!important;max-width:none!important;
+    height:138px!important;min-height:138px!important;
+    background-size:100% 100%!important;background-position:center!important;
+  }
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid .ep-home-profile .ep-home-copy{
+    min-height:67px!important;
+  }
+  /* Slim one-row shortcuts instead of the tall secondary menu. */
+  #privateDashboard #epClientHome .ep-mobile-shortcuts,
+  #privateDashboard #epClientHome .ep-home-shortcuts,
+  #privateDashboard #epClientHome .ep-luxury-shortcuts{
+    display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+    align-items:stretch!important;gap:3px!important;
+    padding:5px 3px!important;margin:10px 0 0!important;
+    width:100%!important;min-height:0!important;
+  }
+  #privateDashboard #epClientHome .ep-mobile-shortcuts button,
+  #privateDashboard #epClientHome .ep-home-shortcuts button,
+  #privateDashboard #epClientHome .ep-luxury-shortcuts button{
+    flex:1 1 0!important;min-width:0!important;
+    padding:7px 2px!important;min-height:44px!important;
+    font-size:10px!important;line-height:1.1!important;
+  }
+  /* The already-existing Inicio button is sufficient. */
+  #privateDashboard .ep-section-return{display:none!important}
+}
+</style>
 
 </body>
 </html>
