@@ -6902,5 +6902,85 @@ render();
 })();
 </script>
 
+
+<style id="ep-mobile-polish-20261111">
+@media(max-width:700px){
+  /* Pantallas de inicio y secciones: un solo contenedor desplazable */
+  #privateDashboard:not([hidden]){overflow:hidden!important}
+  #privateDashboard #epClientHome:not([hidden]),
+  #privateDashboard #epPrivateInner:not([hidden]){
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding-bottom:calc(34px + env(safe-area-inset-bottom,0px))!important;
+    scroll-padding-top:16px!important;
+  }
+  #privateDashboard #epClientHome .ep-home-intro{
+    display:block!important;visibility:visible!important;
+    opacity:1!important;max-height:none!important;
+    padding:0!important;
+  }
+  #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile[hidden]{
+    display:none!important;
+  }
+  #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){
+    grid-column:1/-1!important;width:100%!important;max-width:100%!important;
+  }
+  #privateDashboard #epPrivateInner .private-panel{
+    padding:16px 8px 22px!important;
+    margin:0!important;
+    background:transparent!important;
+  }
+  #privateDashboard #epPrivateInner .private-panel h2{
+    scroll-margin-top:18px!important;
+  }
+  #privateDashboard #epPrivateInner .ep-section-return{
+    display:inline-flex!important;align-items:center;justify-content:center;
+    min-height:43px;margin:0 0 18px!important;padding:9px 18px!important;
+    color:#f1d29a!important;background:#251708!important;
+    border:1px solid #bc8d48!important;border-radius:12px!important;
+    font:700 15px system-ui,sans-serif!important;cursor:pointer;
+  }
+  #privateDashboard .ep-mobile-shortcuts{
+    position:relative!important;bottom:auto!important;
+    margin-top:22px!important;margin-bottom:16px!important;
+    flex:0 0 auto!important;
+  }
+  #privateDashboard .ep-mobile-shortcuts button{
+    touch-action:manipulation!important;cursor:pointer!important;
+  }
+}
+@media(min-width:701px){
+  #privateDashboard .ep-section-return{display:none!important}
+}
+</style>
+<script id="ep-mobile-polish-navigation">
+(function(){
+  const inner=document.getElementById('epPrivateInner');
+  const home=document.getElementById('epClientHome');
+  const dash=document.getElementById('privateDashboard');
+  if(!inner||!home||!dash)return;
+  const panel=inner.querySelector('.private-panel');
+  if(panel&&!panel.querySelector('.ep-section-return')){
+    const back=document.createElement('button');
+    back.type='button';back.className='ep-section-return';
+    back.textContent='← Inicio';
+    back.addEventListener('click',()=>document.getElementById('epBackHome')?.click());
+    panel.prepend(back);
+  }
+  function resetScroll(){
+    if(!home.hidden)home.scrollTop=0;
+    if(!inner.hidden)inner.scrollTop=0;
+  }
+  let oldHome=home.hidden,oldInner=inner.hidden;
+  const obs=new MutationObserver(()=>{
+    if(oldHome!==home.hidden||oldInner!==inner.hidden){
+      oldHome=home.hidden;oldInner=inner.hidden;resetScroll();
+    }
+  });
+  obs.observe(home,{attributes:true,attributeFilter:['hidden']});
+  obs.observe(inner,{attributes:true,attributeFilter:['hidden']});
+})();
+</script>
+
 </body>
 </html>
