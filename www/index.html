@@ -7223,145 +7223,7 @@ render();
 
 
 
-<style id="ep-mobile-definitivo-v6">
-@media (max-width:700px){
-#privateDashboard:not([hidden]){overflow:hidden!important}
-#privateDashboard #epClientHome:not([hidden]){
-  display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
-  gap:10px!important;box-sizing:border-box!important;min-height:0!important;
-  padding:10px 12px 12px!important;margin:0!important;width:100%!important;
-  max-width:none!important;overflow-y:auto!important;overflow-x:hidden!important;
-  background:#020202!important;scrollbar-width:none!important;
-}
-#privateDashboard #epClientHome::before,#privateDashboard #epClientHome::after{display:none!important;content:none!important}
-#privateDashboard #epClientHome .ep-home-intro{
-  flex:0 0 auto!important;box-sizing:border-box!important;min-height:0!important;
-  margin:0!important;padding:12px 15px!important;width:100%!important;
-  border:2px solid #dca641!important;border-radius:18px!important;
-  background:linear-gradient(90deg,#0009,#0003),url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=85') center/cover!important;
-  text-align:left!important;box-shadow:0 0 12px #be8b3555!important;
-}
-#privateDashboard #epClientHome .ep-home-intro>span{font:700 10px/1.2 Arial,sans-serif!important;color:#fff!important;letter-spacing:.08em!important}
-#privateDashboard #epClientHome .ep-home-intro h1{font:700 clamp(23px,5.8vw,34px)/1.08 Georgia,serif!important;margin:6px 0!important;letter-spacing:0!important;text-align:left!important;color:#fff!important}
-#privateDashboard #epClientHome .ep-home-intro p{font:400 clamp(11px,2.8vw,14px)/1.25 Arial,sans-serif!important;margin:0!important;color:#fff!important;text-align:left!important}
-#privateDashboard #epClientHome .ep-home-grid{
-  flex:0 0 auto!important;display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;
-  gap:10px!important;margin:0!important;padding:0!important;width:100%!important;
-}
-#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){
-  display:flex!important;position:relative!important;isolation:isolate!important;
-  box-sizing:border-box!important;grid-column:auto!important;grid-row:auto!important;
-  width:100%!important;max-width:none!important;height:clamp(140px,17.8dvh,192px)!important;
-  min-height:0!important;margin:0!important;padding:10px!important;
-  align-items:flex-start!important;justify-content:flex-end!important;flex-direction:column!important;
-  border:2px solid #dfa83e!important;border-radius:19px!important;
-  background-position:center!important;background-size:cover!important;
-  overflow:hidden!important;box-shadow:0 0 10px #d3973544!important;
-  text-align:left!important;
-}
-#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile[hidden],
-#privateDashboard #epClientHome .ep-home-grid>.ep-admin-home-only[hidden]{display:none!important}
-#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile::before{
-  display:block!important;content:""!important;position:absolute!important;inset:0!important;
-  z-index:-1!important;background:linear-gradient(180deg,transparent 12%,#0003 45%,#000e 100%)!important;
-  pointer-events:none!important;
-}
-#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile::after{display:none!important;content:none!important}
-#privateDashboard #epClientHome .ep-home-grid .ep-home-icon{
-  display:block!important;flex:none!important;position:relative!important;
-  width:auto!important;height:auto!important;margin:0 0 5px!important;padding:0!important;
-  border:0!important;background:none!important;box-shadow:none!important;
-  font-size:24px!important;line-height:1!important;color:#f6c666!important;
-}
-#privateDashboard #epClientHome .ep-home-grid .ep-home-copy{
-  display:flex!important;flex-direction:column!important;align-items:flex-start!important;
-  gap:4px!important;position:relative!important;z-index:2!important;
-  width:100%!important;max-width:100%!important;min-width:0!important;
-  margin:0!important;padding:0!important;background:none!important;
-  border:0!important;box-shadow:none!important;text-align:left!important;
-}
-#privateDashboard #epClientHome .ep-home-grid .ep-home-copy strong{
-  display:block!important;position:static!important;margin:0!important;padding:0!important;
-  font:700 clamp(17px,4.4vw,23px)/1.08 Georgia,serif!important;
-  color:#fff!important;text-shadow:0 2px 6px #000!important;
-}
-#privateDashboard #epClientHome .ep-home-grid .ep-home-copy small{
-  display:block!important;position:static!important;margin:0!important;padding:0!important;
-  font:400 clamp(10px,2.6vw,13px)/1.22 Arial,sans-serif!important;
-  color:#fff!important;text-shadow:0 2px 6px #000!important;
-}
-#privateDashboard #epClientHome .ep-home-grid .ep-home-link{display:none!important}
-#privateDashboard #epClientHome .ep-home-grid>.ep-home-profile:not([hidden]){
-  background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=85')!important;
-}
-#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){
-  grid-column:1/-1!important;grid-row:auto!important;
-  flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;
-  height:clamp(54px,7.2dvh,72px)!important;min-height:0!important;padding:8px 12px!important;
-  background-image:linear-gradient(90deg,#120b06e8,#291604b8),url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=85')!important;
-}
-#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-icon{
-  margin:0 9px 0 0!important;font-size:25px!important;
-}
-#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-copy{
-  display:grid!important;grid-template-columns:1.1fr 1fr!important;align-items:center!important;gap:8px!important;
-}
-#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-copy strong{
-  font-size:clamp(15px,3.8vw,19px)!important;
-}
-#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-copy small{
-  border-left:1px solid #d6a348!important;padding-left:8px!important;
-  font-size:clamp(9px,2.4vw,12px)!important;
-}
-#privateDashboard #epClientHome #epLuxuryMotto{
-  flex:0 0 auto!important;box-sizing:border-box!important;
-  display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;
-  width:100%!important;max-width:none!important;height:clamp(79px,10dvh,107px)!important;
-  min-height:0!important;margin:0!important;padding:4px!important;
-  border:2px solid #dca640!important;border-radius:18px!important;
-  background:linear-gradient(90deg,#0007,#0003),url('media/nuevo-fondo-dj.png') center/cover!important;
-  box-shadow:0 0 11px #d6a04155!important;
-}
-#privateDashboard #epClientHome #epLuxuryMotto>img{display:block!important;width:25px!important;height:25px!important;margin:0!important;object-fit:contain!important}
-#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text{display:flex!important;flex-direction:column!important;align-items:center!important;gap:0!important}
-#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text strong{
-  font:700 clamp(16px,4.4vw,24px)/1.1 Georgia,serif!important;color:#f5d17c!important;letter-spacing:.07em!important;
-}
-#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text span{
-  display:block!important;font:500 clamp(8px,2.1vw,11px)/1.2 Arial,sans-serif!important;
-  color:#fff!important;letter-spacing:.16em!important;
-}
-#privateDashboard #epClientHome>.ep-mobile-shortcuts{
-  flex:0 0 auto!important;display:flex!important;box-sizing:border-box!important;
-  width:100%!important;max-width:none!important;height:clamp(62px,8dvh,76px)!important;
-  min-height:0!important;margin:0!important;padding:4px!important;
-  border:1.5px solid #d9a443!important;border-radius:17px!important;
-  background:#000!important;box-shadow:0 0 9px #c3903544!important;
-}
-#privateDashboard #epClientHome>.ep-mobile-shortcuts button{
-  flex:1 1 0!important;min-width:0!important;display:flex!important;flex-direction:column!important;
-  align-items:center!important;justify-content:center!important;gap:3px!important;
-  border:0!important;border-right:1px solid #66502b!important;
-  background:transparent!important;color:#fff!important;
-  padding:2px!important;font:500 clamp(8px,2.2vw,11px)/1.1 Arial,sans-serif!important;
-}
-#privateDashboard #epClientHome>.ep-mobile-shortcuts button:last-child{border-right:0!important}
-#privateDashboard #epClientHome>.ep-mobile-shortcuts button>span:first-child{
-  color:#f1c05a!important;font-size:clamp(20px,5.2vw,27px)!important;line-height:1!important;
-}
-#privateDashboard #epClientHome>.ep-mobile-shortcuts button:first-child{
-  box-shadow:inset 0 -4px #f2c65f!important;
-}
-}
-@media(max-width:700px) and (max-height:790px){
-#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){height:clamp(108px,15dvh,145px)!important}
-#privateDashboard #epClientHome .ep-home-intro{padding:8px 12px!important}
-#privateDashboard #epClientHome .ep-home-intro h1{font-size:clamp(20px,5vw,27px)!important}
-#privateDashboard #epClientHome #epLuxuryMotto{height:73px!important}
-#privateDashboard #epClientHome>.ep-mobile-shortcuts{height:55px!important}
-}
-</style>
+
 <script id="ep-mobile-clean-content-v6">
 (function(){
  const home=document.getElementById('epClientHome');
@@ -7395,5 +7257,59 @@ render();
  fix();
 })();
 </script>
+<style id="ep-mobile-reference-20261111">
+/* Solo teléfonos: PC y tablet permanecen intactos. */
+@media screen and (max-width:700px){
+html:has(#privateDashboard:not([hidden])),body:has(#privateDashboard:not([hidden])){overflow:hidden!important}
+#privateDashboard:not([hidden]){position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;display:block!important;background:#000!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
+#privateDashboard .private-top{position:relative!important;inset:auto!important;width:100%!important;min-height:76px!important;height:auto!important;margin:0!important;padding:10px 12px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:7px!important;border-bottom:1px solid #ad7d2c!important;background:#000!important}
+#privateDashboard .private-top>div{flex:1 1 auto!important;min-width:0!important;gap:9px!important}
+#privateDashboard .private-top img{width:42px!important;height:42px!important;object-fit:contain!important}
+#privateDashboard .private-top strong{font:700 clamp(11px,2.8vw,15px)/1.18 Georgia,serif!important;color:#e9b952!important;letter-spacing:0!important}
+#privateDashboard #privateLogout{flex:0 0 auto!important;width:auto!important;max-width:40%!important;padding:10px 11px!important;border:1.5px solid #d8a644!important;border-radius:40px!important;background:#050505!important;color:#fff2d2!important;font-size:clamp(10px,2.7vw,13px)!important;box-shadow:0 0 9px #e3ad4055!important}
+#privateDashboard #epLuxurySidebar{display:none!important}
+#privateDashboard #epClientHome:not([hidden]){position:relative!important;inset:auto!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;gap:14px!important;width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;overflow:visible!important;margin:0!important;padding:16px 12px 28px!important;background:#000!important;transform:none!important}
+#privateDashboard #epClientHome::before,#privateDashboard #epClientHome::after{content:none!important;display:none!important}
+#privateDashboard #epClientHome .ep-home-intro{flex:none!important;width:100%!important;height:auto!important;min-height:140px!important;margin:0!important;padding:18px 16px!important;border:2px solid #d9a441!important;border-radius:20px!important;text-align:left!important;background:linear-gradient(90deg,#000c,#0003),url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=85') center/cover!important;box-shadow:0 0 13px #c38e3455!important}
+#privateDashboard #epClientHome .ep-home-intro>span{font:700 11px/1.3 Arial,sans-serif!important;color:#fff!important;letter-spacing:.08em!important}
+#privateDashboard #epClientHome .ep-home-intro h1{font:700 clamp(25px,6.6vw,38px)/1.07 Georgia,serif!important;letter-spacing:0!important;margin:8px 0!important;color:#fff!important;text-align:left!important}
+#privateDashboard #epClientHome .ep-home-intro p{font:400 clamp(12px,3.1vw,15px)/1.4 Arial,sans-serif!important;color:#fff!important;margin:5px 0 0!important;text-align:left!important}
+#privateDashboard #epClientHome .ep-home-grid{flex:none!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:12px!important;width:100%!important;margin:0!important;padding:0!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile[hidden]{display:none!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]){position:relative!important;isolation:isolate!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;grid-column:auto!important;grid-row:auto!important;width:100%!important;max-width:none!important;height:clamp(205px,57vw,280px)!important;min-height:0!important;margin:0!important;padding:12px!important;overflow:hidden!important;border:2px solid #e3a83c!important;border-radius:20px!important;background-size:cover!important;background-position:center!important;text-align:left!important;box-shadow:0 0 11px #dca03955!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile::before{content:""!important;display:block!important;position:absolute!important;inset:0!important;z-index:-1!important;background:linear-gradient(180deg,transparent 25%,#0003 48%,#000f 100%)!important;pointer-events:none!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile::after{content:none!important;display:none!important}
+#privateDashboard #epClientHome .ep-home-grid .ep-home-icon{position:relative!important;display:block!important;flex:none!important;width:auto!important;height:auto!important;margin:0 0 7px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;color:#f3c15b!important;font-size:29px!important;line-height:1!important;text-shadow:0 1px 5px #000!important}
+#privateDashboard #epClientHome .ep-home-grid .ep-home-copy{position:relative!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;gap:6px!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;text-align:left!important}
+#privateDashboard #epClientHome .ep-home-grid .ep-home-copy::before,#privateDashboard #epClientHome .ep-home-grid .ep-home-copy::after,#privateDashboard #epClientHome .ep-home-grid .ep-home-copy strong::before,#privateDashboard #epClientHome .ep-home-grid .ep-home-copy small::before{content:none!important;display:none!important}
+#privateDashboard #epClientHome .ep-home-grid .ep-home-copy strong{position:static!important;display:block!important;margin:0!important;padding:0!important;font:700 clamp(19px,5vw,27px)/1.08 Georgia,serif!important;color:#fff!important;text-shadow:0 2px 6px #000!important;overflow-wrap:normal!important}
+#privateDashboard #epClientHome .ep-home-grid .ep-home-copy small{position:static!important;display:block!important;margin:0!important;padding:0!important;font:400 clamp(11px,3vw,15px)/1.3 Arial,sans-serif!important;color:#fff!important;text-shadow:0 2px 6px #000!important}
+#privateDashboard #epClientHome .ep-home-grid .ep-home-link{display:none!important}
+/* Fotografías sin textos integrados y encuadre centrado. */
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-events{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=85')!important;background-position:center 48%!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-calendar{background-image:url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=85')!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-organizers{background-image:url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=85')!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-manage{background-image:url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=85')!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-budgets{background-image:url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=85')!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-profile{background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=85')!important}
+#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){grid-column:1/-1!important;grid-row:auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;height:74px!important;min-height:74px!important;padding:9px 12px!important;background-image:linear-gradient(90deg,#070504e8,#211205c9),url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=85')!important}
+#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-icon{margin:0 10px 0 0!important;font-size:28px!important}
+#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-copy{display:grid!important;grid-template-columns:1.1fr 1fr!important;align-items:center!important;gap:10px!important}
+#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-copy strong{font-size:clamp(16px,4.1vw,22px)!important}
+#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile .ep-home-copy small{border-left:1px solid #d5a344!important;padding-left:10px!important;font-size:clamp(10px,2.65vw,13px)!important}
+#privateDashboard #epClientHome #epLuxuryMotto{position:relative!important;flex:none!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:100%!important;max-width:none!important;height:116px!important;min-height:116px!important;margin:0!important;padding:9px!important;border:2px solid #dfa83e!important;border-radius:20px!important;background:linear-gradient(90deg,#0005,#0004),url('media/nuevo-fondo-dj.png') center/cover!important;box-shadow:0 0 11px #dca03955!important}
+#privateDashboard #epClientHome #epLuxuryMotto>img{display:block!important;width:37px!important;height:37px!important;object-fit:contain!important}
+#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text{display:flex!important;flex-direction:column!important;align-items:center!important;gap:3px!important}
+#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text strong{font:700 clamp(19px,5.5vw,28px)/1.1 Georgia,serif!important;letter-spacing:.055em!important;color:#f5d17c!important}
+#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text span{font:500 clamp(9px,2.45vw,13px)/1.2 Arial,sans-serif!important;color:#fff!important;letter-spacing:.15em!important}
+#privateDashboard #epClientHome>.ep-mobile-shortcuts{position:relative!important;inset:auto!important;flex:none!important;display:flex!important;align-items:stretch!important;width:100%!important;max-width:none!important;height:80px!important;min-height:80px!important;margin:0!important;padding:5px 3px!important;border:1.5px solid #d9a443!important;border-radius:18px!important;background:#000!important;box-shadow:0 0 10px #c3903544!important;overflow:hidden!important}
+#privateDashboard #epClientHome>.ep-mobile-shortcuts button{display:flex!important;flex:1 1 0!important;min-width:0!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;margin:0!important;padding:3px 1px!important;border:0!important;border-right:1px solid #574324!important;border-radius:0!important;background:transparent!important;color:#fff!important;font:500 clamp(8px,2.35vw,12px)/1.12 Arial,sans-serif!important;white-space:normal!important}
+#privateDashboard #epClientHome>.ep-mobile-shortcuts button:last-child{border-right:0!important}
+#privateDashboard #epClientHome>.ep-mobile-shortcuts button>span:first-child{color:#f4bd4e!important;font-size:clamp(22px,6vw,30px)!important;line-height:1!important}
+#privateDashboard #epClientHome>.ep-mobile-shortcuts button:first-child{box-shadow:inset 0 -4px #f2c65f!important}
+#privateDashboard #epPrivateInner:not([hidden]){position:relative!important;inset:auto!important;width:100%!important;max-width:none!important;height:auto!important;min-height:calc(100dvh - 85px)!important;overflow:visible!important;margin:0!important;padding:12px!important;transform:none!important}
+#privateDashboard #epPrivateInner .private-panel{overflow:visible!important;min-width:0!important}
+}
+</style>
 </body>
 </html>
