@@ -7577,5 +7577,20 @@ html body #privateDashboard #epClientHome .ep-home-intro{order:0!important}
 html body #privateDashboard #epClientHome .ep-home-grid{order:1!important}
 }
 </style>
+<style id="ep-mobile-no-gap-structural-v2">
+@media screen and (max-width:700px){
+html body #privateDashboard #epClientHome:not([hidden]){display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:max-content max-content max-content max-content!important;align-content:start!important;justify-content:stretch!important;align-items:start!important;row-gap:7px!important;column-gap:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;padding:7px 7px 8px!important;scroll-padding-top:0!important;}
+html body #privateDashboard #epClientHome>.ep-home-intro{grid-row:1!important;grid-column:1!important;align-self:start!important;min-height:0!important;margin:0!important;}
+html body #privateDashboard #epClientHome>.ep-home-grid{grid-row:2!important;grid-column:1!important;align-self:start!important;min-height:0!important;margin:0!important;gap:7px!important;}
+html body #privateDashboard #epClientHome>#epLuxuryMotto{grid-row:3!important;grid-column:1!important;align-self:start!important;justify-self:stretch!important;min-height:0!important;max-height:75px!important;height:65px!important;margin:0!important;}
+html body #privateDashboard #epClientHome>.ep-mobile-shortcuts:not([hidden]){grid-row:4!important;grid-column:1!important;align-self:start!important;justify-self:stretch!important;height:72px!important;min-height:0!important;margin:0!important;}
+html body #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):not(.ep-home-profile){height:clamp(100px,13dvh,138px)!important;}
+html body #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){height:56px!important;}
+html body #privateDashboard #epClientHome .ep-home-grid .ep-home-copy{max-width:100%!important;}
+html body #privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text strong{font-size:clamp(15px,4vw,22px)!important;letter-spacing:.06em!important;}
+html body #privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text span{font-size:9px!important;letter-spacing:.1em!important;}
+}
+</style>
+<script id="ep-mobile-reset-home-scroll-v2">(function(){const ready=()=>{const home=document.getElementById('epClientHome');if(!home)return;let wasHidden=home.hidden;new MutationObserver(()=>{if(wasHidden&&!home.hidden){home.scrollTop=0;}wasHidden=home.hidden;}).observe(home,{attributes:true,attributeFilter:['hidden','class']});};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();})();</script>
 </body>
 </html>
