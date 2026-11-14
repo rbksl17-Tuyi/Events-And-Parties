@@ -3445,15 +3445,32 @@ section[hidden]{display:none!important}
  #privateDashboard #epPrivateInner table{display:block!important;max-width:100%!important;overflow-x:auto!important}
 }
 </style>
+
+<style id="ep-splash-nuevas-imagenes-20261114">
+/* Bienvenida: imágenes originales sin recortes ni deformaciones. */
+#splash.splash{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;padding:0;background:#000!important;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#splash.splash::before{display:none!important}
+#splash .ep-splash-art{position:relative;width:min(100vw,177.7778dvh);aspect-ratio:16/9;flex:none;max-width:100vw;max-height:100dvh}
+#splash .ep-splash-art picture,#splash .ep-splash-art img{display:block;width:100%;height:100%}
+#splash .ep-splash-art img{object-fit:contain;object-position:center}
+#splash .splash-enter{position:absolute;left:50%;top:79%;transform:translateX(-50%);width:25%;height:11%;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:999px;background:transparent!important;color:transparent!important;box-shadow:none!important;cursor:pointer;touch-action:manipulation;z-index:2}
+#splash .splash-enter:focus-visible{outline:3px solid #f4d78e;outline-offset:3px}
+#splash .ep-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media(max-width:700px){
+ #splash .ep-splash-art{width:min(100vw,66.6667dvh);aspect-ratio:2/3}
+ #splash .splash-enter{top:80%;width:50%;height:10%}
+}
+</style>
 </head>
   
 <body>
 <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Bienvenida a Events and Parties">
-  <div class="splash-content">
-    <img class="splash-logo" src="media/logo.png?v=logo-nuevo-20261114" alt="Events and Parties, logo dorado">
-    <div class="splash-line"></div>
-    <p class="splash-subtitle">Música · Luces · Emociones</p>
-    <button class="splash-enter" type="button" id="splashEnter">Entrar ahora</button>
+  <div class="ep-splash-art">
+    <picture>
+      <source media="(max-width:700px)" srcset="media/entrada-movil.png?v=20261114">
+      <img src="media/entrada-pc.png?v=20261114" alt="Events and Parties. Música, emociones y pasión." fetchpriority="high">
+    </picture>
+    <button class="splash-enter" type="button" id="splashEnter" aria-label="Entrar ahora"><span class="ep-sr-only">Entrar ahora</span></button>
   </div>
 </div>
 
