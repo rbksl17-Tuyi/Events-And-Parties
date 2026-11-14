@@ -3469,6 +3469,18 @@ section[hidden]{display:none!important}
 #splash .splash-enter:hover,#splash .splash-enter:focus-visible,#splash .splash-enter:active,#splash .splash-enter.ep-entrando{background:linear-gradient(135deg,#f8d78a,#c38b34)!important;color:#120d06!important;border-color:#ffe2a0!important;box-shadow:0 0 25px #d9ad58aa!important}
 
 </style>
+<style id="ep-formulario-premium-2026">
+#contacto .form{max-width:880px;gap:17px 20px;align-items:start}
+#contacto .ep-field{min-width:0}
+#contacto .ep-field>label{display:block;margin-bottom:8px;color:#e8c482;font-size:.94rem;font-weight:650}
+#contacto .ep-field input,#contacto .ep-field select,#contacto .ep-field textarea{min-height:54px;border:1px solid #987341;border-radius:12px;background:#121111;color:#fff4dd;padding:13px 16px}
+#contacto .ep-field input:focus,#contacto .ep-field select:focus,#contacto .ep-field textarea:focus{outline:2px solid #d8ad55;outline-offset:1px}
+#contacto .ep-field input::placeholder,#contacto .ep-field textarea::placeholder{color:#b7aa98}
+#contacto .ep-date-wrap input{color-scheme:dark;accent-color:#d7ad55;cursor:pointer}
+#contacto .ep-date-wrap input::-webkit-calendar-picker-indicator{cursor:pointer;filter:sepia(1) saturate(2) hue-rotate(350deg) brightness(1.5);width:23px;height:23px}
+#contacto .ep-field textarea{min-height:115px;width:100%}
+@media(max-width:700px){#contacto .form{grid-template-columns:1fr}#contacto .ep-field.full{grid-column:auto}}
+</style>
 </head>
   
 <body>
@@ -3663,13 +3675,12 @@ section[hidden]{display:none!important}
   <div class="eyebrow">Hablemos de tu fecha</div><h2 class="section-title">Cuéntanos qué estás preparando</h2>
   <p class="lead">Cuéntanos los detalles y se abrirá WhatsApp con tu solicitud de presupuesto preparada.</p>
   <form class="form" id="quoteForm">
-    <input name="nombre" placeholder="Tu nombre" required>
-    
-<label for="fechaEvento">Fecha del evento (si la sabes)</label>
-<input type="date" id="fechaEvento" name="fecha" style="color-scheme:dark;cursor:pointer">
-    <select name="tipo" required><option value="">Tipo de evento</option><option>Boda</option><option>Evento privado</option><option>Cumpleaños</option><option>Ceremonia</option><option>Evento escolar / colegio</option><option>Sonido e iluminación</option><option>Otro evento</option></select>
-    <input name="lugar" placeholder="Lugar o localidad">
-    <textarea name="detalles" placeholder="Cuéntanos un poco más (invitados, servicios, estilo musical...)"></textarea>
+    <div class="ep-field"><label for="ep-nombre">Tu nombre</label><input id="ep-nombre" name="nombre" placeholder="Escribe tu nombre" required></div>
+    <div class="ep-field ep-date-wrap"><label for="fechaEvento">Fecha del evento (si la sabes)</label><input type="date" id="fechaEvento" name="fecha" aria-label="Fecha del evento" style="color-scheme:dark;cursor:pointer"></div>
+    <div class="ep-field"><label for="ep-tipo">Tipo de evento</label><select id="ep-tipo" name="tipo" required><option value="">Selecciona el tipo de evento</option><option>Boda</option><option>Evento privado</option><option>Cumpleaños</option><option>Ceremonia</option><option>Evento escolar / colegio</option><option>Sonido e iluminación</option><option>Otro evento</option></select></div>
+    <div class="ep-field"><label for="ep-lugar">Lugar del evento</label><input id="ep-lugar" name="lugar" placeholder="Finca, restaurante o espacio"></div>
+    <div class="ep-field"><label for="ep-localidad">Localidad</label><input id="ep-localidad" name="localidad" placeholder="Municipio o ciudad"></div>
+    <div class="ep-field full"><label for="ep-detalles">Cuéntanos un poco más</label><textarea id="ep-detalles" name="detalles" placeholder="Invitados, servicios, estilo musical, detalles especiales..."></textarea></div>
     <fieldset class="full" style="border:1px solid #876536;border-radius:12px;padding:15px"><legend style="color:#f0c87a">¿Qué servicios necesitas?</legend><div class="ep-services"><label><input type="checkbox" name="servicios" value="DJ y música">DJ y música</label><label><input type="checkbox" name="servicios" value="Equipo de sonido">Equipo de sonido</label><label><input type="checkbox" name="servicios" value="Iluminación">Iluminación</label><label><input type="checkbox" name="servicios" value="Ceremonia">Ceremonia</label><label><input type="checkbox" name="servicios" value="Animación y juegos">Animación y juegos</label><label><input type="checkbox" name="servicios" value="Montaje técnico">Montaje técnico</label></div></fieldset>
     <input name="invitados" type="number" min="1" placeholder="Número aproximado de invitados">
     <input name="horario" placeholder="Horario aproximado (por ejemplo, 18:00 a 23:00)">
@@ -3789,7 +3800,7 @@ document.getElementById('year').textContent=new Date().getFullYear();
 const WHATSAPP_NUMBER='34652799029';
 document.getElementById('quoteForm').addEventListener('submit',function(e){
  e.preventDefault();const d=new FormData(this);
- const msg = `Hola, me gustaría consultar disponibilidad y presupuesto.\nNombre: ${d.get('nombre')}\nFecha: ${d.get('fecha')}\nTipo: ${d.get('tipo')}\nLugar: ${d.get('lugar')}\nServicios: ${d.getAll('servicios').join(', ') || 'Por concretar'}\nInvitados: ${d.get('invitados') || 'Por concretar'}\nHorario: ${d.get('horario') || 'Por concretar'}\nDetalles: ${d.get('detalles')}`;
+ const msg = `Hola, me gustaría consultar disponibilidad y presupuesto.\nNombre: ${d.get('nombre')}\nFecha: ${d.get('fecha')}\nTipo: ${d.get('tipo')}\nLugar: ${d.get('lugar')}\nLocalidad: ${d.get('localidad')}\nServicios: ${d.getAll('servicios').join(', ') || 'Por concretar'}\nInvitados: ${d.get('invitados') || 'Por concretar'}\nHorario: ${d.get('horario') || 'Por concretar'}\nDetalles: ${d.get('detalles')}`;
  window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 });
 </script>
