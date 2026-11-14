@@ -3453,14 +3453,16 @@ section[hidden]{display:none!important}
 #splash .ep-splash-art{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:auto}
 #splash .ep-splash-art picture,#splash .ep-splash-art img{display:block;width:100%;height:100%}
 #splash .ep-splash-art img{object-fit:cover;object-position:center center}
-/* El botón de la fotografía queda debajo de un botón real y accesible. */
-#splash .splash-enter{position:absolute;left:50%;bottom:13%;top:auto;transform:translateX(-50%);width:clamp(200px,24vw,360px);height:clamp(48px,6vw,70px);min-width:0;min-height:0;margin:0;padding:0 15px;border:2px solid #b68a4b;border-radius:999px;background:linear-gradient(160deg,rgba(20,15,10,.96),rgba(48,33,17,.95))!important;color:#e8c28b!important;box-shadow:inset 0 1px 1px #e2bd8650,0 0 15px #b68a4b45!important;font:700 clamp(16px,1.6vw,23px)/1.2 system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;touch-action:manipulation;z-index:2;transition:background .18s,color .18s,border-color .18s,box-shadow .18s}
+/* Difumina el botón impreso en la foto hasta sustituir las imágenes por versiones limpias. */
+#splash .ep-splash-art::after{content:"";position:absolute;left:50%;bottom:10%;transform:translateX(-50%);width:min(76vw,550px);height:clamp(110px,15dvh,175px);border-radius:40px;backdrop-filter:blur(32px) brightness(.62);-webkit-backdrop-filter:blur(32px) brightness(.62);mask-image:radial-gradient(ellipse at center,#000 45%,transparent 76%);pointer-events:none;z-index:1}
+
+#splash .splash-enter{position:absolute;left:50%;bottom:15%;top:auto;transform:translateX(-50%);width:clamp(220px,26vw,370px);height:clamp(48px,6vw,70px);min-width:0;min-height:0;margin:0;padding:0 15px;border:2px solid #c69a57;border-radius:999px;background:linear-gradient(160deg,#090909,#20160d)!important;color:#e9c487!important;box-shadow:inset 0 1px 1px #e2bd8650,0 0 15px #b68a4b45!important;font:700 clamp(16px,1.6vw,23px)/1.2 system-ui,sans-serif;letter-spacing:.02em;cursor:pointer;touch-action:manipulation;z-index:2;transition:background .18s,color .18s,border-color .18s,box-shadow .18s}
 #splash .splash-enter:hover,#splash .splash-enter:focus-visible{background:linear-gradient(135deg,#d8b275,#ad7937)!important;color:#16100a!important;border-color:#ffe0a0;box-shadow:0 0 24px #d4a05a99!important;outline:2px solid #f9d9a3;outline-offset:3px}
 #splash .splash-enter:active{background:#f1cc90!important;color:#0d0905!important;box-shadow:0 0 28px #f1cc90aa!important}
 #splash .ep-sr-only{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:nowrap}
 @media(max-width:700px){
  #splash .ep-splash-art{width:100%;height:100%;aspect-ratio:auto}
- #splash .splash-enter{bottom:15%;width:48%;max-width:310px;height:clamp(48px,7.5dvh,66px);font-size:clamp(15px,4vw,21px)}
+ #splash .splash-enter{bottom:16%;width:54%;max-width:340px;height:clamp(48px,7.5dvh,66px);font-size:clamp(15px,4vw,21px)}
 }
 </style>
 </head>
@@ -3469,8 +3471,8 @@ section[hidden]{display:none!important}
 <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Bienvenida a Events and Parties">
   <div class="ep-splash-art">
     <picture>
-      <source media="(max-width:700px)" srcset="media/entrada-movil.png?v=20261114">
-      <img src="media/entrada-pc.png?v=20261114" alt="Events and Parties. Música, emociones y pasión." fetchpriority="high">
+      <source media="(max-width:700px)" srcset="media/entrada-movil.png?v=20261114b">
+      <img src="media/entrada-pc.png?v=20261114b" alt="Events and Parties. Música, emociones y pasión." fetchpriority="high">
     </picture>
     <button class="splash-enter" type="button" id="splashEnter" aria-label="Entrar ahora"><span class="ep-sr-only">Entrar ahora</span></button>
   </div>
