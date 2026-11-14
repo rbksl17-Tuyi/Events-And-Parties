@@ -7602,5 +7602,48 @@ html body #privateDashboard #epClientHome[hidden]>.ep-mobile-shortcuts{display:n
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
+<style id="ep-mobile-fix-real-20261114">
+@media (max-width:700px){
+ html body #privateDashboard:not([hidden]){position:fixed!important;inset:0!important;display:flex!important;flex-direction:column!important;height:100dvh!important;min-height:0!important;overflow:hidden!important}
+ html body #privateDashboard .private-top{position:relative!important;top:auto!important;flex:0 0 auto!important;z-index:2!important}
+ html body #privateDashboard #epClientHome:not([hidden]){display:block!important;position:relative!important;flex:1 1 auto!important;box-sizing:border-box!important;height:auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;scroll-padding-top:0!important;padding:7px 8px 10px!important;margin:0!important;transform:none!important}
+ html body #privateDashboard #epClientHome>.ep-home-intro{display:block!important;position:relative!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0 0 8px!important;padding:9px 11px!important;transform:none!important}
+ html body #privateDashboard #epClientHome>.ep-home-grid{display:grid!important;position:relative!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:min-content!important;align-content:start!important;align-items:stretch!important;gap:8px!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;transform:none!important}
+ html body #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):not(.ep-home-profile){height:clamp(100px,13dvh,135px)!important;min-height:0!important;margin:0!important;grid-column:auto!important;grid-row:auto!important}
+ html body #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){grid-column:1/-1!important;height:55px!important;min-height:0!important;margin:0!important}
+ html body #privateDashboard #epClientHome>#epLuxuryMotto:not([hidden]){display:flex!important;position:relative!important;inset:auto!important;box-sizing:border-box!important;width:100%!important;height:65px!important;min-height:65px!important;max-height:65px!important;margin:8px 0 0!important;padding:3px!important;transform:none!important}
+ html body #privateDashboard #epClientHome>.ep-mobile-shortcuts:not([hidden]){display:flex!important;position:relative!important;inset:auto!important;box-sizing:border-box!important;width:100%!important;height:72px!important;min-height:72px!important;max-height:72px!important;margin:8px 0 0!important;padding:3px!important;transform:none!important}
+ html body #privateDashboard #epClientHome .ep-home-intro h1{font-size:clamp(21px,5.2vw,29px)!important;line-height:1.12!important;margin:3px 0!important}
+}
+</style>
+<script id="ep-mobile-fix-runtime-20261114">
+(function(){
+function run(){
+ if(!window.matchMedia('(max-width:700px)').matches)return;
+ const d=document.getElementById('privateDashboard'),h=document.getElementById('epClientHome');if(!d||!h)return;
+ const grid=h.querySelector('.ep-home-grid'),intro=h.querySelector('.ep-home-intro');if(!grid||!intro)return;
+ const motto=document.getElementById('epLuxuryMotto'),nav=h.querySelector('.ep-mobile-shortcuts');
+ if(intro.parentElement!==h)h.prepend(intro);
+ if(grid.previousElementSibling!==intro)intro.after(grid);
+ if(motto&&motto.previousElementSibling!==grid)grid.after(motto);
+ if(nav&&nav.parentElement===h&&nav.previousElementSibling!==(motto||grid))(motto||grid).after(nav);
+ // Neutralizar estilos inline antiguos y las reglas de distribución que creaban el hueco.
+ const imp=(e,k,v)=>{if(e&&e.style.getPropertyValue(k)!==v)e.style.setProperty(k,v,'important')};
+ imp(h,'display',h.hidden?'none':'block');imp(h,'justify-content','flex-start');imp(h,'align-content','start');imp(h,'min-height','0px');imp(h,'height','auto');imp(h,'overflow-y','auto');
+ imp(grid,'display','grid');imp(grid,'align-content','start');imp(grid,'justify-content','stretch');imp(grid,'min-height','0px');imp(grid,'height','auto');
+ for(const e of [intro,grid,motto,nav]){imp(e,'margin-bottom','0px');if(e!==intro)imp(e,'margin-top',e===grid?'0px':'8px');}
+ if(!h.hidden&&d.dataset.epMobileLastHome!=='shown'){h.scrollTop=0;d.dataset.epMobileLastHome='shown'}
+ if(h.hidden)d.dataset.epMobileLastHome='hidden';
+}
+function init(){run();const h=document.getElementById('epClientHome'),d=document.getElementById('privateDashboard');if(!h||!d)return;
+ new MutationObserver(run).observe(h,{attributes:true,attributeFilter:['hidden','class']});
+ new MutationObserver(run).observe(d,{attributes:true,attributeFilter:['hidden']});
+ window.addEventListener('resize',run);
+ document.addEventListener('click',e=>{if(e.target.closest('#epBackHome,[data-home-destination]'))requestAnimationFrame(()=>{run();if(!h.hidden)h.scrollTop=0})},true);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body>
 </html>
