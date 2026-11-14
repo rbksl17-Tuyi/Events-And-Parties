@@ -7555,42 +7555,52 @@ html body #privateDashboard #epClientHome[hidden]>.ep-mobile-shortcuts{display:n
 @media(max-width:700px) and (max-height:690px){html body #privateDashboard #epClientHome:not([hidden]){gap:5px!important;padding-top:5px!important}html body #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):not(.ep-home-profile){height:clamp(76px,11.5dvh,95px)!important}html body #privateDashboard #epClientHome #epLuxuryMotto:not([hidden]){height:55px!important;min-height:55px!important}html body #privateDashboard #epClientHome:not([hidden])>.ep-mobile-shortcuts{height:58px!important;min-height:58px!important}}
 </style>
 
-<style id="ep-mobile-fix-20261114-final">
-@media screen and (max-width:700px){
-/* Mantener los elementos en flujo normal; neutralizar reglas antiguas de separación. */
-html body #privateDashboard:not([hidden]){display:flex!important;flex-direction:column!important;position:fixed!important;inset:0!important;height:100dvh!important;overflow:hidden!important}
-html body #privateDashboard>.private-top{flex:0 0 auto!important;position:relative!important;top:auto!important;transform:none!important}
-html body #privateDashboard #epClientHome:not([hidden]){display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;flex:1 1 auto!important;position:relative!important;inset:auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;gap:clamp(5px,.85dvh,9px)!important;margin:0!important;padding:7px 10px 8px!important;scrollbar-width:none!important}
-html body #privateDashboard #epClientHome .ep-home-intro{flex:0 0 auto!important;position:relative!important;inset:auto!important;transform:none!important;margin:0!important;padding:10px 12px!important;min-height:0!important;height:auto!important;max-height:none!important}
-html body #privateDashboard #epClientHome .ep-home-intro h1{font-size:clamp(19px,5.3vw,28px)!important;line-height:1.12!important;margin:4px 0!important}
-html body #privateDashboard #epClientHome .ep-home-intro p{font-size:clamp(10px,2.6vw,12px)!important;line-height:1.25!important;margin:3px 0!important}
-html body #privateDashboard #epClientHome .ep-home-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;align-content:start!important;flex:0 0 auto!important;gap:clamp(6px,.85dvh,9px)!important;position:relative!important;inset:auto!important;margin:0!important;padding:0!important;height:auto!important;min-height:0!important;max-height:none!important}
-html body #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):not(.ep-home-profile){display:flex!important;position:relative!important;inset:auto!important;grid-column:auto!important;grid-row:auto!important;width:100%!important;min-width:0!important;height:clamp(105px,14dvh,145px)!important;min-height:0!important;max-height:none!important;margin:0!important;padding:10px!important}
-html body #privateDashboard #epClientHome .ep-home-grid>.ep-home-profile:not([hidden]){display:flex!important;position:relative!important;inset:auto!important;grid-row:auto!important;margin:0!important;min-height:0!important}
-html body #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){grid-column:1/-1!important;width:100%!important;height:clamp(53px,7dvh,65px)!important;min-height:0!important;max-height:none!important;padding:7px 12px!important;background-image:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.18)),url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=85')!important;background-size:cover!important;background-position:center!important}
-html body #privateDashboard #epClientHome .ep-home-grid .ep-home-copy strong{font-size:clamp(15px,3.8vw,20px)!important;line-height:1.1!important}
-html body #privateDashboard #epClientHome .ep-home-grid .ep-home-copy small{font-size:clamp(10px,2.5vw,12px)!important;line-height:1.2!important}
-html body #privateDashboard #epClientHome #epLuxuryMotto{display:flex!important;flex:0 0 auto!important;position:relative!important;inset:auto!important;top:auto!important;bottom:auto!important;transform:none!important;align-self:stretch!important;width:100%!important;height:clamp(61px,8dvh,78px)!important;min-height:0!important;max-height:none!important;margin:0!important;margin-top:0!important;margin-bottom:0!important;padding:4px!important;order:2!important}
-html body #privateDashboard #epClientHome .ep-mobile-shortcuts:not([hidden]){display:flex!important;flex:0 0 auto!important;position:relative!important;inset:auto!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;transform:none!important;align-self:stretch!important;width:100%!important;height:clamp(62px,8dvh,75px)!important;min-height:0!important;max-height:none!important;margin:0!important;margin-top:0!important;margin-bottom:0!important;padding:3px!important;order:3!important}
-html body #privateDashboard #epClientHome .ep-mobile-shortcuts[hidden]{display:none!important}
-html body #privateDashboard #epClientHome .ep-home-intro{order:0!important}
-html body #privateDashboard #epClientHome .ep-home-grid{order:1!important}
+
+
+<script id="ep-mobile-reset-home-scroll-v2-old">(function(){const ready=()=>{const home=document.getElementById('epClientHome');if(!home)return;let wasHidden=home.hidden;new MutationObserver(()=>{if(wasHidden&&!home.hidden){home.scrollTop=0;}wasHidden=home.hidden;}).observe(home,{attributes:true,attributeFilter:['hidden','class']});};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();})();</script>
+
+<style id="ep-mobile-layout-unificado-20261114">
+@media(max-width:700px){
+#privateDashboard:not([hidden]){position:fixed!important;inset:0!important;height:100dvh!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+#privateDashboard>.private-top{position:relative!important;flex:0 0 auto!important;top:auto!important;transform:none!important}
+#privateDashboard #epClientHome:not([hidden]){position:relative!important;inset:auto!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;gap:7px!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;padding:7px 7px 10px!important;margin:0!important;scrollbar-width:none!important;scroll-behavior:auto!important}
+#privateDashboard #epClientHome>.ep-home-intro{position:relative!important;inset:auto!important;flex:0 0 auto!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:8px 12px!important;order:0!important}
+#privateDashboard #epClientHome>.ep-home-intro h1{font-size:clamp(19px,5vw,27px)!important;line-height:1.1!important;margin:3px 0!important}
+#privateDashboard #epClientHome>.ep-home-intro p{font-size:clamp(10px,2.5vw,12px)!important;line-height:1.2!important;margin:2px 0!important}
+#privateDashboard #epClientHome>.ep-home-grid{position:relative!important;inset:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:max-content!important;align-content:start!important;gap:7px!important;flex:0 0 auto!important;min-height:0!important;height:auto!important;max-height:none!important;margin:0!important;padding:0!important;order:1!important}
+#privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):not(.ep-home-profile){display:flex!important;position:relative!important;inset:auto!important;grid-column:auto!important;grid-row:auto!important;width:100%!important;height:clamp(99px,12.8dvh,137px)!important;min-height:0!important;max-height:none!important;margin:0!important;padding:8px!important}
+#privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){display:flex!important;grid-column:1/-1!important;grid-row:auto!important;position:relative!important;inset:auto!important;width:100%!important;max-width:none!important;height:55px!important;min-height:0!important;max-height:55px!important;margin:0!important;padding:6px 12px!important;background-image:linear-gradient(90deg,rgba(0,0,0,.4),rgba(0,0,0,.08)),url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=85')!important;background-size:cover!important;background-position:center!important}
+#privateDashboard #epClientHome>#epLuxuryMotto{position:relative!important;inset:auto!important;display:flex!important;flex:0 0 65px!important;align-self:stretch!important;width:100%!important;max-width:none!important;height:65px!important;min-height:65px!important;max-height:65px!important;margin:0!important;padding:3px!important;order:2!important}
+#privateDashboard #epClientHome>.ep-mobile-shortcuts:not([hidden]){position:relative!important;inset:auto!important;display:flex!important;flex:0 0 72px!important;align-self:stretch!important;width:100%!important;max-width:none!important;height:72px!important;min-height:72px!important;max-height:72px!important;margin:0!important;padding:3px!important;order:3!important}
+#privateDashboard #epClientHome>.ep-mobile-shortcuts[hidden]{display:none!important}
+#privateDashboard #epClientHome .ep-mobile-shortcuts button{flex:1 1 0!important;min-width:0!important;padding:2px 1px!important;font-size:clamp(8px,2vw,10px)!important;overflow-wrap:anywhere!important}
+#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text strong{font-size:clamp(15px,4vw,21px)!important;letter-spacing:.04em!important}
+#privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text span{font-size:9px!important;letter-spacing:.07em!important}
 }
 </style>
-<style id="ep-mobile-no-gap-structural-v2">
-@media screen and (max-width:700px){
-html body #privateDashboard #epClientHome:not([hidden]){display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:max-content max-content max-content max-content!important;align-content:start!important;justify-content:stretch!important;align-items:start!important;row-gap:7px!important;column-gap:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;padding:7px 7px 8px!important;scroll-padding-top:0!important;}
-html body #privateDashboard #epClientHome>.ep-home-intro{grid-row:1!important;grid-column:1!important;align-self:start!important;min-height:0!important;margin:0!important;}
-html body #privateDashboard #epClientHome>.ep-home-grid{grid-row:2!important;grid-column:1!important;align-self:start!important;min-height:0!important;margin:0!important;gap:7px!important;}
-html body #privateDashboard #epClientHome>#epLuxuryMotto{grid-row:3!important;grid-column:1!important;align-self:start!important;justify-self:stretch!important;min-height:0!important;max-height:75px!important;height:65px!important;margin:0!important;}
-html body #privateDashboard #epClientHome>.ep-mobile-shortcuts:not([hidden]){grid-row:4!important;grid-column:1!important;align-self:start!important;justify-self:stretch!important;height:72px!important;min-height:0!important;margin:0!important;}
-html body #privateDashboard #epClientHome .ep-home-grid>.ep-home-tile:not([hidden]):not(.ep-home-profile){height:clamp(100px,13dvh,138px)!important;}
-html body #privateDashboard #epClientHome.ep-is-admin .ep-home-grid>.ep-home-profile:not([hidden]){height:56px!important;}
-html body #privateDashboard #epClientHome .ep-home-grid .ep-home-copy{max-width:100%!important;}
-html body #privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text strong{font-size:clamp(15px,4vw,22px)!important;letter-spacing:.06em!important;}
-html body #privateDashboard #epClientHome #epLuxuryMotto .ep-motto-text span{font-size:9px!important;letter-spacing:.1em!important;}
-}
-</style>
-<script id="ep-mobile-reset-home-scroll-v2">(function(){const ready=()=>{const home=document.getElementById('epClientHome');if(!home)return;let wasHidden=home.hidden;new MutationObserver(()=>{if(wasHidden&&!home.hidden){home.scrollTop=0;}wasHidden=home.hidden;}).observe(home,{attributes:true,attributeFilter:['hidden','class']});};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();})();</script>
+<script id="ep-mobile-layout-dom-repair">
+(function(){
+ const homeId='epClientHome';
+ function repair(){
+  if(!matchMedia('(max-width:700px)').matches)return;
+  const home=document.getElementById(homeId);if(!home)return;
+  const grid=home.querySelector('.ep-home-grid'),intro=home.querySelector('.ep-home-intro');
+  const motto=document.getElementById('epLuxuryMotto'),nav=home.querySelector('.ep-mobile-shortcuts');
+  if(!grid||!intro)return;
+  // Un orden DOM explícito, sin filas vacías ni espacios de distribución.
+  if(motto&&motto.parentNode!==home)home.appendChild(motto);
+  if(motto&&grid.nextElementSibling!==motto)grid.after(motto);
+  if(nav&&nav.parentNode===home){if(motto&&motto.nextElementSibling!==nav)motto.after(nav);else if(!motto&&grid.nextElementSibling!==nav)grid.after(nav)}
+  for(const el of [intro,grid,motto,nav])if(el){el.style.setProperty('margin-top','0','important');el.style.setProperty('margin-bottom','0','important');el.style.setProperty('transform','none','important')}
+ }
+ function reset(){const home=document.getElementById(homeId);if(home&&!home.hidden){home.scrollTop=0;requestAnimationFrame(()=>home.scrollTop=0)}}
+ function init(){repair();reset();const home=document.getElementById(homeId);if(!home)return;let old=home.hidden;
+ new MutationObserver(()=>{repair();if(old&&!home.hidden)reset();old=home.hidden}).observe(home,{attributes:true,attributeFilter:['hidden','class']});
+ const dash=document.getElementById('privateDashboard');if(dash)new MutationObserver(()=>{repair();reset()}).observe(dash,{attributes:true,attributeFilter:['hidden']});
+ document.addEventListener('click',e=>{if(e.target.closest('#epBackHome,[data-home-destination]'))requestAnimationFrame(()=>{repair();reset()})},true);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body>
 </html>
